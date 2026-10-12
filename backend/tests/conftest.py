@@ -153,3 +153,28 @@ def docx_with_table() -> bytes:
         d.sections[0].header.paragraphs[0].text = "Arjun Mehta | +91 98765 43210"
 
     return _docx(build)
+
+
+@pytest.fixture
+def jd_factory():
+    from app.schemas import JDAnalysis, Requirement
+
+    def make(**overrides) -> JDAnalysis:
+        base = dict(
+            is_job_description=True,
+            title="Backend Engineer",
+            company="Acme",
+            role_family="software_engineering",
+            employer_type="product_startup",
+            seniority="mid",
+            min_years=None,
+            location="Bengaluru",
+            suggested_region="india",
+            requirements=[
+                Requirement(id="r1", text="Python", type="hard_skill", importance="must", keywords=["python"])
+            ],
+            ats_keywords=["Python"],
+        )
+        return JDAnalysis(**(base | overrides))
+
+    return make

@@ -1,0 +1,467 @@
+# Region pack: International (Indian candidates applying abroad)
+# Markets covered: US, UK/Ireland, EU (incl. Germany/DACH), Gulf/UAE, Canada, Singapore, Australia/NZ.
+# Norms are written to hold broadly; country exceptions are called out in context/tips text.
+# Research basis (checked Oct 2026): Jobscan Fortune 500 ATS reports 2025-26 (Workday ~39-40%,
+# SuccessFactors ~12-13%); 2025-26 ATS share samples (Greenhouse and Ashby strongest at tech
+# employers); UK university careers services (Glasgow, Surrey: 2-page graduate CV is standard);
+# Australian careers guidance (2-3 pages, no photo, referees common); Canadian newcomer guidance
+# (no photo/DOB, state work-permit status); German AGG (photo legally optional, still ~80% use);
+# UAE/Gulf guidance (photo, nationality and visa status customary); US H-1B $100K fee
+# proclamation (Sept 2025) vacated in June 2026, extended Sept 2026, still in litigation.
+#
+# Severity choices:
+# - Protected-characteristic items (photo, DOB, age, marital status, gender, religion/caste,
+#   father's name) are MAJOR: US Title VII / ADEA / INA 274B, UK Equality Act 2010, Canadian
+#   human-rights codes and Australian anti-discrimination law make many recruiters discard or
+#   redact such resumes to avoid bias claims.
+# - nationality is MINOR: it is legitimately listed in Gulf and Singapore CVs (visa/quota
+#   processing) and is sometimes optional in Germany; elsewhere a work-authorization line
+#   replaces it, so it is a convention miss rather than a hard red flag.
+# - full_address is MINOR: a street address is a privacy and convention issue (city + country
+#   is the global norm), not a protected characteristic.
+# - Length: mid-level is 2 pages because UK/IE/AU/NZ/EU/Gulf accept 2 pages and most US
+#   recruiters now accept 2 pages for mid-career; executive is 3 because 2-3 pages is the
+#   standard executive norm in the US and Australia.
+
+key: international
+label: International
+weights:
+  match: 0.40
+  ats: 0.25
+  quality: 0.25
+  region: 0.10
+page_size: us-letter
+
+length_norms:
+  - level: fresher
+    max_pages: 1
+  - level: junior
+    max_pages: 1
+  - level: mid
+    max_pages: 2
+  - level: senior
+    max_pages: 2
+  - level: executive
+    max_pages: 3
+
+personal_rules:
+  - id: photo
+    label: Photo on resume
+    patterns:
+      - '^\W*(?:recent\s+|passport[\s-]*size\s+)?photo(?:graph)?\s*[:\-–]?\s*$'
+      - '\bpassport[\s-]*size[d]?\s+photo(?:graph)?s?\b'
+      - '\bphotograph\s*[:\-–]'
+    severity:
+      default: major
+    message: "A photo invites appearance-based bias claims, so many US, UK, Canadian and Australian recruiters screen out or redact resumes that include one. Germany/DACH and the Gulf are the exceptions, where a professional headshot is still common."
+    fix: "Remove the photo for US, UK, Canada, Australia, Singapore and global tech roles. Add a professional headshot only when the role is in Germany/DACH or the Gulf, or the posting asks for one."
+
+  - id: dob
+    label: Date of birth
+    patterns:
+      - '^\W*date\s+of\s+birth\b'
+      - '\bdate\s+of\s+birth\s*[:\-–]'
+      - '\bdate\s+of\s+birth\s+(?:\d|(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\b)'
+      - '\bd\.?o\.?b\b\.?\s*(?::|[\-–]\s*\d|[\-–]\s+\w|\d|\s\d)'
+      - '\bbirth\s*date\s*[:\-–]'
+      - '^\W*born\s*(?:on\s*)?[:\-–]?\s*\d'
+    severity:
+      default: major
+    message: "Your date of birth reveals your age. Age discrimination law (US ADEA, UK Equality Act 2010, Canadian and Australian human-rights law) makes recruiters avoid resumes that include it, and it adds nothing to your case."
+    fix: "Delete the date of birth. Employers collect it after the offer for payroll and visa paperwork. Germany and the Gulf are the only markets where it is still sometimes included."
+
+  - id: age
+    label: Age
+    patterns:
+      - '^\W*age\s*[:\-–]?\s*\d{2}\b'
+      - '\bage\s*[:\-–]\s*\d{2}\b'
+      - '\b\d{2}\s*(?:years?|yrs?)\s+old\b'
+    severity:
+      default: major
+    message: "Stating your age is a protected-characteristic disclosure (US ADEA, UK Equality Act 2010, Canada, Australia) and is a red flag for international recruiters."
+    fix: "Remove your age. Let your graduation year and experience dates speak for themselves."
+
+  - id: marital_status
+    label: Marital status
+    patterns:
+      - '\bmarital\s+status\b'
+      - '\bspouse\W{0,3}s?\s+name\b'
+    severity:
+      default: major
+    message: "Marital and family status is protected under UK, Canadian and Australian law and under many US state laws. Listing it marks the resume as unfamiliar with local norms."
+    fix: "Delete marital status and spouse details. If you need a dependant visa or relocation support, raise it at the offer stage, not on the resume."
+
+  - id: gender
+    label: Gender
+    patterns:
+      - '\bgender\s*[:\-–]?\s*(?:male|female|man|woman|m|f|non[\s-]?binary)\b'
+      - '^\W*sex\s*[:\-–]\s*(?:male|female|m|f)\b'
+    severity:
+      default: major
+    message: "Gender is a protected characteristic (US Title VII, UK Equality Act 2010, Canada, Australia). Recruiters do not want it on a resume."
+    fix: "Remove the gender field. If you want, use pronouns in your LinkedIn profile or email signature instead."
+
+  - id: religion
+    label: Religion or caste
+    patterns:
+      - '\b(?:religion|caste|sub[\s-]?caste)\s*:'
+      - '^\W*(?:religion|caste)\s*[:\-–]?\s*(?:hindu\w*|muslim|islam\w*|christian\w*|sikh\w*|jain\w*|buddhis\w*|parsi|zoroastrian\w*|general|obc|sc|st)\b'
+      - '\b(?:caste\s+)?category\s*[:\-–]\s*(?:obc|sc|st|ews)\b'
+    severity:
+      default: major
+    message: "Religion and caste are protected characteristics under US, UK, Canadian and Australian law, and caste is now named in several US anti-discrimination policies. Listing them is a serious red flag abroad."
+    fix: "Delete religion, caste and category fields entirely. Keep faith-based volunteering only if it is relevant to the role, and describe it by its impact."
+
+  - id: nationality
+    label: Nationality or passport details
+    patterns:
+      - '\bnationality\s*[:\-–]'
+      - '^\W*nationality\b'
+      - '\bcitizenship\s*[:\-–]\s*indian\b'
+      - '\bpassport\s*(?:no\.?|num(?:ber)?|#|details)\s*[:\-–]'
+      - '\bpassport\s*(?:no\.?|number|#)?\s*[:\-–]?\s*[a-z]\s?\d{7}\b'
+      - '\b(?:date|place)\s+of\s+(?:issue|expiry)\b'
+    severity:
+      default: minor
+    message: "Nationality and passport details don't tell a US, UK, Canadian or Australian recruiter whether you can work there, and passport numbers are an identity-theft risk. Gulf and Singapore CVs do commonly list nationality."
+    fix: "Replace nationality and passport data with a work-authorization line, e.g. 'Work authorization: requires H-1B sponsorship' or 'UK Graduate visa, valid to Aug 2027'. Keep nationality only for Gulf or Singapore roles. Never list passport numbers."
+
+  - id: father_name
+    label: Father's or family member's name
+    patterns:
+      - '\b(?:father|mother|guardian|husband)\W{0,3}s?\s+(?:name|occupation)\b'
+      - '^\W*[sd]/o\b'
+      - '\b[sd]/o\s*[:\-]?\s*(?:mr|shri|sri|late)\b'
+    severity:
+      default: major
+    message: "Parent or family names are an India-specific bio-data convention. Abroad they are irrelevant, can reveal caste, religion or ethnicity, and immediately mark the resume as non-international."
+    fix: "Delete father's, mother's or guardian's name and occupation. Your own name and contact details are all the header needs."
+
+  - id: full_address
+    label: Full street address or PIN code
+    patterns:
+      - '\b(?:permanent|present|residential|correspondence|communication|postal|mailing)\s+address\b'
+      - '\b(?:pin(?:\s*code)?|pincode|postal\s*code|zip(?:\s*code)?)\s*[:\-–]?\s*(?:\d{3}\s?\d{3}|\d{5})\b'
+      - '\b(?:house|flat|plot|door|h)\s*\.?\s*no\b\.?\s*[:\-–]?\s*[\w/-]*\d'
+      - '\b(?:andhra\s+pradesh|assam|bihar|chhattisgarh|delhi|goa|gujarat|haryana|himachal\s+pradesh|jharkhand|karnataka|kerala|madhya\s+pradesh|maharashtra|odisha|orissa|punjab|rajasthan|tamil\s*nadu|telangana|uttar\s+pradesh|uttarakhand|west\s+bengal|chandigarh|puducherry)\s*[,\-–]?\s*\d{3}\s?\d{3}\b'
+      - '\b(?:mumbai|bengaluru|bangalore|hyderabad|chennai|kolkata|pune|new\s+delhi|noida|gurugram|gurgaon|ahmedabad|jaipur|lucknow|kochi|indore|coimbatore|thiruvananthapuram|bhubaneswar|nagpur|vadodara|surat|visakhapatnam|mysuru|mysore)\s*[,\-–]?\s*\d{3}\s?\d{3}\b'
+    severity:
+      default: minor
+    message: "A full street address with PIN code is a privacy risk and an outdated convention. International recruiters only need your city and country, and an Indian street address without a relocation note suggests you are not ready to move."
+    fix: "Use 'City, Country' plus your relocation intent, e.g. 'Pune, India · Relocating to Berlin, Mar 2027'. Drop the house number, street, PIN code and 'Permanent Address' block."
+
+term_rules:
+  - id: ctc
+    label: CTC / salary on resume
+    patterns:
+      - '\bctc\b'
+      - '\bcost\s+to\s+(?:the\s+)?company\b'
+      - '\b\d+(?:\.\d+)?\s*lpa\b'
+      - '\b(?:current|expected|present)\s+(?:salary|package|compensation)\b'
+    severity:
+      default: minor
+    message: "'CTC' and 'LPA' are Indian payroll terms that foreign recruiters don't use, and salary details don't belong on a resume. Several US states and cities ban salary-history questions."
+    fix: "Remove CTC, LPA and expected-salary lines. Discuss pay when asked, as an annual base figure in the local currency (e.g. 'US$120K base')."
+
+  - id: lakh_crore
+    label: Lakh / crore / Indian number format
+    patterns:
+      # Amounts are NOT flagged when written the recommended way: '₹10 Cr (~US$1.2M)' or '~US$1.2M (₹10 Cr)'.
+      - '(?<![(\w])(?:₹|rs\.?|inr)\s?\d[\d,.]*\+?\s*(?:lakhs?|lacs?|crores?|crs?|l)\b(?!\s*\(\s*~?\s*(?:us\$|usd|\$|£|gbp|€|eur|aed|sgd|cad|aud))'
+      - '(?<![(\w₹.,])\d[\d,.]*\+?\s*(?:lakhs?|lacs?|crores?|cr)\b(?!\s*\(\s*~?\s*(?:us\$|usd|\$|£|gbp|€|eur|aed|sgd|cad|aud))'
+      - '(?<!\d)(?<!\d\s)(?<!\+)(?<!\+\s)\b(?:lakhs?|crores?)\b'
+      - '(?:(?<![(\w])(?:₹|rs\.?|inr)\s?|(?<![(₹\w.,]))\d{1,2}(?:,\d{2})+,\d{3}\b(?!\s*\(\s*~?\s*(?:us\$|usd|\$|£|gbp|€|eur|aed|sgd|cad|aud))'
+    severity:
+      default: minor
+    message: "Lakh, crore, 'Cr' and Indian digit grouping (12,50,000) are unfamiliar outside South Asia, so recruiters can't size your impact."
+    fix: "Convert to the reader's units: '₹10 Cr' becomes '~US$1.2M (₹10 Cr)', '₹50 lakh' becomes '~US$60K', and 12,50,000 becomes 1.25M. Better still, show the change as a percentage ('cut cloud spend 32%')."
+
+  - id: fresher
+    label: '"Fresher"'
+    patterns:
+      - '\bfreshers?\b'
+    severity:
+      default: minor
+    message: "'Fresher' is Indian English. Abroad it reads as odd or unclear."
+    fix: "Write 'Recent graduate (B.Tech Computer Science, May 2026)', 'Entry-level' or 'Graduate software engineer'. For hiring you did, write 'graduate hires' or 'new grads'."
+
+  - id: school_marks
+    label: 10th/12th (Class X/XII, SSC/HSC) marks
+    patterns:
+      - '\b(?:10th|12th|tenth|twelfth|x|xii)\s*(?:std\.?|standard|grade|class|board|boards|marks|percentage|exam(?:ination)?s?)\b'
+      - '\b(?:class|std\.?|standard|grade)\s*(?:x|xii|10|12|10th|12th)\b(?!\s*(?:extends|implements|\{|\())'
+      - '\b(?:cbse|sslc|hslc|ssc|hsc|puc|pre[\s-]university)\b'
+      - '\b(?:higher|senior)\s+secondary\b'
+      - '\bsecondary\s+school\s+certificate\b'
+      - '\bmatriculation\b'
+      - '\b(?:icse|isc|state)\s+board\b'
+    severity:
+      default: minor
+    message: "Employers abroad never ask for high-school board results once you hold a degree. Listing them wastes space and signals an India-only template."
+    fix: "Delete the Class X/XII (SSC/HSC/CBSE) rows and keep only your degree(s). If a school result was exceptional, turn it into one line, e.g. 'All-India Rank 312 in JEE Advanced (top 0.2% of ~180K candidates)'."
+
+  - id: declaration
+    label: Declaration statement
+    patterns:
+      - '^\W*declaration\W*$'
+      - '\bi\s+(?:hereby\s+)?declare\s+that\b'
+      - '\bhereby\s+(?:declare|certify|affirm)\b'
+      - '\btrue\s+(?:and\s+correct\s+)?to\s+the\s+best\s+of\s+my\s+knowledge\b'
+    severity:
+      default: minor
+    message: "'I hereby declare that the above information is true…' is an Indian bio-data convention. Foreign recruiters find it odd, and it takes up space."
+    fix: "Delete the declaration, place, date and signature lines entirely. Submitting the application already attests to its accuracy."
+
+  - id: cgpa_scale
+    label: CGPA without scale
+    patterns:
+      - '\b(?:c?gpa|cpi|sgpa)\s*(?:of\s+|[:\-–]\s*)?\d{1,2}(?:\.\d{1,3})?(?![\d.])(?!\s*\(?\s*(?:/|out\s+of|on\s+a|on)\s*\d)'
+      - '(?<![/\d.])\b\d{1,2}\.\d{1,3}\s*(?:c?gpa|cpi)\b'
+    severity:
+      default: minor
+    message: "A GPA without its scale is ambiguous abroad. US readers assume a 4.0 scale, so '8.4' looks impossible or confusing."
+    fix: "Always show the scale, e.g. 'CGPA 8.4/10'. Add a rank when it helps ('top 10% of 120'). Don't convert to a US 4.0 GPA unless a credential evaluator like WES has done it."
+
+  - id: pass_out
+    label: '"Pass out" / "passed out"'
+    patterns:
+      - '\bpass(?:ed|ing)?[\s-]?outs?\b'
+      - '\byear\s+of\s+pass(?:ing)?\b'
+    severity:
+      default: minor
+    message: "'Passed out' means 'fainted' in US and UK English. 'Year of passing' is likewise Indian English."
+    fix: "Write 'Graduated May 2025', 'Class of 2025' or just the date range, e.g. 'B.Tech, NIT Trichy, 2021–2025'."
+
+  - id: needful_kindly
+    label: '"Do the needful" / "kindly"'
+    patterns:
+      - '\bdo\s+the\s+needful\b'
+      - '\bkindly\b'
+      - '\bprepone[ds]?\b'
+    severity:
+      default: minor
+    message: "'Do the needful', 'kindly' and 'prepone' are Indian English. To foreign readers they sound archaic or unclear."
+    fix: "Use plain business English. 'Kindly find attached' becomes 'I've attached', 'do the needful' becomes a specific request ('please confirm the interview slot'), and 'prepone' becomes 'move earlier' or 'bring forward'."
+
+  - id: respected_sir
+    label: '"Respected Sir/Madam" style salutations'
+    patterns:
+      - '\brespected\s+(?:sir|madam|ma.?am|sirs)\b'
+      - '\bto\s+whomsoever\s+it\s+may\s+concern\b'
+      - '\bthanking\s+you\s+in\s+anticipation\b'
+      - '\byours\s+obedient(?:ly)?\b'
+    severity:
+      default: minor
+    message: "'Respected Sir/Madam', 'To whomsoever it may concern' and 'Thanking you in anticipation' are Indian formal-letter forms. Abroad they read as dated, and the 'Sir/Madam' part can read as gendered."
+    fix: "Write 'Dear Ms Rivera' (or 'Dear Ms. Rivera' in the US). If you don't know the name, use 'Dear Hiring Manager' or 'Dear Data Platform Hiring Team'. Close with 'Kind regards' or 'Sincerely' and your name."
+
+  - id: mnc
+    label: '"MNC" / "reputed organisation"'
+    patterns:
+      - '\bmncs?\b'
+      - '\breputed\s+(?:mnc|company|companies|organi[sz]ations?|firms?|institutes?|brands?)\b'
+      - '\besteemed\s+(?:organi[sz]ation|company|firm|institution)\b'
+    severity:
+      default: minor
+    message: "'MNC' is an Indian shorthand that recruiters abroad rarely use, and 'reputed/esteemed organisation' is filler. Neither tells the reader anything."
+    fix: "Name the company and give a quick sense of its size, e.g. 'Siemens Healthineers (Fortune Global 500, 70K employees)' or 'a US Fortune 100 insurer (client)'. Cut 'reputed' and 'esteemed'."
+
+  - id: references_on_request
+    label: '"References available on request"'
+    patterns:
+      - '\b(?:references?|referees?)\s+(?:are\s+|will\s+be\s+)?(?:available\s+)?(?:up)?on\s+(?:request|demand)\b'
+    severity:
+      default: minor
+    message: "Employers assume you will provide references when asked, so this line only uses space. In Australia and New Zealand, naming 2 referees is common but still optional."
+    fix: "Delete the line. List referees only if the posting asks or you are applying in Australia/NZ, and get each referee's consent first."
+
+expectations: []
+
+drop_sections:
+  - id: declaration
+    label: Declaration section
+    patterns:
+      - '^\s*(?:self[\s-]?)?declarations?\s*:?\s*$'
+      - '^\s*declaration\s*(?:&|and)\s*(?:signature|undertaking)\s*:?\s*$'
+      - '^\s*undertaking\s*:?\s*$'
+    severity:
+      default: major
+    message: "A Declaration section is an Indian bio-data relic. International recruiters see it as a sign of an outdated template."
+    fix: "Delete the whole section, including the place, date and signature."
+
+  - id: personal_details
+    label: Personal details / bio-data section
+    patterns:
+      - '^\s*personal\s+(?:details|information|info|particulars|data|dossier)\s*:?\s*$'
+      - '^\s*(?:personal\s+)?bio[\s-]?data\s*:?\s*$'
+      - '^\s*family\s+(?:details|background|information)\s*:?\s*$'
+    severity:
+      default: major
+    message: "A 'Personal Details' block usually holds date of birth, gender, marital status, nationality, father's name and languages, most of which international recruiters must not consider. (A UK-style 'Personal Profile' summary is fine and is not flagged.)"
+    fix: "Delete the section. Move your name, city/country, phone, email and LinkedIn to the header, put languages (with CEFR levels) under Skills, and add a one-line work-authorization status."
+
+  - id: signature_block
+    label: Signature / place and date block
+    patterns:
+      - '^\s*(?:signature|place\s*(?:&|and|/|,)\s*date|date\s*(?:&|and|/|,)\s*place)\s*:?\s*$'
+    severity:
+      default: minor
+    message: "Signature and place/date lines belong to the Indian declaration format. They don't appear on US, UK, Canadian or Australian resumes."
+    fix: "Remove them. A signature is only customary at the end of a German Lebenslauf or Anschreiben."
+
+ats_platforms:
+  - Workday Recruiting
+  - SAP SuccessFactors Recruiting
+  - Oracle Recruiting Cloud (incl. legacy Oracle Taleo)
+  - iCIMS
+  - Greenhouse
+  - Ashby
+  - Lever
+  - SmartRecruiters
+  - Workable
+  - Jobvite
+  - Teamtailor
+  - Bullhorn (staffing agencies)
+
+recruiter_persona: >-
+  A senior technical recruiter at a global company with hiring hubs in the US, UK, EU, the Gulf
+  and APAC, who screens hundreds of international applicants a week, many of them from India.
+  They know top Indian institutions and employers (IITs, Infosys, Flipkart) by name but not
+  second-tier ones. They judge each resume against the norms of the country in the job posting,
+  look first for role fit, measurable impact and a clear work-authorization or sponsorship
+  status, and quietly mark down resumes that include protected personal details, India-specific
+  jargon (CTC, lakh/crore, fresher, 10th/12th marks) or unexplained local references.
+
+context:
+  - "Judge against the country in the JD: US, UK/Ireland, Canada, Australia/NZ and Singapore follow anglophone norms. Germany/DACH and the Gulf are more traditional. When the location is unclear, default to US/UK norms."
+  - "No photo, date of birth, age, gender, marital status, religion/caste or father's name for US, UK, Canada or Australia: anti-discrimination law (US Title VII/ADEA, UK Equality Act 2010, Canadian human-rights codes, Australian federal law) leads recruiters to discard or redact such resumes. Exceptions: a professional photo is still common in Germany/DACH and the Gulf, and Gulf/Singapore CVs often list nationality."
+  - "State work authorization in one header line, e.g. 'Requires H-1B sponsorship', 'UK Graduate visa valid to Aug 2027', 'Canadian PGWP valid to 2028' or 'UAE residence visa, transferable'. Recruiters filter on this first. Never list passport or visa numbers."
+  - "For the US, employer sponsorship of hires from abroad has become rarer and costlier since 2025 (the H-1B $100K fee for new petitions for workers outside the US is still in litigation). Highlight in-country status such as F-1 OPT/STEM OPT, intra-company transfer (L-1/ICT) routes or open work permits where they apply."
+  - "Header: name, city and country plus relocation intent (e.g. 'Pune, India · Relocating to Berlin, Mar 2027'), a phone number with +91 or the local country code, a professional email, and LinkedIn/GitHub/portfolio links. No street address, PIN code or 'Permanent Address' block."
+  - "Express money and scale in units the reader knows: percentages, or USD/GBP/EUR with the INR figure in brackets (e.g. '~US$1.2M (₹10 Cr)'). Never use CTC, LPA, lakh/crore or Indian digit grouping (12,50,000)."
+  - "Translate India-specific education terms: 'fresher' becomes 'recent graduate', 'pass out' becomes 'graduated'. Drop Class X/XII marks and the Declaration. Show CGPA with its scale ('CGPA 8.4/10'). B.Tech/B.E. is understood as is, and '4-year Bachelor's' can be added when the market expects 4-year degrees."
+  - "Explain lesser-known Indian employers and institutions in a few words, e.g. 'Zerodha (India's largest retail stockbroker)' or 'NIT Trichy (top-10 Indian engineering institute by NIRF)'. Globally known names (IIT, IIM, Infosys, TCS, Flipkart) need no explanation."
+  - "Page length: US/Canada expect 1 page for students and early career (under ~5 years) and 2 pages for mid-career and senior candidates. UK/Ireland, Australia/NZ, the EU and the Gulf accept 2 pages even for graduates (Australia often runs 2–3). Only executives go to 3. Academic CVs are exempt."
+  - "Format: reverse-chronological, single column, standard headings (Summary, Experience, Education, Skills, Projects), dates as 'Mon YYYY', and a text-based PDF or DOCX as the posting asks. US Letter for the US/Canada, A4 everywhere else."
+  - "Match the JD's spelling and vocabulary: US spelling (optimize, program, résumé) for US employers, UK spelling (optimise, programme, CV) for UK/EU/Gulf/Australia/Singapore employers. Be consistent throughout."
+  - "Leave out 'References available on request' and referee details unless the posting asks. Naming 2 referees is common, but optional, in Australia/NZ."
+  - "Use plain international business English, not Indian English: no 'do the needful', 'kindly', 'prepone', 'Respected Sir/Madam', 'MNC' or 'reputed organisation'."
+  - "Lead each bullet with a strong verb, then the scope and a measurable outcome (%, currency, time saved, users, latency). Name tools inside the bullets so ATS keyword matching (Workday, Greenhouse, iCIMS and others) finds them in context."
+
+cover_letter:
+  - "Keep it to 250–350 words on one page, in 3–4 short paragraphs, using the JD's spelling (US or UK) and key terms."
+  - "Address the hiring manager by name when you can find it ('Dear Ms Rivera' UK / 'Dear Ms. Rivera' US). Otherwise use 'Dear Hiring Manager' or 'Dear [Team] Hiring Team'. Never 'Respected Sir/Madam' or 'To whomsoever it may concern'."
+  - "Open with the exact role and a specific reason for this company, then your single strongest matching achievement. Don't open with a self-introduction of your name, degree and college."
+  - "In the middle, map 2–3 quantified achievements to the JD's top requirements, with figures in % or the employer's currency (not lakh/crore). Every claim must come from the resume."
+  - "State work authorization and relocation plainly in one sentence, e.g. 'I hold a UK Graduate visa valid until August 2027 and can start within 30 days' or 'I will require H-1B sponsorship'. Mention your notice period only if it is long (Indian 60–90-day notice periods surprise employers abroad) or if the posting asks."
+  - "Use plain business English: no 'kindly', 'do the needful', 'I humbly request' or 'Thanking you in anticipation'. Close with 'Sincerely' (US) or 'Kind regards' (UK, or 'Yours sincerely' when you used the person's name) and your full name."
+  - "Leave out salary/CTC, personal details, a photo and any Declaration. The exception is German applications, where a formal Anschreiben with a scanned signature is still common."
+
+tips:
+  - id: work_authorization_line
+    text: "Add a one-line work-authorization status under your contact details, e.g. 'Work authorization: requires UK Skilled Worker sponsorship' or 'US: F-1 STEM OPT, eligible to work through 2028'. Recruiters screen on this before anything else. Being upfront beats being rejected after the interviews."
+    employer_types: []
+    levels: []
+    role_families: []
+
+  - id: relocation_intent
+    text: "If you are applying from India, say where you are and when you can move, e.g. 'Hyderabad, India · Relocating to Toronto, Feb 2027 (Canadian PR, COPR issued)'. Without it, recruiters assume you are unavailable or need relocation support."
+    employer_types: []
+    levels: []
+    role_families: []
+
+  - id: country_exceptions_photo
+    text: "Know the exceptions. For a German-language Lebenslauf, or for Gulf/UAE roles, a professional headshot is still customary (optional under Germany's AGG). Gulf CVs also often list nationality and visa status. English-language roles at global tech companies in those markets follow US/UK norms: no photo."
+    employer_types: []
+    levels: []
+    role_families: []
+
+  - id: it_services_client_context
+    text: "From TCS, Infosys, Wipro, HCLTech or Cognizant? Keep your official title but add the function, e.g. 'Systems Engineer (Backend Java Developer)'. Name the client's domain without breaching your NDA ('for a Fortune 100 US insurer'), describe your own contribution rather than the project's, and include any onsite or client-facing time abroad."
+    employer_types: [it_services]
+    levels: []
+    role_families: []
+
+  - id: gcc_parent_brand
+    text: "Frame Global Capability Centre roles with the parent brand, e.g. 'Target (Bengaluru tech centre of Target Corp, US)' or 'Goldman Sachs, Bengaluru'. Highlight cross-timezone work with US/EU teams and work you owned end to end. Recruiters abroad recognise the parent brand, not the GCC entity name."
+    employer_types: [gcc]
+    levels: []
+    role_families: []
+
+  - id: consulting_banking_one_page
+    text: "Consulting and banking resumes in the US, UK and Singapore stay strictly 1 page, even for MBAs and experienced hires. Put education first for MBA/early-career candidates, size engagements and deals in US$ or % ('led a 4-person team on a US$40M cost-out for an Asian telco'), and add test scores (GMAT/GRE) only when they are strong."
+    employer_types: [consulting_mba, bfsi]
+    levels: [fresher, junior, mid]
+    role_families: [consulting_strategy, finance_bfsi]
+
+  - id: finance_credentials_mapping
+    text: "Label Indian finance credentials for a global reader, e.g. 'Chartered Accountant (ICAI, India)'. Note any progress toward local licensure (US CPA, ACCA/ICAEW, CPA Canada, CA ANZ). CFA and FRM travel well. NISM certifications are India-specific, so drop them or make them brief."
+    employer_types: [bfsi, consulting_mba, other]
+    levels: []
+    role_families: [finance_bfsi]
+
+  - id: swe_global_scale
+    text: "For tech roles abroad, show system scale in universal terms (requests/sec, p99 latency, users, data volume, % cost saved) and link a GitHub or portfolio with real projects. For new grads, ICPC regional ranks or a high Codeforces rating help, but raw counts like '500+ LeetCode problems' carry little weight with recruiters."
+    employer_types: []
+    levels: []
+    role_families: [software_engineering]
+
+  - id: data_ml_evidence
+    text: "For data/ML roles, name the dataset size, model and metric, and the business result, e.g. 'XGBoost churn model, AUC 0.87, cut churn 9% (~US$2M ARR)'. Say whether it ran in production. Link papers, Kaggle or Hugging Face work. Global teams screen for deployed impact, not course projects."
+    employer_types: []
+    levels: []
+    role_families: [data_ml]
+
+  - id: india_context_terms
+    text: "Explain India-only references the first time they appear: 'UPI (India's real-time payments network, billions of transactions a month)', 'Aadhaar eKYC (national digital ID verification)', 'GST (India's VAT)'. A one-line gloss turns unfamiliar jargon into evidence of scale."
+    employer_types: []
+    levels: []
+    role_families: [product_management, software_engineering, finance_bfsi, operations]
+
+  - id: pm_outcomes
+    text: "Product managers applying abroad should lead bullets with outcomes (adoption, retention, revenue, NPS) and the decision they drove, e.g. 'Re-scoped onboarding for 3 markets, lifting week-1 activation 18%'. Convert any GMV or revenue figures out of crore into % change or US$."
+    employer_types: []
+    levels: []
+    role_families: [product_management]
+
+  - id: design_portfolio
+    text: "Designers: a portfolio link is effectively mandatory abroad. Show 2–3 case studies with the problem, process, your role and measurable outcomes. Keep the resume itself plain and ATS-readable (single column, no skill-bar graphics, no photo), even if the portfolio is visual."
+    employer_types: []
+    levels: []
+    role_families: [design]
+
+  - id: sales_marketing_global_units
+    text: "Sales and marketing: give quota attainment as a percentage ('132% of a US$1.5M annual quota'), deal sizes and pipeline in US$, and channel results as CAC, ROAS or conversion %. Name your markets (India, APAC, EMEA) so recruiters can judge whether your experience transfers."
+    employer_types: []
+    levels: []
+    role_families: [sales_bd, marketing]
+
+  - id: hr_ops_transferability
+    text: "HR and operations profiles: lead with frameworks and systems that transfer (Workday, SAP SuccessFactors, Lean/Six Sigma with the certifying body, SHRM/CIPD). Quantify cost, SLA, cycle-time or attrition changes in %. Indian labour-law expertise doesn't transfer, so mention local-law knowledge only if you have it."
+    employer_types: []
+    levels: []
+    role_families: [hr, operations]
+
+  - id: new_grad_abroad
+    text: "Recent graduates: replace 'Fresher' with 'Recent graduate (B.Tech Computer Science, May 2026)', keep to 1 page for the US/Canada (2 is fine in the UK/Australia), put Education first with CGPA/10, and give each internship or project a measurable outcome. Drop school marks, hobbies with no evidence, and the objective statement."
+    employer_types: []
+    levels: [fresher, junior]
+    role_families: []
+
+  - id: senior_global_scope
+    text: "Senior and executive candidates: open with a 3–4 line summary of your scope (team size, P&L or budget in US$, regions, reporting line) and global stakeholder exposure. Keep to 2 pages (3 only at executive level). Collapse roles older than 15 years into a one-line 'Earlier career' entry."
+    employer_types: []
+    levels: [senior, executive]
+    role_families: []
+
+  - id: psu_govt_translation
+    text: "From a PSU or government body? Explain the organisation in a few words ('ONGC, India's largest crude oil and gas producer') and translate grade titles ('Assistant Manager (E2)') into function and scope. Drop GATE scores and service-rule details, which mean nothing to recruiters abroad."
+    employer_types: [psu_govt]
+    levels: []
+    role_families: []
+
+  - id: languages_and_credentials
+    text: "List languages with CEFR levels for EU roles (e.g. 'German B1, Goethe-Zertifikat'). Add an IELTS/TOEFL score only when the employer or visa route requires it. For Canada, mention a completed WES credential evaluation, which helps recruiters and immigration programs read Indian degrees."
+    employer_types: []
+    levels: []
+    role_families: []

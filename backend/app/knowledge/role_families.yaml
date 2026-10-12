@@ -1,0 +1,99 @@
+- key: software_engineering
+  label: Software Engineering
+  signals:
+    - Bullets quantify engineering impact on named systems (p95 or p99 latency, throughput, uptime or SLO, infra cost, users or requests served) instead of listing duties
+    - A current, role-relevant stack is named in context (language, framework, cloud such as AWS, GCP or Azure, Docker or Kubernetes, CI/CD) rather than a long unranked keyword dump
+    - Ownership of production systems is shown through design trade-offs, migrations, on-call and incident resolution, code reviews and, at senior levels, mentoring or technical leadership
+    - Engineering quality practices appear with evidence (automated tests and coverage, CI/CD pipelines, observability, fewer defects or rollbacks)
+    - Verifiable proof of work is linked, such as GitHub, shipped products or open-source contributions, and for freshers internships, deployed projects and competitive programming ratings (Codeforces, CodeChef, LeetCode), which weigh most in product-company fresher hiring
+    - Where relevant, AI or LLM integration is described concretely (what shipped, which model or API, how quality was evaluated) and not only as a tool name
+- key: data_ml
+  label: Data Science and Machine Learning
+  signals:
+    - Models or analyses are tied to a business or decision outcome (revenue, cost, conversion, fraud loss, forecast accuracy), not only offline metrics like AUC or F1
+    - Evidence that work reached production, such as model serving, monitoring and drift detection, retraining pipelines, latency and cost figures, and the number of models or users served
+    - Strong SQL and Python foundations plus a named data stack (pandas, scikit-learn, PyTorch, Spark, Airflow, dbt, Snowflake, BigQuery or Databricks, and Power BI or Tableau for analytics roles)
+    - Bullets follow problem, approach, data scale and measured result, including why a method was chosen and how it was evaluated (offline validation plus A/B test)
+    - GenAI or LLM work is specific, naming the model, RAG or fine-tuning approach, evaluation set and the measured quality, latency or cost gain
+    - Statistics and experimentation depth (hypothesis testing, A/B tests, causal inference), and for freshers credible proof such as Kaggle results, publications or GitHub repositories with real data
+- key: product_management
+  label: Product Management
+  signals:
+    - Bullets lead with product outcomes and baselines (adoption, activation, retention, conversion, revenue, NPS) rather than features shipped
+    - The full lifecycle is owned, from discovery and user research through PRDs, prioritisation and roadmap, launch and post-launch measurement
+    - Data fluency is shown through SQL, product analytics tools (Amplitude, Mixpanel, GA4), funnel analysis and A/B experiments that drove decisions
+    - Cross-functional leadership is given scope (engineering, design, sales and operations partners, number of squads or stakeholders aligned)
+    - Scope grows across roles (feature to product to portfolio or platform), and for APM or career-switch candidates there is product-shaped evidence such as side products with real users or case competition wins
+    - Domain or technical depth is relevant to the product (APIs and platforms, payments, B2B SaaS, AI-powered features) and is shown through decisions made, not just listed
+- key: design
+  label: Design (UX/UI)
+  signals:
+    - A working portfolio link sits in the header, and the resume points to a few case studies (commonly 2-4) that recruiters can cross-check
+    - Design decisions are tied to measurable user or business outcomes (task completion, time-on-task, error rate, conversion, support tickets)
+    - The candidate's role on each project is clear (research, information architecture, interaction, visual, prototyping) along with team context
+    - Research and validation methods are named (user interviews, usability testing, A/B tests), plus accessibility practice such as WCAG
+    - Tooling and systems work is shown (Figma, prototyping, design systems or component libraries, developer handoff and collaboration with engineering)
+    - The resume itself is clean and ATS-parseable (a single column is safest), so design skill shows through clarity rather than heavy graphics
+- key: consulting_strategy
+  label: Consulting and Strategy
+  signals:
+    - Nearly every bullet is quantified with client or business impact (cost reduction, revenue uplift, EBITDA, market size) and scope (industry, client type, team size, duration)
+    - Clear spikes are placed prominently, such as CAT, JEE or board exam ranks and percentiles, academic distinctions, scholarships and case competition wins, mainly in campus and early-career CVs
+    - Structured problem-solving work is named (market entry, due diligence, operations transformation, pricing, growth strategy) with the deliverable and the senior or CXO audience
+    - Leadership appears through positions of responsibility, leading teams or workstreams, and managing client stakeholders
+    - A tightly formatted resume, one page for campus and early-career applications (lateral hires often run to two), where bullets read as action, then impact, then result
+    - An analytical toolkit with evidence of use (Excel modelling, PowerPoint storylining, SQL, Tableau or Alteryx)
+- key: finance_bfsi
+  label: Finance and BFSI
+  signals:
+    - Professional qualifications are stated precisely with status (CA with All India Rank if earned; CFA Program progress worded per CFA Institute rules, such as 'Passed Level II of the CFA Program' and never 'CFA Level II'; FRM; CMA India or US CMA; NISM certifications where SEBI requires them for the role)
+    - Transaction or portfolio specifics are given (deal size and count, AUM, loan book size, portfolio delinquency or NPA movement, credit limits approved)
+    - Technical modelling and analysis is named (three-statement models, DCF, LBO, valuation, credit appraisal, Excel and VBA, Bloomberg or Capital IQ)
+    - Indian regulatory and reporting knowledge appears in context (RBI, SEBI or IRDAI norms, Ind AS, GST and direct tax, statutory or internal audit, SOX controls for US-parented GCC roles)
+    - Control and accuracy outcomes are quantified (faster month-end close, reconciliations cleared, audit observations closed, reporting automated)
+    - For retail and branch banking roles, measurable targets are shown (CASA growth, cross-sell, disbursement volume, portfolio quality)
+- key: sales_bd
+  label: Sales and Business Development
+  signals:
+    - Quota or target attainment is shown as a percentage of target and absolute revenue (in INR lakh or crore, or USD), with rank among peers where possible
+    - Pipeline and conversion metrics are given (pipeline generated, win rate, average deal size, sales cycle length, new logos or accounts won)
+    - Territory and segment scope are stated (geography, vertical, SMB, mid-market or enterprise, size of channel or distributor network)
+    - Account growth and retention are shown (upsell or cross-sell, renewals, net revenue retention, key account expansion)
+    - CRM and sales tooling are named (Salesforce, HubSpot, Zoho CRM, LinkedIn Sales Navigator), along with forecasting discipline
+    - Recognition and progression are listed (President's Club or sales awards, promotions, larger territories or quotas over time)
+- key: marketing
+  label: Marketing
+  signals:
+    - Channel performance is quantified with standard metrics (CAC, ROAS, CPL, CTR, conversion rate, MQL to SQL, organic traffic growth)
+    - Budget responsibility and returns are stated (spend managed, ROI or pipeline influenced)
+    - A named martech and analytics stack (GA4, Google Ads, Meta Ads Manager, HubSpot, SEMrush or Ahrefs, CleverTap or MoEngage for Indian consumer apps)
+    - Evidence of experimentation and lifecycle work (A/B tests, landing page optimisation, email, push or WhatsApp retention journeys)
+    - Campaign and brand outcomes are given with reach, engagement or share-of-voice figures, plus a link to a portfolio of work for content and brand roles
+    - Go-to-market ownership (product launches, positioning and messaging, market or customer research that changed a decision)
+- key: operations
+  label: Operations and Supply Chain
+  signals:
+    - Process improvements are quantified (TAT reduction, cost per unit or order, throughput, SLA adherence, error or defect rate)
+    - Scale and scope are stated (plants, warehouses or sites run, team size, orders per day, SKUs, vendors managed)
+    - Supply chain metrics show results (inventory turns, OTIF, fill rate, procurement savings, working capital released)
+    - Continuous-improvement methods with credentials (Lean, Six Sigma Green or Black Belt, Kaizen, 5S) and named projects
+    - ERP and analytics tools are named (SAP MM, SD or PP, Oracle, WMS or TMS, Excel and Power BI dashboards)
+    - Safety, quality and compliance outcomes are given (ISO audits cleared, safety incidents reduced, regulatory compliance)
+- key: hr
+  label: Human Resources
+  signals:
+    - People outcomes are quantified (regrettable attrition reduction, time-to-fill, offer-to-join ratio, engagement scores, cost per hire)
+    - Scope is stated (employee population supported, business units or locations, hires per year)
+    - HRIS and recruiting tools are named (Darwinbox, SAP SuccessFactors, Workday, Keka, greytHR, LinkedIn Recruiter, Naukri RMS)
+    - Indian statutory compliance knowledge appears in context (the four Labour Codes in force since 21 Nov 2025, PF and ESI, gratuity, payroll, POSH)
+    - Strategic HRBP work (org design, performance cycles, compensation benchmarking, change management, L&D programmes with measured results)
+    - People analytics is shown through dashboards or analyses (Excel, Power BI) that led to a business decision
+- key: general
+  label: General
+  signals:
+    - Most bullets carry a number (percentage, INR amount, time saved, volume or count) that shows achievement rather than responsibility
+    - A role-specific headline or summary and a skills section that truthfully reflect the target job description's keywords, without keyword stuffing
+    - Visible progression and scope (promotions, larger teams, budgets or accounts over time)
+    - Concise bullets of 1-2 lines that start with strong action verbs, with consistent tense and formatting
+    - Relevant tools and certifications are named specifically and are current
+    - A clean, ATS-parseable layout (a single column is safest) with consistent dates, and any gap longer than a few months briefly explained

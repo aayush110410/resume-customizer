@@ -1,0 +1,909 @@
+# Region pack: India (domestic hiring).
+# Severity scale: ok = 0, minor = 5, major = 12.
+# Regexes run with re.IGNORECASE | re.MULTILINE against raw resume text
+# (personal_rules, term_rules, expectations) or a section heading (drop_sections).
+#
+# it_services decision (researched Oct 2026): sources disagree on whether
+# mass recruiters (TCS, Infosys, Wipro, HCLTech, Cognizant) still expect a
+# biodata-style personal block. Their application portals and campus
+# placement-cell templates capture DOB, gender, nationality and often a
+# declaration, and recruiters there do not mark these down, so those four
+# are 'ok' for it_services. Fields with no screening value plus bias, privacy
+# or parsing risk (father's name, marital status, religion/caste, photo,
+# full address) stay 'minor' even for it_services.
+
+key: india
+label: India
+
+weights:
+  match: 0.40
+  ats: 0.25
+  quality: 0.20
+  region: 0.15
+
+page_size: a4
+
+length_norms:
+  - level: fresher
+    max_pages: 1
+  - level: junior
+    max_pages: 1
+  - level: mid
+    max_pages: 2
+  - level: senior
+    max_pages: 2
+  - level: executive
+    max_pages: 2
+
+personal_rules:
+  - id: dob
+    label: Date of birth / age
+    patterns:
+      - '\bdate\s+of\s+birth\b'
+      - '\bd\.?\s?o\.?\s?b\.?\s*(?:[:\-–]|\d)'
+      - '\bbirth\s*date\s*[:\-–]'
+      - '\bborn\s+on\s+\d'
+      - '\bage\s*[:\-–]\s*\d{2}\b'
+    severity:
+      default: minor
+      product_startup: minor
+      gcc: minor
+      consulting_mba: minor
+      bfsi: minor
+      it_services: ok
+      psu_govt: ok
+    message: >-
+      Date of birth or age is not needed on a private-sector resume, and it
+      invites age screening. Portals and background checks collect it when they
+      need it. IT-services drives and PSU/government formats still often include
+      it, so it is not penalised for those targets.
+    fix: >-
+      Remove DOB/age. For IT-services or PSU applications, enter it in the
+      application form. If a prescribed format asks for it, use DD/MM/YYYY
+      exactly as on your Class X certificate.
+
+  - id: father_name
+    label: Father's / parent's name
+    patterns:
+      - '\b(?:father|mother|parent|guardian)\W{0,2}s?\s+(?:name|occupation)\b'
+      - '^\s*(?:father|mother)\s*:'
+      - '\b[sd]\s?/\s?o\b'
+      - '\b(?:son|daughter|wife)\s+of\s+(?:mr|mrs|shri|sri|smt|late|dr)\b'
+    severity:
+      default: minor
+      product_startup: minor
+      gcc: minor
+      consulting_mba: minor
+      bfsi: minor
+      it_services: minor
+      psu_govt: ok
+    message: >-
+      Parent names (S/O, D/O, Father's Name) are a biodata convention. No private
+      employer screens on them, IT services included, since background
+      verification collects them at onboarding. They also take up header space.
+      Keep them only where a government/PSU format asks for them.
+    fix: >-
+      Delete parent/guardian names. Give them on onboarding or background-check
+      forms if asked.
+
+  - id: marital_status
+    label: Marital status
+    patterns:
+      - '\bmarital\s+sta'
+      - '\bmarriage\s+status\b'
+      - '(?:^|[:\-–|]\s*)(?:un)?married\b'
+      - '\b(?:spouse|husband|wife)\W{0,2}s?\s+name\b'
+    severity:
+      default: minor
+      product_startup: minor
+      gcc: minor
+      consulting_mba: minor
+      bfsi: minor
+      it_services: minor
+      psu_govt: ok
+    message: >-
+      Marital status has nothing to do with fit, and it can lead to bias,
+      especially against women candidates. Private recruiters in India do not
+      expect it on the resume, IT services included.
+    fix: >-
+      Remove it. Include it only if a government/PSU prescribed format
+      explicitly asks for it.
+
+  - id: religion
+    label: Religion / caste / category
+    patterns:
+      - '\breligion\s*:'
+      - '\breligion\s*[\-–]?\s*(?:hindu|hinduism|muslim|islam|christian|christianity|sikh|sikhism|jain|jainism|buddhist|buddhism|parsi|zoroastrian|jewish)\b'
+      - '\b(?:sub[\s-]?)?caste\s*:'
+      - '\bcategory\s*:\s*(?:gen(?:eral)?|obc(?:[\s-]?ncl)?|sc|st|ews)\s*(?:$|[,;|(])'
+    severity:
+      default: minor
+      product_startup: minor
+      gcc: minor
+      consulting_mba: minor
+      bfsi: minor
+      it_services: minor
+      psu_govt: ok
+    message: >-
+      Religion, caste or category is never a screening criterion for private
+      roles, and listing it opens you to bias. Government recruitment records
+      reservation category (SC/ST/OBC/EWS) in the official application form,
+      not on the resume.
+    fix: >-
+      Remove religion and caste. For reserved-category government posts,
+      declare your category only in the official form.
+
+  - id: photo
+    label: Photograph
+    patterns:
+      - '\bpassport[\s-]*size\s+photo(?:graph)?\b'
+      - '^\s*(?:paste|affix)?\s*photo(?:graph)?\s*$'
+    severity:
+      default: minor
+      product_startup: minor
+      gcc: minor
+      consulting_mba: minor
+      bfsi: minor
+      it_services: minor
+      psu_govt: ok
+    message: >-
+      A photo adds nothing to a private-sector screen and can invite appearance
+      bias. Photo-header layouts can also break text extraction in some ATS
+      parsers. IT-services portals ask for a photo as a separate upload.
+      Government/PSU formats often require a passport-size photo, so it is fine
+      there.
+    fix: >-
+      Remove the photo. Upload one only where a portal, campus template or
+      PSU/government format asks for it.
+
+  - id: full_address
+    label: Full postal address
+    patterns:
+      - '\b(?:permanent|residential|postal|present|current|home|correspondence|mailing|communication)\s+address\s*[:\-–]'
+      - '^\s*(?:permanent|residential|postal|present|current|home|correspondence|mailing|communication)\s+address\s*$'
+      - '\bpin\s*(?:code)?\s*[:\-–]?\s*[1-9]\d{2}\s?\d{3}\b'
+      - '\bpincode\s*[:\-–]?\s*[1-9]\d{2}\s?\d{3}\b'
+      - '\b(?:flat|house|plot|door|h)\s*\.?\s*no\.?\s*[:\-–]?\s*[a-z]?[\-/]?\d'
+      - '\b(?:bengaluru|bangalore|mumbai|navi\s+mumbai|thane|new\s+delhi|delhi|noida|greater\s+noida|gurugram|gurgaon|ghaziabad|faridabad|hyderabad|secunderabad|chennai|pune|kolkata|ahmedabad|jaipur|lucknow|chandigarh|mohali|indore|bhopal|kochi|coimbatore|nagpur|patna|bhubaneswar|visakhapatnam|vadodara|surat|mysuru|mysore|thiruvananthapuram|trivandrum|dehradun|ranchi|guwahati|kanpur|nashik)\s*[,\-–]?\s*(?:[a-z]+\s*[,\-–]?\s*){0,2}[1-9]\d{2}\s?\d{3}\b'
+    severity:
+      default: minor
+      product_startup: minor
+      gcc: minor
+      consulting_mba: minor
+      bfsi: minor
+      it_services: minor
+      psu_govt: ok
+    message: >-
+      A full postal address (house number, street, PIN code) is unnecessary and
+      a privacy risk on a resume passed around Naukri, LinkedIn and recruiter
+      inboxes. Recruiters only filter on your current city.
+    fix: >-
+      Replace it with "City, State" (e.g., "Pune, Maharashtra"). Add a
+      relocation preference if relevant.
+
+  - id: gender
+    label: Gender
+    patterns:
+      - '\bgender\s*:'
+      - '\bgender\s*[\-–]\s*(?:male|female|man|woman|other|non[\s-]?binary|transgender)\b'
+      - '\bsex\s*[:\-–]\s*(?:male|female|m|f)\b'
+      - '^\s*(?:male|female)\s*$'
+    severity:
+      default: minor
+      product_startup: minor
+      gcc: minor
+      consulting_mba: minor
+      bfsi: minor
+      it_services: ok
+      psu_govt: ok
+    message: >-
+      Gender is not a screening field for private roles and can introduce bias.
+      IT-services portals, diversity hiring drives and government forms collect
+      it anyway, so it is not penalised for those targets.
+    fix: >-
+      Remove it from the resume. If you are applying to a women-only or
+      diversity drive, the application form already records it.
+
+  - id: nationality
+    label: Nationality
+    patterns:
+      - '\bnationality\s*:'
+      - '\bnationality\s*[\-–]\s*indian\b'
+      - '\bcitizenship\s*[:\-–]\s*indian\b'
+    severity:
+      default: minor
+      product_startup: minor
+      gcc: minor
+      consulting_mba: minor
+      bfsi: minor
+      it_services: ok
+      psu_govt: ok
+    message: >-
+      "Nationality: Indian" is redundant for a role in India, because recruiters
+      assume you can work here. IT-services templates and PSU formats commonly
+      include it, so it is not penalised there.
+    fix: >-
+      Drop it. Mention citizenship only when it matters (e.g., you hold
+      OCI/another passport). For onsite-ready IT-services roles, write "Valid
+      passport" instead.
+
+  - id: declaration
+    label: Declaration / signature block
+    patterns:
+      - '\bhereby\s+(?:declare|certify|affirm|state)\b'
+      - '\b(?:true|correct|accurate)\s+(?:and\s+(?:correct|complete|true)\s+)?to\s+the\s+best\s+of\s+my\s+(?:knowledge|belief)\b'
+      - '^\s*(?:self[\s-]*)?declaration\s*:?\s*$'
+      - '^\s*\(?\s*signature\s*\)?\s*:?\s*$'
+    severity:
+      default: minor
+      product_startup: minor
+      gcc: minor
+      consulting_mba: minor
+      bfsi: minor
+      it_services: ok
+      psu_govt: ok
+    message: >-
+      The "I hereby declare that the above information is true…" block with
+      place/date/signature is a biodata convention. Private recruiters skip it,
+      and it costs 3-4 lines. Government/PSU formats and many IT-services and
+      campus templates still use it, so it is not penalised there.
+    fix: >-
+      Delete the declaration and signature lines for private-sector
+      applications. Keep a signed, dated declaration only where the format or
+      advertisement asks for it.
+
+  - id: id_numbers
+    label: Aadhaar / PAN / passport number
+    patterns:
+      - '\ba{1,2}dh?a{1,2}r\s*(?:card\s*)?(?:no\.?|number|#)?\s*[:\-–]?\s*\d{4}\s?\d{4}\s?\d{4}\b'
+      - '\bpan\s*(?:card\s*)?(?:no\.?|number|#)?\s*[:\-–]?\s*[a-z]{5}\d{4}[a-z]\b'
+      - '\bpassport\s*(?:no\.?|number|#)\s*[:\-–]?\s*[a-z]\d{7}\b'
+      - '\b(?:voter\s*id|epic)\s*(?:card\s*)?(?:no\.?|number|#)?\s*[:\-–]?\s*[a-z]{3}\d{7}\b'
+    severity:
+      default: major
+      product_startup: major
+      gcc: major
+      consulting_mba: major
+      bfsi: major
+      it_services: major
+      psu_govt: minor
+    message: >-
+      Government ID numbers on a resume that travels through job portals,
+      recruiters and forwards create an identity-fraud risk. UIDAI and the
+      Income Tax Department both advise against sharing Aadhaar/PAN publicly.
+      Employers collect these only at onboarding or background verification.
+    fix: >-
+      Delete Aadhaar, PAN, passport and voter-ID numbers. If passport status
+      matters (e.g., onsite IT roles), write "Valid passport (till 2031)"
+      without the number.
+
+term_rules:
+  - id: generic_objective
+    label: Generic career objective
+    patterns:
+      - '\bseeking\s+a\s+(?:challenging|rewarding|responsible)\b'
+      - '\bto\s+work\s+in\s+a\s+(?:challenging|competitive|dynamic|professional|reputed|growth[\s-]oriented)\b'
+      - '\bto\s+(?:obtain|secure)\s+a\s+(?:challenging\s+|suitable\s+|responsible\s+|good\s+)?position\b'
+      - '\blooking\s+for\s+an?\s+(?:opportunity|challenging|suitable)\b'
+      - '\b(?:growth|success)\s+of\s+the\s+organi[sz]ation\b'
+      - '\bcontribut\w*\s+(?:to|towards)\s+the\s+(?:growth|success)\s+of\s+the\s+(?:company|firm)\b'
+      - '\butili[sz]e\s+my\s+(?:skills|knowledge|abilities|potential)\b'
+      - '\breputed\s+(?:organi[sz]ation|company|firm|concern)\b'
+    severity:
+      default: minor
+      psu_govt: ok
+    message: >-
+      Boilerplate objective lines ("seeking a challenging position… growth of
+      the organisation") appear on thousands of Indian resumes, say nothing
+      about you, and use up the most-read lines of page one.
+    fix: >-
+      Replace them with a 2-3 line summary: target role, years of experience,
+      2-3 core skills from the JD, and one quantified result (e.g., "Backend
+      engineer, 3 yrs, Java/Spring Boot/Kafka; cut payment API latency 60% at
+      3k RPS").
+
+  - id: references_on_request
+    label: '"References available on request"'
+    patterns:
+      - '\breferences?\s+(?:are\s+|will\s+be\s+|can\s+be\s+)?(?:available|furnished|provided|given)\s+(?:up)?on\s+(?:request|demand)\b'
+    severity:
+      default: minor
+    message: >-
+      Recruiters assume references are available. Indian employers ask for
+      them, or run background verification, only at offer stage.
+    fix: >-
+      Delete the line and use the space for an achievement or certification.
+
+  - id: salary_on_resume
+    label: CTC / salary on the resume
+    patterns:
+      - '\b(?:current|present|expected|existing|last\s+drawn)\s+(?:ctc|salary|package|compensation)\s*[:\-–]'
+      - '\b[ce]ctc\s*[:\-–]'
+      - '\bctc\s*[:\-–]\s*(?:₹|rs\.?|inr)?\s*\d'
+    severity:
+      default: minor
+      psu_govt: ok
+    message: >-
+      Recruiters in India always ask for current and expected CTC, but it
+      belongs in the Naukri/portal fields or the screening call. On the resume
+      it anchors negotiation and can get you filtered out before anyone talks
+      to you. PSU lateral formats that ask for present pay level are the
+      exception.
+    fix: >-
+      Remove CTC figures from the resume. Keep them up to date in your
+      Naukri/LinkedIn profile fields and share them when asked.
+
+  - id: soft_skill_cliches
+    label: Unsupported soft-skill clichés
+    patterns:
+      - '\bhard[\s-]?working\b'
+      - '\bquick\s+learner\b'
+      - '\bpunctual\s*(?:[,&/]|and\b|$)'
+      - '\bsincere\b'
+      - '\bpositive\s+attitude\b'
+    severity:
+      default: minor
+      psu_govt: ok
+    message: >-
+      "Strengths: hardworking, sincere, punctual, quick learner" is a dated
+      Indian resume habit. Recruiters ignore adjectives that nothing on the
+      page backs up.
+    fix: >-
+      Delete the adjectives. Show the trait with evidence instead (e.g., "Learned
+      Kotlin and shipped the Android payments module in 6 weeks").
+
+  - id: biodata_title
+    label: '"Bio-data" as document title'
+    patterns:
+      - '^\s*bio[\s-]?data\s*$'
+    severity:
+      default: minor
+      psu_govt: ok
+    message: >-
+      Titling the document "Bio-data" marks it as a government or matrimonial
+      format. For private-sector roles, your name should be the heading.
+    fix: >-
+      Remove the title and put your name in large type at the top, followed by
+      phone, email, city and LinkedIn/GitHub.
+
+expectations:
+  - id: academic_score
+    label: Degree CGPA / percentage
+    patterns:
+      - '\b[cs]?\.?g\.?p\.?a\b'
+      - '\bc\.?p\.?i\s*[:\-–]?\s*\d'
+      - '\b(?:\d(?:\.\d{1,2})?|10(?:\.0{1,2})?)\s*/\s*10(?:\.0{1,2})?\b(?!\s*/)'
+      - '\b[0-4]\.\d{1,2}\s*/\s*4(?:\.0{1,2})?\b'
+      - '\bpercentage\s*(?:of\s+marks\s*)?[:\-–]?\s*\d{2}'
+      - '\b(?:aggregate|marks|grade)\s*(?:of\s*)?[:\-–]?\s*\d{1,2}(?:\.\d{1,2})?\s*%'
+      - '\b\d{2}(?:\.\d{1,2})?\s*%\s*(?:aggregate|marks)\b'
+      - '\b(?:b\.?\s?tech|m\.?\s?tech|b\.e\.?|m\.e\.?|b\.?\s?sc|m\.?\s?sc|b\.?\s?com|m\.?\s?com|bca|mca|bba|mba|pgdm|b\.a\.?|m\.a\.?|b\.?\s?pharm|mbbs|llb|diploma|bachelor(?:s|[\x27’]s)?|graduation|university|college|institute)\b[^%]{0,160}?\b\d{2}(?:\.\d{1,2})?\s*%'
+      - '\bfirst\s+class\s+(?:with\s+distinction|honou?rs)\b'
+      - '\bwith\s+distinction\b'
+      - '\b(?:first|1st)\s+division\b'
+    levels: [fresher, junior]
+    employer_types: [it_services, consulting_mba, psu_govt, product_startup, bfsi]
+    penalty: 8
+    fix: >-
+      Add your degree score on the education line, e.g., "B.Tech CSE, 2025 -
+      CGPA 8.4/10". Early-career screens in India use it as a cut-off filter
+      (often around 60% or 6.0 CGPA). State it even if it is modest, because
+      leaving it out looks like hiding it and the portal will ask anyway.
+
+  - id: school_marks
+    label: Class X / XII results
+    patterns:
+      - '\b(?:class|std\.?|standard|grade)\s*[\-–]?\s*(?:x|xii|10|12)(?:th)?\b'
+      - '\b(?:10|12)\s*th\b'
+      - '\b(?:x|xii)(?:th)?\s*[(\-–,]?\s*(?:standard|std|board|cbse|icse|isc|ssc|hsc)\b'
+      - '\b(?:ssc|hsc|sslc|hslc|aissce|aisse|matric(?:ulation)?|puc|pre[\s-]?university|higher\s+secondary|senior\s+secondary|secondary\s+school|plus\s+two|junior\s+college)\b'
+      - '\b(?:cbse|icse|igcse|state\s+board)\b'
+      - '\bisc\b(?!\)?\s?[2²](?!\d))'
+      - '\b10\s*\+\s*2\b'
+      - '\bintermediate\s*(?:\(|education|board|ipe|mpc|bipc|mec|cec)'
+    levels: [fresher]
+    employer_types: [it_services, consulting_mba]
+    penalty: 5
+    fix: >-
+      Add Class XII and Class X results with board, year and score, e.g.,
+      "Class XII (CBSE), 2021 - 91.2%; Class X (ICSE), 2019 - 94%".
+      IT-services eligibility checks and MBA/consulting campus shortlists look
+      at scores from Class X onward.
+
+drop_sections:
+  - id: declaration_section
+    label: Declaration section
+    patterns:
+      - '^\s*(?:self[\s-]*)?declarations?\s*:?\s*$'
+    severity:
+      default: minor
+      it_services: ok
+      psu_govt: ok
+    message: >-
+      A Declaration section is a biodata leftover that private recruiters skip.
+      It is expected only in government/PSU formats and some IT-services or
+      campus templates.
+    fix: >-
+      Remove the section, including place, date and signature lines, unless
+      the target employer's format requires it.
+
+  - id: personal_details_section
+    label: Personal details section
+    patterns:
+      - '^\s*personal\s+(?:details|information|info|profile|particulars|data|dossier|bio[\s-]?data)\s*:?\s*$'
+      - '^\s*bio[\s-]?data\s*:?\s*$'
+    severity:
+      default: minor
+      it_services: ok
+      psu_govt: ok
+    message: >-
+      A "Personal Details" block (DOB, parents' names, marital status,
+      languages, address) takes 6-10 lines and adds nothing to a private-sector
+      screen. Contact details belong in the header.
+    fix: >-
+      Move phone, email, city and LinkedIn into the header and delete the rest.
+      Keep "Languages" only if the role needs them (e.g., regional sales). If
+      the section actually holds your professional summary, rename it
+      "Summary".
+
+  - id: references_section
+    label: References section
+    patterns:
+      - '^\s*(?:references?|referees?)\s*:?\s*$'
+    severity:
+      default: minor
+      psu_govt: ok
+    message: >-
+      Listing referees (often professors or ex-managers with phone numbers)
+      uses space and shares third-party contact details without need. Indian
+      employers collect references at offer or background-verification stage.
+    fix: >-
+      Remove the section and keep a reference list ready to share when asked.
+
+ats_platforms:
+  - Naukri RMS / Naukri Recruiter (Resdex resume database search)
+  - Darwinbox
+  - Keka Hire
+  - Zoho Recruit
+  - PeopleStrong
+  - Workday Recruiting
+  - SAP SuccessFactors Recruiting
+  - Oracle Recruiting Cloud / Taleo
+  - iCIMS
+  - SmartRecruiters
+  - Greenhouse
+  - Lever
+  - Ashby
+  - LinkedIn Recruiter (sourcing)
+  - Superset (campus placement portal)
+
+recruiter_persona: >-
+  You are a senior corporate talent-acquisition partner based in Bengaluru, who
+  has also hired out of Gurugram/NCR. You have filled roles for product
+  startups, IT-services majors, global capability centres (GCCs), consulting
+  firms and BFSI. Each requisition brings 200-400 applications through Naukri,
+  LinkedIn and the company ATS, and you usually filter in Naukri Resdex or the
+  ATS by keywords, experience band, current CTC, notice period and location
+  before you read anything. Your first pass takes under 10 seconds. You look
+  for current role and employer, total and relevant experience, core skills
+  that match the JD, notice period, current city, and college tier for
+  early-career candidates. You reward quantified impact (₹ Lakh/Crore, %,
+  users, scale), dates that will survive background verification, and a clean
+  A4 layout of 1-2 pages. You know biodata conventions (DOB, father's name,
+  declaration) are normal in PSU and mass IT-services hiring but dated
+  everywhere else. You are direct and practical, and you never reward keyword
+  stuffing or inflated claims.
+
+context:
+  - >-
+    First-pass screening takes seconds and is often done through filters
+    (Naukri Resdex or the ATS) on keywords, total experience, current CTC,
+    notice period and location. Name your exact role, years of experience and
+    the JD's exact skill terms (e.g., "Spring Boot", "Power BI") near the top.
+  - >-
+    Length: 1 page for freshers and early-career candidates, and strictly 1
+    page for MBA campus CVs (placement cells prescribe the template). At most
+    2 pages for mid, senior and executive. A4 paper size.
+  - >-
+    Product companies and startups shortlist on impact and engineering depth:
+    scale metrics (users, RPS, latency, data volume), ownership, DSA/system
+    design signals (competitive programming ratings, GitHub, open source) and,
+    for freshers, college tier and internships.
+  - >-
+    IT services (TCS, Infosys, Wipro, HCLTech, Cognizant, Tech Mahindra and
+    similar) screen at volume against eligibility rules: Class X/XII/degree
+    scores, often around 60% or 6.0 CGPA; no active backlogs; limits on gaps.
+    They then look for tech-stack keywords, certifications, client domain and
+    onsite exposure. Their portals collect personal details separately.
+  - >-
+    GCCs want outcome and ownership language rather than delivery/ticket
+    language. They look for domain depth in the parent's business (banking,
+    insurance, retail, healthcare), global stakeholder management and
+    cross-time-zone collaboration. Ex-services candidates pass when bullets
+    show what they owned and improved.
+  - >-
+    Consulting firms and MBA campus recruiters read academic consistency from
+    Class X onward (scores, ranks, scholarships), entrance percentiles, Positions
+    of Responsibility, case-competition results, live projects and
+    internship/PPO outcomes. Every bullet is an achievement, ideally with ₹ or %
+    impact.
+  - >-
+    BFSI recruiters look for regulatory and product fluency (RBI, SEBI, IRDAI,
+    KYC/AML, Basel, IND AS), portfolio or book size in ₹ Crore, and credentials
+    such as CA, CFA, FRM and the NISM series SEBI mandates for distribution,
+    research and advisory roles.
+  - >-
+    PSU and government hiring is eligibility-driven and runs on the official
+    notification: prescribed formats, category certificates, details matching
+    the Class X certificate, a signed declaration, and GATE scores for most
+    engineering PSU intakes. The official form overrides general resume advice.
+  - >-
+    Quantify in Indian units for Indian readers: ₹ Lakh/Crore for money
+    (e.g., ₹2.4 Cr), LPA for compensation, and Indian digit grouping where
+    used. Do not mix ₹ and $ unless the client or market was overseas.
+  - >-
+    Notice periods are typically 30-90 days, and IT services commonly 90.
+    Recruiters prioritise immediate or ≤30-day joiners and drop candidates
+    whose real notice was hidden. An honest notice period or last working day
+    on Naukri, in the cover note, or in one header line helps.
+  - >-
+    College tier is a strong early-career signal (IIT/NIT/IIIT/BITS for tech,
+    IIM/top B-schools for MBA roles). Tier-2/3 candidates offset it with
+    internships, competitive programming ratings, hackathons (e.g., Smart India
+    Hackathon), open-source work and recognised certifications.
+  - >-
+    For private-sector roles the header should hold name, +91 phone, email,
+    city, and LinkedIn (plus GitHub/portfolio). DOB, parents' names, marital
+    status, religion, photo and the declaration are legacy biodata items kept
+    only for PSU/government and some IT-services or campus formats. Aadhaar and
+    PAN numbers never belong on a resume.
+  - >-
+    Recruiters compute total and relevant experience ("4 yrs 7 mos") and check
+    dates against LinkedIn and later background verification. Use month-year
+    dates, keep titles consistent with offer letters, and explain gaps longer
+    than about 6 months in one line.
+  - >-
+    Certifications matter more in India than in many markets. Cloud and
+    platform certifications (AWS, Azure, GCP, Salesforce, ServiceNow, SAP) drive
+    staffing in IT services and GCCs. List them with year and credential ID or
+    link, and drop expired or trivial course-completion badges.
+
+cover_letter:
+  - >-
+    Open with "Dear Hiring Manager" or the recruiter's name ("Dear Ms. Iyer").
+    Avoid "Respected Sir/Madam" and "To Whom It May Concern" except in
+    PSU/government applications that use formal letter conventions.
+  - >-
+    Keep it to 150-250 words. In India it is often pasted as the email or
+    LinkedIn/Naukri message body, so it must read well without an attachment.
+  - >-
+    In the first two lines, name the role (and job code/requisition ID if
+    given), your current role and employer, total experience, and the 2-3
+    skills that match the JD.
+  - >-
+    State your notice period or earliest joining date (e.g., "60 days, early
+    release possible" or "Immediate joiner") and whether a buyout is possible.
+    Recruiters triage on this.
+  - >-
+    Mention your current city and, if the role is elsewhere, an explicit
+    willingness to relocate (e.g., "Based in Pune, ready to relocate to
+    Hyderabad").
+  - >-
+    Add one or two quantified achievements (₹ Lakh/Crore, %, scale) that map to
+    the JD instead of restating the resume.
+  - >-
+    Leave out CTC unless the posting asks. If it does, give current and
+    expected CTC in LPA.
+  - >-
+    Close with your availability for a call and your contact details, and sign
+    off "Regards" or "Best regards". Avoid "Thanking you" and "Yours faithfully"
+    outside formal government correspondence.
+
+tips:
+  - id: product_cp_github
+    text: >-
+      Put problem-solving proof near the top: competitive programming standing
+      that is actually meaningful (e.g., Codeforces Expert, CodeChef 4★, LeetCode
+      Knight or a strong contest rank) and a GitHub with real, documented
+      projects. Product-company screeners use these as proxies for interview
+      readiness, especially for candidates from tier-2/3 colleges.
+    employer_types: [product_startup]
+    levels: [fresher, junior]
+    role_families: [software_engineering]
+
+  - id: product_scale_metrics
+    text: >-
+      Quantify engineering work with scale and performance numbers: users, RPS,
+      p95/p99 latency, data volume, uptime, cost saved. "Cut p95 latency of the
+      payments API from 800 ms to 220 ms at 3k RPS" beats "worked on backend
+      APIs".
+    employer_types: [product_startup, gcc]
+    levels: [junior, mid, senior]
+    role_families: [software_engineering, data_ml]
+
+  - id: services_to_product_rewrite
+    text: >-
+      Moving from IT services to a product company or GCC? Rewrite "worked on
+      client project" bullets as what you built, why, and the measured outcome.
+      Replace internal tool names and project codenames with the technology and
+      the business problem.
+    employer_types: [product_startup, gcc]
+    levels: [junior, mid]
+    role_families: [software_engineering, data_ml]
+
+  - id: tier_offset_fresher
+    text: >-
+      From a tier-2/3 college? Lead with proof that travels: internships,
+      hackathon results (e.g., Smart India Hackathon), open-source contributions
+      (e.g., GSoC), competitive programming ratings and deployed projects with
+      live links.
+    employer_types: [product_startup, gcc]
+    levels: [fresher]
+    role_families: [software_engineering, data_ml]
+
+  - id: gcc_ownership
+    text: >-
+      For GCC roles, write ownership and stakeholder language: the global
+      business or product you supported, who you worked with (e.g., US/UK
+      product owners), and what you owned end to end. "Owned the reconciliation
+      service for the parent bank's EMEA payments; partnered with London ops
+      across a 4.5-hour overlap" reads like a GCC hire. "Supported client
+      tickets" does not.
+    employer_types: [gcc]
+    levels: [junior, mid, senior]
+    role_families: []
+
+  - id: gcc_domain_keywords
+    text: >-
+      GCC recruiters search for the parent company's domain terms (payments,
+      AML/KYC, claims, supply chain, clinical data, regulatory reporting). Name
+      your domain in the summary and in each relevant project line.
+    employer_types: [gcc]
+    levels: []
+    role_families: []
+
+  - id: it_services_certifications
+    text: >-
+      List current, verifiable certifications with year and credential ID or
+      link (e.g., AWS Solutions Architect - Associate, Azure AZ-104/AZ-204,
+      Salesforce Platform Developer I, ServiceNow CSA). IT-services firms use
+      them for client staffing and billing, so they directly affect
+      shortlisting.
+    employer_types: [it_services]
+    levels: [junior, mid]
+    role_families: [software_engineering, data_ml]
+
+  - id: it_services_client_onsite
+    text: >-
+      State the client domain without breaking NDA (e.g., "US retail bank",
+      "UK insurer"), the engagement type (build, support, migration), team
+      size, and any onsite stint (country, duration). Add "Valid passport" if
+      you are onsite-ready, because services recruiters staff onsite roles from
+      this.
+    employer_types: [it_services]
+    levels: [junior, mid, senior]
+    role_families: []
+
+  - id: it_services_fresher_eligibility
+    text: >-
+      For mass-recruiter drives (TCS, Infosys, Wipro, Cognizant, Accenture and
+      similar), show Class X, XII and degree scores clearly, and write "No
+      active backlogs" if true. Eligibility filters commonly sit around 60% or
+      6.0 CGPA (it varies by drive), and education gaps are checked.
+    employer_types: [it_services]
+    levels: [fresher]
+    role_families: []
+
+  - id: mba_academics
+    text: >-
+      For MBA/consulting CVs, show academic distinction with selectivity:
+      ranks, CAT/GMAT percentile, scholarships, medals, Dean's List (e.g., "Top
+      5% of batch of 420"). Strategy-firm shortlists weigh consistency from
+      Class X onward, so keep all four academic rows on the page.
+    employer_types: [consulting_mba]
+    levels: [fresher, junior]
+    role_families: []
+
+  - id: mba_por_cases_live_projects
+    text: >-
+      Write Positions of Responsibility, case competitions and live projects as
+      achievements with scale: "Placement Committee - onboarded 40+ new
+      recruiters", "National finalist, top 8 of 1,200 teams", "Live project for
+      a D2C brand - pricing change worth ₹45 L annually". Put the result in the
+      first half of the line.
+    employer_types: [consulting_mba]
+    levels: [fresher, junior]
+    role_families: []
+
+  - id: rupee_impact
+    text: >-
+      Quantify business impact in ₹ Lakh/Crore with a base for scale:
+      "Identified ₹3.2 Cr annualised savings (7% of procurement spend)". Use one
+      convention throughout (Cr/L or crore/lakh). Do not mix in $ unless the
+      market was overseas.
+    employer_types: [consulting_mba, bfsi, product_startup]
+    levels: [junior, mid, senior, executive]
+    role_families: [consulting_strategy, finance_bfsi, product_management, sales_bd, operations, marketing]
+
+  - id: bfsi_credentials
+    text: >-
+      List finance credentials with exact status: CA/CMA, CFA (e.g., "Level II
+      candidate" or "Charterholder"), FRM ("Part I passed"), and any NISM series
+      your role legally requires (e.g., V-A for mutual fund distribution, XV for
+      research analysts, X-A/X-B for investment advisers). Show validity, since
+      NISM certificates must be renewed.
+    employer_types: [bfsi]
+    levels: []
+    role_families: [finance_bfsi, sales_bd]
+
+  - id: bfsi_regulatory
+    text: >-
+      Name the regulatory frameworks you worked under (RBI master directions,
+      KYC/AML, Basel III, IND AS 109/ECL, SEBI or IRDAI rules) and portfolio or
+      book size in ₹ Crore. Risk, compliance and credit recruiters search for
+      these exact terms.
+    employer_types: [bfsi, gcc]
+    levels: [junior, mid, senior, executive]
+    role_families: [finance_bfsi, operations, data_ml]
+
+  - id: psu_gate
+    text: >-
+      For engineering PSU intakes (e.g., NTPC, IOCL, PGCIL, ONGC), shortlisting
+      is usually on the GATE score for the specified paper and year. Quote the
+      GATE score, AIR and year exactly as on the scorecard, and apply through
+      the official notification.
+    employer_types: [psu_govt]
+    levels: [fresher, junior]
+    role_families: []
+
+  - id: psu_prescribed_format
+    text: >-
+      For government/PSU applications, follow the advertisement's prescribed
+      format exactly. Match your name spelling, DOB and category to your Class X
+      certificate and other documents, and keep the signed declaration.
+      Mismatches are a common reason for rejection at document verification.
+    employer_types: [psu_govt]
+    levels: []
+    role_families: []
+
+  - id: notice_period
+    text: >-
+      State your notice period honestly in one header line or in your summary
+      (e.g., "Notice: 60 days, early release negotiable" or "Serving notice -
+      LWD 15 Nov 2026"). Recruiters prioritise immediate and ≤30-day joiners.
+      A clear last working day moves you up the call list, and an understated
+      one gets offers withdrawn.
+    employer_types: []
+    levels: [junior, mid, senior, executive]
+    role_families: []
+
+  - id: naukri_profile
+    text: >-
+      Mirror this resume on Naukri. Write a keyword-rich resume headline (role,
+      years, 3-4 core skills, e.g., "Java Backend Engineer | 4 yrs | Spring
+      Boot, Kafka, AWS"), fill Key Skills with exact JD terms, and complete the
+      CTC, notice period and preferred location fields, because blank fields
+      drop you out of recruiter filters. Make a genuine edit regularly, since
+      recruiters sort by recently active profiles.
+    employer_types: []
+    levels: [fresher, junior, mid, senior]
+    role_families: []
+
+  - id: linkedin_alignment
+    text: >-
+      Keep LinkedIn consistent with the resume: same titles, employers and
+      month-year dates. Recruiters cross-check, and background-verification
+      agencies verify joining and leaving dates, so mismatches raise flags. Put
+      a custom LinkedIn URL in the header.
+    employer_types: []
+    levels: []
+    role_families: []
+
+  - id: career_break
+    text: >-
+      Name a career break rather than hiding it, in one line: "Career break
+      (Jun 2023 - Aug 2025): caregiving; completed Google Data Analytics
+      certificate". Returnship programmes in India (e.g., Goldman Sachs India
+      Returnship, Amazon Rekindle, Mahindra SOAR) look for recent upskilling
+      and a clear return date.
+    employer_types: []
+    levels: [junior, mid, senior]
+    role_families: []
+
+  - id: relocation_preference
+    text: >-
+      If you are applying outside your current city, state it explicitly:
+      "Based in Pune; open to relocate to Bengaluru/Hyderabad". Recruiters
+      filter on current location and often skip out-of-city profiles that say
+      nothing about relocation.
+    employer_types: []
+    levels: []
+    role_families: []
+
+  - id: fresher_internships
+    text: >-
+      Freshers: put internships, industrial training and substantial projects
+      above extracurriculars, each with tech stack or tools and an outcome.
+      State a pre-placement offer (PPO) or a named internship at a known
+      company plainly, because it is a strong shortlisting signal.
+    employer_types: []
+    levels: [fresher]
+    role_families: []
+
+  - id: senior_trim_legacy_sections
+    text: >-
+      At senior and leadership levels, drop Hobbies/Interests, Strengths and
+      Career Objective. Use the space for scope (team size, P&L or budget in
+      ₹ Cr, geographies) and business outcomes.
+    employer_types: []
+    levels: [senior, executive]
+    role_families: []
+
+  - id: executive_mandate
+    text: >-
+      Open with a one-line leadership mandate, e.g., "Led ₹450 Cr P&L and a
+      1,200-person delivery organisation across India and the Philippines".
+      Search firms and CXO panels mostly read the summary and the most recent
+      two roles, so put board/investor exposure and transformation outcomes
+      there.
+    employer_types: []
+    levels: [executive]
+    role_families: []
+
+  - id: data_ml_impact
+    text: >-
+      For data/ML roles, give the model or analysis, the data scale and the
+      business metric it moved: "Churn model (XGBoost, 12M rows) lifted
+      retention 3.1 pts, about ₹1.8 Cr a year". Link Kaggle (medals or rank)
+      or GitHub. Tool lists alone (Python, SQL, Power BI) don't set you apart.
+    employer_types: []
+    levels: [fresher, junior, mid]
+    role_families: [data_ml]
+
+  - id: pm_metric_ownership
+    text: >-
+      Product managers should show the metrics they owned (DAU/MAU, conversion,
+      GMV, retention, NPS) and launch outcomes. For APM roles, link one or two
+      product teardowns or case studies.
+    employer_types: [product_startup, gcc]
+    levels: []
+    role_families: [product_management]
+
+  - id: sales_quota
+    text: >-
+      For sales/BD, show quota against achievement ("132% of ₹4 Cr annual
+      target"), territory or vertical, deal sizes and segment (SMB, mid-market,
+      enterprise). Recruiters rank sales profiles on attainment history.
+    employer_types: []
+    levels: []
+    role_families: [sales_bd]
+
+  - id: hr_offer_join
+    text: >-
+      For HR/TA roles, quantify hiring volume, time-to-fill, offer-to-join ratio
+      (closely watched in India because of long notice periods and dropouts),
+      attrition reduction, and the HRMS/ATS you ran (e.g., Darwinbox,
+      SuccessFactors, Workday).
+    employer_types: []
+    levels: []
+    role_families: [hr]
+
+  - id: marketing_metrics
+    text: >-
+      For marketing, give budget handled in ₹ Lakh/Crore and outcome metrics
+      (CAC, ROAS, organic traffic, leads, conversion). Call out
+      regional-language or Bharat/tier-2 campaign experience where relevant,
+      because Indian brands actively seek it.
+    employer_types: []
+    levels: []
+    role_families: [marketing]
+
+  - id: design_portfolio
+    text: >-
+      For design roles, put the portfolio link (personal site, Behance or
+      Dribbble) in the header, and frame 2-3 case studies around the problem,
+      your process and a measured outcome. Indian product recruiters often
+      shortlist from the portfolio before reading the resume.
+    employer_types: []
+    levels: []
+    role_families: [design]
