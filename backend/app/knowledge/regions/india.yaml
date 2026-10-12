@@ -40,10 +40,10 @@ personal_rules:
     label: Date of birth / age
     patterns:
       - '\bdate\s+of\s+birth\b'
-      - '\bd\.?\s?o\.?\s?b\.?\s*(?:[:\-–]|\d)'
+      - '\b(?:dob|d\.\s?o\.\s?b)\.?\s*(?:[:\-–]|\d)'
       - '\bbirth\s*date\s*[:\-–]'
       - '\bborn\s+on\s+\d'
-      - '\bage\s*[:\-–]\s*\d{2}\b'
+      - '\bage\s*[:\-–]\s*\d{2}\s*(?:years?|yrs?)?\s*(?:$|[,;|(])'
     severity:
       default: minor
       product_startup: minor
@@ -65,7 +65,8 @@ personal_rules:
   - id: father_name
     label: Father's / parent's name
     patterns:
-      - '\b(?:father|mother|parent|guardian)\W{0,2}s?\s+(?:name|occupation)\b'
+      - '\b(?:father|mother)\W{0,2}s?\s+(?:name|occupation)\b'
+      - '\b(?:parent|guardian)\W{0,2}s?\W{0,2}\s+(?:name|occupation)\s*[:\-–]'
       - '^\s*(?:father|mother)\s*:'
       - '\b[sd]\s?/\s?o\b'
       - '\b(?:son|daughter|wife)\s+of\s+(?:mr|mrs|shri|sri|smt|late|dr)\b'
@@ -91,7 +92,7 @@ personal_rules:
     patterns:
       - '\bmarital\s+sta'
       - '\bmarriage\s+status\b'
-      - '(?:^|[:\-–|]\s*)(?:un)?married\b'
+      - '(?:^|[:\-–|])\s*(?:un)?married\s*(?:$|[,;|/(])'
       - '\b(?:spouse|husband|wife)\W{0,2}s?\s+name\b'
     severity:
       default: minor
@@ -149,9 +150,9 @@ personal_rules:
     message: >-
       A photo adds nothing to a private-sector screen and can invite appearance
       bias. Photo-header layouts can also break text extraction in some ATS
-      parsers. IT-services portals ask for a photo as a separate upload.
-      Government/PSU formats often require a passport-size photo, so it is fine
-      there.
+      parsers. Application portals and exam registrations that need a photo
+      collect it as a separate upload. Government/PSU formats often require a
+      passport-size photo, so it is fine there.
     fix: >-
       Remove the photo. Upload one only where a portal, campus template or
       PSU/government format asks for it.
@@ -159,12 +160,13 @@ personal_rules:
   - id: full_address
     label: Full postal address
     patterns:
-      - '\b(?:permanent|residential|postal|present|current|home|correspondence|mailing|communication)\s+address\s*[:\-–]'
+      - '\b(?:permanent|residential|postal|present|current|home|correspondence|mailing|communication)\s+address\s*(?::|[\-–](?![a-z]))'
       - '^\s*(?:permanent|residential|postal|present|current|home|correspondence|mailing|communication)\s+address\s*$'
       - '\bpin\s*(?:code)?\s*[:\-–]?\s*[1-9]\d{2}\s?\d{3}\b'
       - '\bpincode\s*[:\-–]?\s*[1-9]\d{2}\s?\d{3}\b'
       - '\b(?:flat|house|plot|door|h)\s*\.?\s*no\.?\s*[:\-–]?\s*[a-z]?[\-/]?\d'
       - '\b(?:bengaluru|bangalore|mumbai|navi\s+mumbai|thane|new\s+delhi|delhi|noida|greater\s+noida|gurugram|gurgaon|ghaziabad|faridabad|hyderabad|secunderabad|chennai|pune|kolkata|ahmedabad|jaipur|lucknow|chandigarh|mohali|indore|bhopal|kochi|coimbatore|nagpur|patna|bhubaneswar|visakhapatnam|vadodara|surat|mysuru|mysore|thiruvananthapuram|trivandrum|dehradun|ranchi|guwahati|kanpur|nashik)\s*[,\-–]?\s*(?:[a-z]+\s*[,\-–]?\s*){0,2}[1-9]\d{2}\s?\d{3}\b'
+      - '\b(?:andhra\s+pradesh|arunachal\s+pradesh|assam|bihar|chhattisgarh|goa|gujarat|haryana|himachal\s+pradesh|jharkhand|karnataka|kerala|madhya\s+pradesh|maharashtra|manipur|meghalaya|mizoram|nagaland|odisha|orissa|punjab|rajasthan|sikkim|tamil\s+nadu|telangana|tripura|uttar\s+pradesh|uttarakhand|west\s+bengal|jammu\s+(?:and|&)\s+kashmir)\s*[,\-–]?\s*(?:india\s*[,\-–]?\s*)?[1-9]\d{2}\s?\d{3}\b'
     severity:
       default: minor
       product_startup: minor
@@ -176,7 +178,7 @@ personal_rules:
     message: >-
       A full postal address (house number, street, PIN code) is unnecessary and
       a privacy risk on a resume passed around Naukri, LinkedIn and recruiter
-      inboxes. Recruiters only filter on your current city.
+      inboxes. Recruiters filter on current city, never on street address.
     fix: >-
       Replace it with "City, State" (e.g., "Pune, Maharashtra"). Add a
       relocation preference if relevant.
@@ -184,8 +186,7 @@ personal_rules:
   - id: gender
     label: Gender
     patterns:
-      - '\bgender\s*:'
-      - '\bgender\s*[\-–]\s*(?:male|female|man|woman|other|non[\s-]?binary|transgender)\b'
+      - '\bgender\s*[:\-–]\s*(?:male|female|man|woman|m|f|other|non[\s-]?binary|transgender)\b'
       - '\bsex\s*[:\-–]\s*(?:male|female|m|f)\b'
       - '^\s*(?:male|female)\s*$'
     severity:
@@ -207,9 +208,8 @@ personal_rules:
   - id: nationality
     label: Nationality
     patterns:
-      - '\bnationality\s*:'
-      - '\bnationality\s*[\-–]\s*indian\b'
-      - '\bcitizenship\s*[:\-–]\s*indian\b'
+      - '\bnationality\s*[:\-–]?\s*indian\b'
+      - '\bcitizenship\s*[:\-–]?\s*indian\b'
     severity:
       default: minor
       product_startup: minor
@@ -221,7 +221,8 @@ personal_rules:
     message: >-
       "Nationality: Indian" is redundant for a role in India, because recruiters
       assume you can work here. IT-services templates and PSU formats commonly
-      include it, so it is not penalised there.
+      include it, so it is not penalised there. (Only the Indian case is
+      flagged: a foreign national should state work-authorisation status.)
     fix: >-
       Drop it. Mention citizenship only when it matters (e.g., you hold
       OCI/another passport). For onsite-ready IT-services roles, write "Valid
@@ -255,7 +256,7 @@ personal_rules:
   - id: id_numbers
     label: Aadhaar / PAN / passport number
     patterns:
-      - '\ba{1,2}dh?a{1,2}r\s*(?:card\s*)?(?:no\.?|number|#)?\s*[:\-–]?\s*\d{4}\s?\d{4}\s?\d{4}\b'
+      - '\ba{1,2}dh?a{1,2}r\s*(?:card\s*)?(?:no\.?|number|#)?\s*[:\-–]?\s*\d{4}[\s-]?\d{4}[\s-]?\d{4}\b'
       - '\bpan\s*(?:card\s*)?(?:no\.?|number|#)?\s*[:\-–]?\s*[a-z]{5}\d{4}[a-z]\b'
       - '\bpassport\s*(?:no\.?|number|#)\s*[:\-–]?\s*[a-z]\d{7}\b'
       - '\b(?:voter\s*id|epic)\s*(?:card\s*)?(?:no\.?|number|#)?\s*[:\-–]?\s*[a-z]{3}\d{7}\b'
@@ -269,9 +270,10 @@ personal_rules:
       psu_govt: minor
     message: >-
       Government ID numbers on a resume that travels through job portals,
-      recruiters and forwards create an identity-fraud risk. UIDAI and the
-      Income Tax Department both advise against sharing Aadhaar/PAN publicly.
-      Employers collect these only at onboarding or background verification.
+      recruiters and forwards create an identity-fraud risk. UIDAI asks people
+      not to publish their Aadhaar number, and the Income Tax Department has
+      warned against posting PAN publicly because it gets misused. Employers
+      collect these at onboarding or background verification.
     fix: >-
       Delete Aadhaar, PAN, passport and voter-ID numbers. If passport status
       matters (e.g., onsite IT roles), write "Valid passport (till 2031)"
@@ -285,8 +287,8 @@ term_rules:
       - '\bto\s+work\s+in\s+a\s+(?:challenging|competitive|dynamic|professional|reputed|growth[\s-]oriented)\b'
       - '\bto\s+(?:obtain|secure)\s+a\s+(?:challenging\s+|suitable\s+|responsible\s+|good\s+)?position\b'
       - '\blooking\s+for\s+an?\s+(?:opportunity|challenging|suitable)\b'
-      - '\b(?:growth|success)\s+of\s+the\s+organi[sz]ation\b'
-      - '\bcontribut\w*\s+(?:to|towards)\s+the\s+(?:growth|success)\s+of\s+the\s+(?:company|firm)\b'
+      - '\b(?:contribute|contributing)\s+(?:\w+\s+){0,4}?(?:to|towards)\s+the\s+(?:growth|success)\s+of\s+the\s+(?:organi[sz]ation|company|firm)\b'
+      - '\b(?:for|towards)\s+the\s+(?:growth|success)\s+of\s+the\s+organi[sz]ation\b'
       - '\butili[sz]e\s+my\s+(?:skills|knowledge|abilities|potential)\b'
       - '\breputed\s+(?:organi[sz]ation|company|firm|concern)\b'
     severity:
@@ -309,22 +311,23 @@ term_rules:
     severity:
       default: minor
     message: >-
-      Recruiters assume references are available. Indian employers ask for
-      them, or run background verification, only at offer stage.
+      Recruiters assume references are available. Indian employers usually ask
+      for them, or run background verification, at offer stage.
     fix: >-
       Delete the line and use the space for an achievement or certification.
 
   - id: salary_on_resume
     label: CTC / salary on the resume
     patterns:
-      - '\b(?:current|present|expected|existing|last\s+drawn)\s+(?:ctc|salary|package|compensation)\s*[:\-–]'
+      - '\b(?:current|present|expected|existing|last\s+drawn)\s+(?:ctc|salary|package|compensation)\s*(?:[:\-–]|(?:₹|rs\.?|inr)?\s*\d)'
+      - '\bsalary\s*(?:expectations?\s*)?[:\-–]\s*(?:₹|rs\.?|inr)?\s*\d'
       - '\b[ce]ctc\s*[:\-–]'
       - '\bctc\s*[:\-–]\s*(?:₹|rs\.?|inr)?\s*\d'
     severity:
       default: minor
       psu_govt: ok
     message: >-
-      Recruiters in India always ask for current and expected CTC, but it
+      Recruiters in India almost always ask for current and expected CTC, but it
       belongs in the Naukri/portal fields or the screening call. On the resume
       it anchors negotiation and can get you filtered out before anyone talks
       to you. PSU lateral formats that ask for present pay level are the
@@ -373,11 +376,12 @@ expectations:
       - '\b[cs]?\.?g\.?p\.?a\b'
       - '\bc\.?p\.?i\s*[:\-–]?\s*\d'
       - '\b(?:\d(?:\.\d{1,2})?|10(?:\.0{1,2})?)\s*/\s*10(?:\.0{1,2})?\b(?!\s*/)'
+      - '\b\d(?:\.\d{1,2})?\s+out\s+of\s+10\b'
       - '\b[0-4]\.\d{1,2}\s*/\s*4(?:\.0{1,2})?\b'
       - '\bpercentage\s*(?:of\s+marks\s*)?[:\-–]?\s*\d{2}'
       - '\b(?:aggregate|marks|grade)\s*(?:of\s*)?[:\-–]?\s*\d{1,2}(?:\.\d{1,2})?\s*%'
       - '\b\d{2}(?:\.\d{1,2})?\s*%\s*(?:aggregate|marks)\b'
-      - '\b(?:b\.?\s?tech|m\.?\s?tech|b\.e\.?|m\.e\.?|b\.?\s?sc|m\.?\s?sc|b\.?\s?com|m\.?\s?com|bca|mca|bba|mba|pgdm|b\.a\.?|m\.a\.?|b\.?\s?pharm|mbbs|llb|diploma|bachelor(?:s|[\x27’]s)?|graduation|university|college|institute)\b[^%]{0,160}?\b\d{2}(?:\.\d{1,2})?\s*%'
+      - '\b(?:b\.?\s?tech|m\.?\s?tech|b\.e\.?|m\.e\.?|b\.?\s?sc|m\.?\s?sc|b\.?\s?com|m\.?\s?com|bca|mca|bba|mba|pgdm|b\.a\.?|m\.a\.?|b\.?\s?pharm|mbbs|llb|diploma|bachelor(?:s|[\x27’]s)?|graduation|university|college|institute)\b(?:(?!\b(?:by|reduc\w*|increas\w*|improv\w*|grew|grow\w*|sav\w*|cut|boost\w*|lift\w*|drop\w*|decreas\w*|rais\w*|accuracy|uptime|conversion|retention|roi)\b)[^%]){0,160}?\b\d{2}(?:\.\d{1,2})?\s*%'
       - '\bfirst\s+class\s+(?:with\s+distinction|honou?rs)\b'
       - '\bwith\s+distinction\b'
       - '\b(?:first|1st)\s+division\b'
@@ -394,13 +398,13 @@ expectations:
     label: Class X / XII results
     patterns:
       - '\b(?:class|std\.?|standard|grade)\s*[\-–]?\s*(?:x|xii|10|12)(?:th)?\b'
-      - '\b(?:10|12)\s*th\b'
+      - '(?<!rank\s)(?<!ranked\s)(?<!secured\s)(?<!stood\s)(?<!placed\s)(?<!finished\s)\b(?:10|12)\s*th\b(?!\s*(?:place|rank|position|percentile|edition|anniversary|out\s+of|among|in\b))'
       - '\b(?:x|xii)(?:th)?\s*[(\-–,]?\s*(?:standard|std|board|cbse|icse|isc|ssc|hsc)\b'
-      - '\b(?:ssc|hsc|sslc|hslc|aissce|aisse|matric(?:ulation)?|puc|pre[\s-]?university|higher\s+secondary|senior\s+secondary|secondary\s+school|plus\s+two|junior\s+college)\b'
+      - '\b(?:ssc|hsc|hssc|sslc|hslc|aissce|aisse|matric(?:ulation)?|puc|pre[\s-]?university|higher\s+secondary|senior\s+secondary|secondary\s+school|plus\s+two|junior\s+college)\b'
       - '\b(?:cbse|icse|igcse|state\s+board)\b'
       - '\bisc\b(?!\)?\s?[2²](?!\d))'
       - '\b10\s*\+\s*2\b'
-      - '\bintermediate\s*(?:\(|education|board|ipe|mpc|bipc|mec|cec)'
+      - '\bintermediate\s*(?:\(\s*(?:mpc|bipc|mec|cec|hec|pcm|pcb|science|commerce|arts|xii|12)|education|board|public\s+exam|ipe\b|mpc\b|bipc\b|mec\b|cec\b)'
     levels: [fresher]
     employer_types: [it_services, consulting_mba]
     penalty: 5
@@ -489,9 +493,10 @@ recruiter_persona: >-
   that match the JD, notice period, current city, and college tier for
   early-career candidates. You reward quantified impact (₹ Lakh/Crore, %,
   users, scale), dates that will survive background verification, and a clean
-  A4 layout of 1-2 pages. You know biodata conventions (DOB, father's name,
-  declaration) are normal in PSU and mass IT-services hiring but dated
-  everywhere else. You are direct and practical, and you never reward keyword
+  A4 layout of 1-2 pages. You know some biodata items (DOB, declaration) are
+  still common in PSU and mass IT-services hiring, but that father's name,
+  marital status, religion and ID numbers add nothing for any private
+  employer. You are direct and practical, and you never reward keyword
   stuffing or inflated claims.
 
 context:
@@ -535,16 +540,16 @@ context:
   - >-
     PSU and government hiring is eligibility-driven and runs on the official
     notification: prescribed formats, category certificates, details matching
-    the Class X certificate, a signed declaration, and GATE scores for most
-    engineering PSU intakes. The official form overrides general resume advice.
+    the Class X certificate, a signed declaration, and GATE scores for many
+    engineering PSU intakes (some PSUs run their own exams). The official form overrides general resume advice.
   - >-
     Quantify in Indian units for Indian readers: ₹ Lakh/Crore for money
     (e.g., ₹2.4 Cr), LPA for compensation, and Indian digit grouping where
     used. Do not mix ₹ and $ unless the client or market was overseas.
   - >-
-    Notice periods are typically 30-90 days, and IT services commonly 90.
-    Recruiters prioritise immediate or ≤30-day joiners and drop candidates
-    whose real notice was hidden. An honest notice period or last working day
+    Notice periods are typically 30-90 days, and 90 is common at large
+    IT-services firms. Recruiters prioritise immediate or ≤30-day joiners, and
+    offers get pulled when the real notice period turns out longer than stated. An honest notice period or last working day
     on Naukri, in the cover note, or in one header line helps.
   - >-
     College tier is a strong early-career signal (IIT/NIT/IIIT/BITS for tech,
@@ -563,7 +568,8 @@ context:
     dates, keep titles consistent with offer letters, and explain gaps longer
     than about 6 months in one line.
   - >-
-    Certifications matter more in India than in many markets. Cloud and
+    Certifications carry more weight in Indian IT hiring than in many
+    markets. Cloud and
     platform certifications (AWS, Azure, GCP, Salesforce, ServiceNow, SAP) drive
     staffing in IT services and GCCs. List them with year and credential ID or
     link, and drop expired or trivial course-completion badges.
