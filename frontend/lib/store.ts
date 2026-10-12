@@ -62,6 +62,7 @@ interface AppState {
   applyEvent: (runId: number, e: StreamEvent) => void;
   addVersion: (v: TailoredVersion) => void;
   setActiveVersion: (id: string) => void;
+  revertFlag: (versionId: string, targetId: string) => void;
   setError: (e: AppErrorInfo | undefined) => void;
   reset: () => void;
 }
@@ -83,7 +84,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
           activeVersionId: undefined, coverLetter: "" }),
   hydrate: (h) =>
     set({ sessionId: h.id, sessionStartedAt: h.created_at, analysis: h.analysis, partial: {}, versions: h.versions,
-          activeVersionId: h.versions.at(-1)?.id, coverLetter: h.cover_letter, error: undefined, stages: idleStages(),
+          activeVersionId: h.versions.at(-1)?.id, coverLetter: h.cover_letter, ...perRun(), runId: get().runId + 1, busy: "idle",
           inputs: { ...get().inputs, region: h.analysis.region } }),
   runId: 0,
   partial: {},
@@ -133,6 +134,27 @@ export const useAppStore = create<AppState>()((set, get) => ({
 
   addVersion: (v) => set((s) => ({ versions: [...s.versions, v], activeVersionId: v.id })),
   setActiveVersion: (id) => set({ activeVersionId: id }),
+  revertFlag: (versionId, targetId) =>
+    set((s) => {
+      const original = s.analysis?.resume;
+      if (!original) return {};
+      const originalText = new Map(
+        [...original.experience, ...original.projects, ...original.education, ...original.other_sections]
+          .flatMap((e) => e.bullets).concat(original.achievements).map((b) => [b.id, b.text]),
+      );
+      return {
+        versions: s.versions.map((v) => {
+          if (v.id !== versionId) return v;
+          const r = structuredClone(v.resume);
+          if (targetId === "summary") r.summary = original.summary;
+          else if (targetId === "skills") r.skills = original.skills;
+          else
+            for (const b of [...r.experience, ...r.projects, ...r.education, ...r.other_sections].flatMap((e) => e.bullets).concat(r.achievements))
+              if (b.id === targetId && originalText.has(b.id)) b.text = originalText.get(b.id)!;
+          return { ...v, resume: r, flags: v.flags.filter((f) => f.target_id !== targetId) };
+        }),
+      };
+    }),
   setError: (error) => set({ error }),
   reset: () => set({ runId: 0, partial: {}, analysis: undefined, versions: [], activeVersionId: undefined, coverLetter: "", ...perRun() }),
 }));

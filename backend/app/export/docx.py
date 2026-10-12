@@ -1,6 +1,7 @@
 """DOCX rendering with python-docx: plain paragraphs and the built-in List Bullet style (ATS-friendly)."""
 
 import io
+import re
 
 import docx
 from docx.enum.text import WD_ALIGN_PARAGRAPH
@@ -9,6 +10,19 @@ from docx.shared import Pt
 from app.export.pdf import paragraphs
 from app.knowledge.models import RegionPack
 from app.schemas import Bullet, Contact, Entry, ResumeDoc
+
+_CONTROL = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f]")
+
+
+def _clean(value):
+    """XML 1.0 forbids most control characters; python-docx raises on them. Cleans strings inside dicts/lists too."""
+    if isinstance(value, str):
+        return _CONTROL.sub("", value)
+    if isinstance(value, dict):
+        return {k: _clean(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_clean(v) for v in value]
+    return value
 
 
 def _contact_line(c: Contact) -> str:
@@ -51,6 +65,7 @@ def _save(d: docx.Document) -> bytes:
 
 
 def render_resume_docx(doc: ResumeDoc, region: RegionPack) -> bytes:
+    doc = ResumeDoc.model_validate(_clean(doc.model_dump()))
     d = docx.Document()
     d.styles["Normal"].font.size = Pt(10.5)
     _header(d, doc.contact)
@@ -79,6 +94,7 @@ def render_resume_docx(doc: ResumeDoc, region: RegionPack) -> bytes:
 
 
 def render_letter_docx(text: str, contact: Contact) -> bytes:
+    text, contact = _clean(text), Contact.model_validate(_clean(contact.model_dump()))
     d = docx.Document()
     _header(d, contact, align=WD_ALIGN_PARAGRAPH.LEFT)
     for para in paragraphs(text):

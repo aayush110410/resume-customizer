@@ -1,11 +1,18 @@
 import time
 from collections import defaultdict, deque
-
-from fastapi import Request
+from typing import Any
 
 from app.api.errors import AppError
 
 _UNITS = {"second": 1, "minute": 60, "hour": 3600, "day": 86400}
+
+
+def client_key(request: Any) -> str:
+    """Render's proxy appends the real client IP as the LAST X-Forwarded-For entry; earlier entries are client-supplied."""
+    forwarded = request.headers.get("x-forwarded-for", "")
+    if forwarded.strip():
+        return forwarded.split(",")[-1].strip()
+    return request.client.host if request.client else "unknown"
 
 
 class RateLimiter:
@@ -16,9 +23,14 @@ class RateLimiter:
         self.limit, self.window = int(count), _UNITS[unit.strip().rstrip("s")]
         self._hits: dict[str, deque[float]] = defaultdict(deque)
 
-    def check(self, request: Request) -> None:
-        key = request.client.host if request.client else "unknown"
-        now, hits = time.monotonic(), self._hits[key]
+    def _prune(self, now: float) -> None:
+        for key in [k for k, hits in self._hits.items() if not hits or now - hits[-1] > self.window]:
+            del self._hits[key]
+
+    def check(self, request: Any) -> None:
+        now = time.monotonic()
+        self._prune(now)
+        hits = self._hits[client_key(request)]
         while hits and now - hits[0] > self.window:
             hits.popleft()
         if len(hits) >= self.limit:

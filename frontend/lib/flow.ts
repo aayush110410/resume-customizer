@@ -46,10 +46,12 @@ async function tailorInto(run: number, analysis: Analysis, settings: TailorSetti
   store().setBusy("tailoring");
   let version: TailoredVersion | undefined;
   await tailor(analysis, settings, (e: StreamEvent) => {
+    if (signal.aborted) return;
     store().applyEvent(run, e);
     if (e.event === "done") version = (e.data as { version: TailoredVersion }).version;
   }, signal);
-  if (version && !signal.aborted) {
+  if (signal.aborted) return;
+  if (version) {
     store().addVersion(version);
     await persist();
   } else surfaceStreamError();
@@ -68,9 +70,11 @@ export async function runAnalyzeAndTailor() {
       store().applyEvent(run, e);
       if (e.event === "done") analysis = (e.data as { analysis: Analysis }).analysis;
     }, signal);
+    if (signal.aborted) return;
     if (!analysis) return surfaceStreamError();
     store().setAnalysis(analysis);
     await persist();
+    if (signal.aborted) return;
     await tailorInto(run, analysis, { sections, tone, model }, signal);
   } catch (err) {
     report(err, signal);
@@ -128,3 +132,9 @@ export async function restoreSession(id: string) {
 }
 
 export const saveCoverLetterEdit = persist;
+
+/** Retry the step that failed: re-tailor if the analysis already exists, otherwise start over. */
+export function retryLast() {
+  const { analysis, inputs } = store();
+  return analysis ? runNewVersion({ sections: inputs.sections, tone: inputs.tone, model: inputs.model }) : runAnalyzeAndTailor();
+}

@@ -25,3 +25,7 @@ def get_cache(request: Request) -> AsyncLRU:
 
 def rate_limited(request: Request) -> None:
     request.app.state.limiter.check(request)
+
+
+def export_rate_limited(request: Request) -> None:
+    request.app.state.export_limiter.check(request)

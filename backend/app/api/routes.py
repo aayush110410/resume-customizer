@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, File, Form, Request, Response, UploadFil
 from fastapi.concurrency import run_in_threadpool
 from sse_starlette import EventSourceResponse
 
-from app.api.deps import get_cache, get_kb, get_llm, get_settings, rate_limited
+from app.api.deps import export_rate_limited, get_cache, get_kb, get_llm, get_settings, rate_limited
 from app.api.errors import PARSE_STATUS, AppError
 from app.cache import AsyncLRU
 from app.config import Settings
@@ -94,7 +94,7 @@ MEDIA = {
 }
 
 
-@router.post("/export")
+@router.post("/export", dependencies=[Depends(export_rate_limited)])
 async def export(req: ExportRequest, kb: Annotated[Knowledge, Depends(get_kb)]) -> Response:
     region = kb.regions[req.region]
     if req.kind == "resume":

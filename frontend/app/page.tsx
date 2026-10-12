@@ -16,7 +16,7 @@ import { ScoreBoard } from "@/components/results/ScoreBoard";
 import { VersionsPanel } from "@/components/results/VersionsPanel";
 import { getMeta } from "@/lib/api";
 import { messageFor } from "@/lib/errors";
-import { runAnalyzeAndTailor } from "@/lib/flow";
+import { retryLast, runAnalyzeAndTailor } from "@/lib/flow";
 import { useAppStore } from "@/lib/store";
 import type { Meta } from "@/lib/types";
 
@@ -72,7 +72,7 @@ export default function Home() {
           <span className="text-[24px] font-medium tracking-[0.02em]">Shortlist</span>
           <span className="hidden text-[13px] text-ink-3 sm:inline">Resume customizer · India-first</span>
         </div>
-        <OutlineButton onClick={() => setHistory(true)}><History className="size-4" aria-hidden />History</OutlineButton>
+        <OutlineButton onClick={() => setHistory(true)} disabled={s.busy !== "idle"}><History className="size-4" aria-hidden />History</OutlineButton>
       </header>
 
       <div className="grid flex-1 gap-x-10 lg:grid-cols-[340px_minmax(0,1fr)] xl:grid-cols-[340px_minmax(0,1fr)_320px]">
@@ -84,7 +84,17 @@ export default function Home() {
           {s.error && (
             <div role="alert" className="flex flex-wrap items-center justify-between gap-3 border border-down/40 px-4 py-3">
               <p className="text-[13.5px] text-ink-2">{messageFor(s.error.code)}</p>
-              {s.error.retryable && <OutlineButton onClick={() => void runAnalyzeAndTailor()}>Try again</OutlineButton>}
+              {s.error.retryable && <OutlineButton onClick={() => void retryLast()}>Try again</OutlineButton>}
+            </div>
+          )}
+          {analysis && analysis.jd.suggested_region !== analysis.region && s.busy === "idle" && (
+            <div className="flex flex-wrap items-center justify-between gap-3 border border-gold-dim/40 px-4 py-3">
+              <p className="text-[13.5px] text-ink-2">
+                This job looks {analysis.jd.suggested_region === "india" ? "India-based" : "based outside India"}{analysis.jd.location ? ` (${analysis.jd.location})` : ""}. Score it for the {analysis.jd.suggested_region === "india" ? "Indian" : "international"} market instead?
+              </p>
+              <OutlineButton onClick={() => { s.setInput("region", analysis.jd.suggested_region); void runAnalyzeAndTailor(); }}>
+                Switch to {analysis.jd.suggested_region === "india" ? "India" : "International"}
+              </OutlineButton>
             </div>
           )}
           {s.warnings.includes("NOT_A_JD") && <p className="text-[13.5px] text-gold">{messageFor("NOT_A_JD")}</p>}
@@ -111,11 +121,11 @@ export default function Home() {
                   <div className="flex flex-col gap-6">
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <p className="text-[13px] text-ink-3">
-                        {version.flags.length ? `${version.flags.length} line(s) contain facts we couldn't find in your original. Confirm or edit them before sending.` : "Every fact traced back to your original resume."}
+                        {version.flags.length ? `${version.flags.length} line(s) contain facts we couldn't find in your original. Check each one, or choose Use original. Anything left is included in your download.` : "Every fact traced back to your original resume."}
                       </p>
                       <DownloadMenu request={{ kind: "resume", region: analysis!.region, resume: version.resume }} />
                     </div>
-                    <ResumeView resume={version.resume} flags={version.flags} />
+                    <ResumeView resume={version.resume} flags={version.flags} onRevert={(id) => s.revertFlag(version.id, id)} />
                   </div>
                 ) : <p className="text-[13.5px] text-ink-3">The tailored resume appears here once analysis finishes.</p>)}
                 {tab === "changes" && (version && analysis ? <DiffView before={analysis.resume} after={version.resume} changes={version.changes} /> : <p className="text-[13.5px] text-ink-3">No tailored version yet.</p>)}

@@ -2,7 +2,18 @@ import { Chip, Label } from "@/components/ledger";
 import type { Bullet, Entry, FabricationFlag, ResumeDoc, TailorItem } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-function Bullets({ bullets, flags }: { bullets: Bullet[]; flags: Map<string, FabricationFlag> }) {
+type Revert = ((targetId: string) => void) | undefined;
+
+function UseOriginal({ id, onRevert }: { id: string; onRevert: Revert }) {
+  if (!onRevert) return null;
+  return (
+    <button type="button" onClick={() => onRevert(id)} className="ml-2 text-[12px] text-gold-dim underline underline-offset-4 hover:text-gold">
+      Use original
+    </button>
+  );
+}
+
+function Bullets({ bullets, flags, onRevert }: { bullets: Bullet[]; flags: Map<string, FabricationFlag>; onRevert?: Revert }) {
   return (
     <ul className="mt-1.5 flex flex-col gap-1.5">
       {bullets.map((b) => {
@@ -12,7 +23,7 @@ function Bullets({ bullets, flags }: { bullets: Bullet[]; flags: Map<string, Fab
             <span className="mt-[9px] size-1 bg-gold-dim" aria-hidden />
             <span className={cn(f && "decoration-gold-dim underline decoration-dotted underline-offset-4")}>
               {b.text}
-              {f && <span className="ml-2 inline-flex"><Chip tone="gold" title={`${f.reason}: ${f.tokens.join(", ")}`}>Needs your confirmation · {f.tokens.join(", ")}</Chip></span>}
+              {f && <span className="ml-2 inline-flex items-center"><Chip tone="gold" title={`${f.reason}: ${f.tokens.join(", ")}`}>Needs your confirmation · {f.tokens.join(", ")}</Chip><UseOriginal id={b.id} onRevert={onRevert} /></span>}
             </span>
           </li>
         );
@@ -21,7 +32,7 @@ function Bullets({ bullets, flags }: { bullets: Bullet[]; flags: Map<string, Fab
   );
 }
 
-function EntryBlock({ e, flags }: { e: Entry; flags: Map<string, FabricationFlag> }) {
+function EntryBlock({ e, flags, onRevert }: { e: Entry; flags: Map<string, FabricationFlag>; onRevert?: Revert }) {
   const dates = [e.start, e.end].filter(Boolean).join(" – ");
   return (
     <div className="border-t border-rule-list py-3">
@@ -29,13 +40,13 @@ function EntryBlock({ e, flags }: { e: Entry; flags: Map<string, FabricationFlag
         <span className="text-[15px] font-medium text-ink">{e.title}<span className="font-normal text-ink-3"> · {e.organization}</span></span>
         <span className="figure text-[12.5px] text-ink-3">{[e.location, dates].filter(Boolean).join(" · ")}</span>
       </div>
-      {e.bullets.length > 0 && <Bullets bullets={e.bullets} flags={flags} />}
+      {e.bullets.length > 0 && <Bullets bullets={e.bullets} flags={flags} onRevert={onRevert} />}
     </div>
   );
 }
 
 /** The tailored resume as a document; amber-flagged lines contain facts we could not find in the original. */
-export function ResumeView({ resume, flags = [] }: { resume: ResumeDoc; flags?: FabricationFlag[] }) {
+export function ResumeView({ resume, flags = [], onRevert }: { resume: ResumeDoc; flags?: FabricationFlag[]; onRevert?: Revert }) {
   const byId = new Map(flags.map((f) => [f.target_id, f]));
   const c = resume.contact;
   return (
@@ -48,7 +59,7 @@ export function ResumeView({ resume, flags = [] }: { resume: ResumeDoc; flags?: 
         <section>
           <Label>Summary</Label>
           <p className="mt-2 max-w-[75ch] text-[13.5px] leading-[1.75] text-ink-2">{resume.summary}</p>
-          {byId.get("summary") && <div className="mt-2"><Chip tone="gold">Needs your confirmation · {byId.get("summary")!.tokens.join(", ")}</Chip></div>}
+          {byId.get("summary") && <div className="mt-2 flex items-center"><Chip tone="gold">Needs your confirmation · {byId.get("summary")!.tokens.join(", ")}</Chip><UseOriginal id="summary" onRevert={onRevert} /></div>}
         </section>
       )}
       {resume.skills.length > 0 && (
@@ -61,16 +72,16 @@ export function ResumeView({ resume, flags = [] }: { resume: ResumeDoc; flags?: 
               </div>
             ))}
           </dl>
-          {byId.get("skills") && <div className="mt-2"><Chip tone="gold">Not in your original resume · {byId.get("skills")!.tokens.join(", ")}</Chip></div>}
+          {byId.get("skills") && <div className="mt-2 flex items-center"><Chip tone="gold">Not in your original resume · {byId.get("skills")!.tokens.join(", ")}</Chip><UseOriginal id="skills" onRevert={onRevert} /></div>}
         </section>
       )}
       {(["experience", "projects", "education"] as const).map((k) =>
         resume[k].length ? (
-          <section key={k}><Label>{k}</Label><div className="mt-1">{resume[k].map((e) => <EntryBlock key={e.id} e={e} flags={byId} />)}</div></section>
+          <section key={k}><Label>{k}</Label><div className="mt-1">{resume[k].map((e) => <EntryBlock key={e.id} e={e} flags={byId} onRevert={onRevert} />)}</div></section>
         ) : null,
       )}
-      {resume.achievements.length > 0 && <section><Label>Achievements</Label><Bullets bullets={resume.achievements} flags={byId} /></section>}
-      {resume.other_sections.map((o) => <section key={o.id}><Label>{o.name}</Label><Bullets bullets={o.bullets} flags={byId} /></section>)}
+      {resume.achievements.length > 0 && <section><Label>Achievements</Label><Bullets bullets={resume.achievements} flags={byId} onRevert={onRevert} /></section>}
+      {resume.other_sections.map((o) => <section key={o.id}><Label>{o.name}</Label><Bullets bullets={o.bullets} flags={byId} onRevert={onRevert} /></section>)}
     </article>
   );
 }

@@ -43,3 +43,40 @@ describe("useAppStore", () => {
     expect(useAppStore.getState().warnings).toEqual(["NOT_A_JD"]);
   });
 });
+
+describe("review fixes", () => {
+  const resume = (text: string, summary = "S") => ({
+    contact: { name: "A", email: null, phone: null, location: null, links: [] }, summary,
+    skills: [{ name: "L", items: ["Go"] }],
+    experience: [{ id: "exp0", title: "SE", organization: "X", location: null, start: null, end: null, bullets: [{ id: "exp0.b0", text, kind: "other" as const }] }],
+    projects: [], education: [], achievements: [], other_sections: [], total_years_experience: 2, level: "junior" as const,
+  });
+
+  it("hydrate clears any running state", () => {
+    const s = useAppStore.getState();
+    const run = s.startRun();
+    s.setBusy("tailoring");
+    s.applyEvent(run, { event: "item", data: { type: "summary", text: "x" } });
+    s.hydrate({ id: "h", created_at: "2026-10-12T00:00:00Z", analysis: { region: "india" } as never, versions: [], cover_letter: "" });
+    const st = useAppStore.getState();
+    expect(st.busy).toBe("idle");
+    expect(st.streamingItems).toEqual([]);
+    expect(st.runId).toBeGreaterThan(run);
+  });
+
+  it("revertFlag restores the original text and drops the flag", () => {
+    const s = useAppStore.getState();
+    s.setAnalysis({ resume: resume("Cut latency 30%", "Old summary") } as never);
+    s.addVersion({
+      id: "v1", created_at: "", settings: { sections: ["experience"], tone: "balanced", model: null }, model: "m", changes: [],
+      scores: {} as never, resume: resume("Cut latency 45%", "New 7 years"),
+      flags: [{ target_id: "exp0.b0", tokens: ["45%"], reason: "r" }, { target_id: "summary", tokens: ["7"], reason: "r" }],
+    });
+    s.revertFlag("v1", "exp0.b0");
+    s.revertFlag("v1", "summary");
+    const v = useAppStore.getState().versions[0];
+    expect(v.resume.experience[0].bullets[0].text).toBe("Cut latency 30%");
+    expect(v.resume.summary).toBe("Old summary");
+    expect(v.flags).toEqual([]);
+  });
+});

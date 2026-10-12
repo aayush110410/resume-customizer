@@ -1,7 +1,8 @@
 import logging
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from app.api.errors import install_error_handlers
 from app.api.ratelimit import RateLimiter
@@ -21,14 +22,25 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.llm = LLMClient(app.state.targets, settings.llm_timeout_s)
     app.state.cache = AsyncLRU()
     app.state.limiter = RateLimiter(settings.rate_limit)
+    app.state.export_limiter = RateLimiter(settings.export_rate_limit)
+    max_body = settings.max_request_mb * 1024 * 1024
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=[o.strip() for o in settings.allowed_origins.split(",") if o.strip()],
+        allow_origins=[o.strip().rstrip("/") for o in settings.allowed_origins.split(",") if o.strip()],
         allow_methods=["GET", "POST"],
         allow_headers=["*"],
         expose_headers=["Content-Disposition"],
     )
     install_error_handlers(app)
+
+    @app.middleware("http")
+    async def limit_body(request: Request, call_next):
+        size = request.headers.get("content-length")
+        if size and size.isdigit() and int(size) > max_body:
+            body = {"code": "REQUEST_TOO_LARGE", "message": "Request is too large.", "retryable": False}
+            return JSONResponse({"error": body}, status_code=413)
+        return await call_next(request)
+
     app.include_router(router)
 
     @app.get("/health")

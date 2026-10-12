@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: resume-customizer-api
+    name: shortlist-resume-api-aayush
     runtime: docker
     rootDir: backend
     dockerfilePath: ./Dockerfile
@@ -18,7 +18,7 @@ services:
         sync: false
 
   - type: web
-    name: resume-customizer-web
+    name: shortlist-resume-web-aayush
     runtime: node
     rootDir: frontend
     plan: free

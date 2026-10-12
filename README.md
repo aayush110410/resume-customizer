@@ -7,7 +7,7 @@ Paste a job description, upload a resume (PDF or DOCX), and get:
 - **A truthfully tailored resume:** streamed live, with a diff, multiple versions and PDF/DOCX/TXT downloads.
 - **A matching cover letter.**
 
-**Live app:** _https://resume-customizer-web.onrender.com_ (frontend) · _https://resume-customizer-api.onrender.com/health_ (API)
+**Live app:** _URL added after the Render deploy_ (blueprint services `shortlist-resume-web-aayush` and `shortlist-resume-api-aayush`)
 
 > The free hosting tier sleeps when idle. The first request can take up to a minute while the server wakes, and the UI says so.
 
@@ -40,7 +40,7 @@ Paste a job description, upload a resume (PDF or DOCX), and get:
 | PDF/DOCX upload | Drag and drop; shows name and size; magic-byte check, ≤ 5 MB, ≤ 5 pages; detects scanned, encrypted, multi-column and hidden-text files |
 | LLM customisation | Summary rewrite, matched skills first, bullets reordered and rephrased, missing keywords |
 | View + download | Clean resume view; **PDF** (Typst, ATS-safe single column, A4 for India, Letter for International), **DOCX**, **TXT** |
-| Error handling | Typed error codes with friendly messages, LLM provider fallback chain, per-IP rate limit, partial results kept on failure |
+| Error handling | Typed error codes with friendly messages, LLM provider fallback chain, per-IP rate limit (proxy-aware), request size cap, partial results kept on failure, retry of just the failed step |
 | ★ Match score | Weighted requirement coverage, before → after |
 | ★ ATS score | Parseability, keyword coverage, structure and length, itemised |
 | ★ Diff view | Bullet-aligned (stable IDs), word-level, reorder markers, the reason for each change |
@@ -120,8 +120,8 @@ cd frontend && pnpm install && cp .env.example .env.local && pnpm dev   # http:/
 ```
 
 **Tests:**
-- `cd backend && .venv/bin/pytest -q && .venv/bin/ruff check .` (117 tests)
-- `cd frontend && pnpm test && pnpm tsc --noEmit` (15 tests)
+- `cd backend && .venv/bin/pytest -q && .venv/bin/ruff check .` (125 tests)
+- `cd frontend && pnpm test && pnpm tsc --noEmit` (20 tests)
 
 **Live eval:** `cd backend && .venv/bin/python -m evals.run_eval --runs 3`
 

@@ -37,6 +37,8 @@ class Settings(BaseSettings):
     jd_min_chars: int = 300
     jd_max_chars: int = 20000
     rate_limit: str = "20/hour"
+    export_rate_limit: str = "60/hour"
+    max_request_mb: int = 8
 
 
 def _split(value: str) -> list[str]:

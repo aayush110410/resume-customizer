@@ -84,6 +84,13 @@ def _delta(chunk: Any) -> str:
     return (getattr(choices[0].delta, "content", None) or "") if choices else ""
 
 
+def _message_text(resp: Any) -> str:
+    try:
+        return resp.choices[0].message.content or ""
+    except (AttributeError, IndexError, TypeError) as e:  # e.g. 200 OK with "choices": null from a proxy
+        raise _BadOutput("malformed completion") from e
+
+
 class LLM(Protocol):
     async def structured(
         self,
@@ -131,12 +138,11 @@ class LLMClient:
         return self._clients[key]
 
     def _chain(self, role: Role, model: str | None) -> list[Target]:
+        """The role's chain, with a requested model tried first, only if it is one we configured (no arbitrary models on our keys)."""
         chain = list(self.targets[role])
-        if model and ":" in model:
-            provider, name = model.split(":", 1)
-            known = next((t for ts in self.targets.values() for t in ts if t.provider == provider), None)
-            if known:
-                chain.insert(0, Target(provider, known.base_url, known.api_key, name))
+        chosen = next((t for ts in self.targets.values() for t in ts if t.label == model), None) if model else None
+        if chosen:
+            chain = [chosen] + [t for t in chain if t != chosen]
         return chain
 
     async def structured(
@@ -182,7 +188,7 @@ class LLMClient:
             fmt = {"type": "json_object"}
             resp = await create(messages=messages, response_format=fmt, **kwargs)
 
-        content = resp.choices[0].message.content or ""
+        content = _message_text(resp)
         try:
             return schema.model_validate(extract_json(content))
         except (ValueError, ValidationError) as first_error:
@@ -195,7 +201,7 @@ class LLMClient:
             ]
             resp = await create(messages=repair, response_format=fmt, **kwargs)
             try:
-                return schema.model_validate(extract_json(resp.choices[0].message.content or ""))
+                return schema.model_validate(extract_json(_message_text(resp)))
             except (ValueError, ValidationError) as e:
                 raise _BadOutput(str(e)) from e
 

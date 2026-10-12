@@ -47,3 +47,10 @@ describe("postSSE", () => {
     await expect(postSSE("/x", "{}", () => {})).rejects.toMatchObject({ code: "NETWORK", retryable: true });
   });
 });
+
+describe("postSSE truncation", () => {
+  it("throws a retryable NETWORK error when the stream closes without done or error", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(streamOf(['event: stage\ndata: {"id":"parsing","status":"done"}\n\n']), { status: 200 })));
+    await expect(postSSE("/x", "{}", () => {})).rejects.toMatchObject({ code: "NETWORK", retryable: true });
+  });
+});

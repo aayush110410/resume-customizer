@@ -41,8 +41,13 @@ export async function postSSE(
   }
   if (!res.ok || !res.body) throw await toApiError(res);
 
+  let terminal = false;
   const parser = createParser({
-    onEvent: (m) => onEvent({ event: m.event ?? "message", data: m.data ? JSON.parse(m.data) : null }),
+    onEvent: (m) => {
+      const event = m.event ?? "message";
+      terminal ||= event === "done" || event === "error";
+      onEvent({ event, data: m.data ? JSON.parse(m.data) : null });
+    },
   });
   const reader = res.body.pipeThrough(new TextDecoderStream()).getReader();
   for (;;) {
@@ -50,4 +55,6 @@ export async function postSSE(
     if (done) break;
     parser.feed(value);
   }
+  // A proxy or sleeping instance can close the stream cleanly mid-run; never let that look like success.
+  if (!terminal && !signal?.aborted) throw new ApiError("NETWORK", "The connection closed before the result arrived.", 0, true);
 }
