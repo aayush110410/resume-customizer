@@ -15,9 +15,10 @@ from app.export.txt import render_txt
 from app.knowledge.models import Knowledge
 from app.llm.client import LLM
 from app.parsing.extract import ParseError, parse_resume
-from app.schemas import Contact, ExportRequest, Region, TailorRequest
+from app.schemas import Contact, CoverLetterRequest, ExportRequest, Region, TailorRequest
 from app.services import as_sse
 from app.services.analyze import analyze_stream
+from app.services.cover_letter import cover_letter_stream
 from app.services.tailor import tailor_stream
 
 router = APIRouter(prefix="/api")
@@ -77,6 +78,13 @@ async def tailor(
     req: TailorRequest, llm: Annotated[LLM, Depends(get_llm)], kb: Annotated[Knowledge, Depends(get_kb)]
 ) -> EventSourceResponse:
     return EventSourceResponse(as_sse(tailor_stream(req, llm, kb)))
+
+
+@router.post("/cover-letter", dependencies=[Depends(rate_limited)])
+async def cover_letter(
+    req: CoverLetterRequest, llm: Annotated[LLM, Depends(get_llm)], kb: Annotated[Knowledge, Depends(get_kb)]
+) -> EventSourceResponse:
+    return EventSourceResponse(as_sse(cover_letter_stream(req, llm, kb)))
 
 
 MEDIA = {
