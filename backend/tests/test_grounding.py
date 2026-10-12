@@ -99,3 +99,14 @@ def test_invented_skill_and_summary_number_flagged(doc, kb):
     t.summary = "Backend engineer with 7 years building payment APIs."
     flags = {f.target_id: f.tokens for f in find_fabrications(doc, render_plain(doc), t, kb)}
     assert flags == {"skills": ["Rust"], "summary": ["7"]}
+
+
+def test_sentence_start_capitals_are_not_facts(doc, kb):
+    t = doc.model_copy(deep=True)
+    t.summary = "Backend engineer building payment APIs. Proven record shipping REST APIs."
+    assert find_fabrications(doc, render_plain(doc), t, kb) == []
+
+
+def test_slash_terms_kept_whole_and_decimals_reported_once(doc, kb):
+    t = tailored_with(doc, exp1_b0="Maintained billing jobs on CI/CD with 99.9% uptime")
+    assert find_fabrications(doc, render_plain(doc), t, kb)[0].tokens == ["99.9%", "CI/CD"]

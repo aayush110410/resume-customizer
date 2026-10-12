@@ -12,7 +12,9 @@ from app.text_utils import contains_term, normalize
 QUOTE_THRESHOLD = 90
 _DOWNGRADE: dict[MatchStatus, MatchStatus] = {"strong": "partial", "partial": "transferable", "transferable": "missing"}
 _NUM = re.compile(r"\d[\d,]*(?:\.\d+)?\s?%?")
-_TOKEN = re.compile(r"[A-Za-z0-9][A-Za-z0-9+#.\-]*[A-Za-z0-9+#]|[A-Za-z0-9]")
+_TOKEN = re.compile(r"[A-Za-z0-9][A-Za-z0-9+#./\-]*[A-Za-z0-9+#]|[A-Za-z0-9]")
+_SENTENCE = re.compile(r"(?<=[.!?;:])\s+|\n+")
+_NUMERIC = re.compile(r"[\d.,%+]+")
 _STOP = {
     "i",
     "a",
@@ -72,14 +74,15 @@ def _numbers(text: str) -> set[str]:
 
 
 def _fact_terms(text: str) -> list[str]:
-    """Tokens that assert a fact: tools/tech (digits, + # ., internal capitals) and capitalized names mid-sentence."""
+    """Tokens that assert a fact: tools/tech (digits, + # . /, internal capitals) and capitalised names mid-sentence."""
     terms = []
-    for i, tok in enumerate(_TOKEN.findall(text)):
-        if tok.isdigit() or tok.lower() in _STOP:
-            continue
-        techy = any(c.isdigit() for c in tok) or any(c in "+#." for c in tok) or sum(c.isupper() for c in tok) >= 2
-        if techy or (tok[0].isupper() and i > 0):
-            terms.append(tok)
+    for sentence in _SENTENCE.split(text):
+        for i, tok in enumerate(_TOKEN.findall(sentence)):
+            if _NUMERIC.fullmatch(tok) or tok.lower() in _STOP:
+                continue  # numbers are checked separately
+            techy = any(c.isdigit() for c in tok) or any(c in "+#./" for c in tok) or sum(c.isupper() for c in tok) >= 2
+            if techy or (tok[0].isupper() and i > 0):
+                terms.append(tok)
     return list(dict.fromkeys(terms))
 
 

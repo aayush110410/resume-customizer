@@ -15,13 +15,13 @@ class Settings(BaseSettings):
 
     ollama_api_key: str = ""
     ollama_base_url: str = "https://ollama.com/v1"
-    ollama_analysis_models: str = "gpt-oss:120b,minimax-m3"
-    ollama_writer_models: str = "kimi-k2.6,minimax-m3,gpt-oss:120b"
+    ollama_analysis_models: str = "gpt-oss:120b,gpt-oss:20b"
+    ollama_writer_models: str = "gpt-oss:120b,gpt-oss:20b"
 
     openrouter_api_key: str = ""
     openrouter_base_url: str = "https://openrouter.ai/api/v1"
-    openrouter_analysis_models: str = "nvidia/nemotron-3-super-120b-a12b:free"
-    openrouter_writer_models: str = "nvidia/nemotron-3-super-120b-a12b:free"
+    openrouter_analysis_models: str = "nvidia/nemotron-3-super-120b-a12b:free,google/gemma-4-31b-it:free"
+    openrouter_writer_models: str = "nvidia/nemotron-3-super-120b-a12b:free,google/gemma-4-31b-it:free"
 
     groq_api_key: str = ""
     groq_base_url: str = "https://api.groq.com/openai/v1"

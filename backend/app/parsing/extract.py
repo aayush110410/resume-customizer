@@ -5,7 +5,7 @@ import zipfile
 from typing import Literal
 
 import docx
-import fitz
+import pymupdf as fitz
 
 from app.schemas import LayoutReport, ParsedResume
 from app.text_utils import estimate_pages

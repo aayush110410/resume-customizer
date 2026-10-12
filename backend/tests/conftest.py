@@ -46,7 +46,7 @@ def client() -> TestClient:
 import io  # noqa: E402
 
 import docx  # noqa: E402
-import fitz  # noqa: E402
+import pymupdf as fitz  # noqa: E402
 
 LOREM = (
     "Software Engineer at Razorpay, Bengaluru. Reduced p99 latency by 30% for 2M daily payments. "

@@ -115,3 +115,11 @@ async def test_override_tried_first():
     c, calls = client_with({"a": ['{"x": 1}'], "c": ['{"x": 5}']}, providers={"a": "ollama", "c": "groq"})
     r = await c.structured("analysis", "s", "u", X, model="groq:c")
     assert r.value.x == 5 and calls["a"] == []
+
+
+async def test_schema_always_in_system_prompt():
+    # Some OpenAI-compatible servers accept json_schema but don't enforce it; the schema must be in the prompt too.
+    c, calls = client_with({"a": ['{"x": 1}']})
+    await c.structured("analysis", "SYS", "u", X)
+    system = calls["a"][0]["messages"][0]["content"]
+    assert system.startswith("SYS") and '"x"' in system and calls["a"][0]["response_format"]["type"] == "json_schema"

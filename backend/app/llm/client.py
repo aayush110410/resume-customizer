@@ -169,19 +169,17 @@ class LLMClient:
         kwargs: dict[str, Any] = {"model": t.model, "temperature": temperature}
         if effort and "gpt-oss" in t.model:
             kwargs["extra_body"] = {"reasoning_effort": effort}
-        messages = [{"role": "system", "content": system}, {"role": "user", "content": user}]
-        fmt: dict[str, Any] = {
-            "type": "json_schema",
-            "json_schema": {"name": schema.__name__, "schema": schema.model_json_schema()},
-        }
+        # The schema also goes in the prompt: some OpenAI-compatible servers accept json_schema without enforcing it.
+        json_schema = schema.model_json_schema()
+        note = "\n\nReturn ONLY a JSON object that matches this JSON Schema exactly (same keys):\n" + json.dumps(
+            json_schema
+        )
+        messages = [{"role": "system", "content": system + note}, {"role": "user", "content": user}]
+        fmt: dict[str, Any] = {"type": "json_schema", "json_schema": {"name": schema.__name__, "schema": json_schema}}
         try:
             resp = await create(messages=messages, response_format=fmt, **kwargs)
         except openai.BadRequestError:
             fmt = {"type": "json_object"}
-            schema_note = "\n\nReturn ONLY a JSON object matching this JSON Schema:\n" + json.dumps(
-                schema.model_json_schema()
-            )
-            messages = [{"role": "system", "content": system + schema_note}, messages[1]]
             resp = await create(messages=messages, response_format=fmt, **kwargs)
 
         content = resp.choices[0].message.content or ""
