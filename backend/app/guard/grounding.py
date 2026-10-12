@@ -14,9 +14,37 @@ _DOWNGRADE: dict[MatchStatus, MatchStatus] = {"strong": "partial", "partial": "t
 _NUM = re.compile(r"\d[\d,]*(?:\.\d+)?\s?%?")
 _TOKEN = re.compile(r"[A-Za-z0-9][A-Za-z0-9+#.\-]*[A-Za-z0-9+#]|[A-Za-z0-9]")
 _STOP = {
-    "i", "a", "an", "the", "and", "or", "of", "in", "on", "at", "for", "with", "to", "by", "from", "as", "via",
-    "jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "sept", "oct", "nov", "dec",
-}  # fmt: skip
+    "i",
+    "a",
+    "an",
+    "the",
+    "and",
+    "or",
+    "of",
+    "in",
+    "on",
+    "at",
+    "for",
+    "with",
+    "to",
+    "by",
+    "from",
+    "as",
+    "via",
+    "jan",
+    "feb",
+    "mar",
+    "apr",
+    "may",
+    "jun",
+    "jul",
+    "aug",
+    "sep",
+    "sept",
+    "oct",
+    "nov",
+    "dec",
+}
 
 
 def verify_quote(quote: str, source: str, threshold: int = QUOTE_THRESHOLD) -> bool:
