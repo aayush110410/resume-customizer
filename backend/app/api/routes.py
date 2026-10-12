@@ -11,9 +11,10 @@ from app.config import Settings
 from app.knowledge.models import Knowledge
 from app.llm.client import LLM
 from app.parsing.extract import ParseError, parse_resume
-from app.schemas import Region
+from app.schemas import Region, TailorRequest
 from app.services import as_sse
 from app.services.analyze import analyze_stream
+from app.services.tailor import tailor_stream
 
 router = APIRouter(prefix="/api")
 SECTIONS = ["summary", "skills", "experience", "projects", "education", "achievements"]
@@ -65,3 +66,10 @@ async def analyze(
     except ParseError as e:
         raise AppError(e.code, e.code.replace("_", " ").capitalize(), PARSE_STATUS.get(e.code, 422)) from e
     return EventSourceResponse(as_sse(analyze_stream(parsed, jd, region, llm, kb, cache)))
+
+
+@router.post("/tailor", dependencies=[Depends(rate_limited)])
+async def tailor(
+    req: TailorRequest, llm: Annotated[LLM, Depends(get_llm)], kb: Annotated[Knowledge, Depends(get_kb)]
+) -> EventSourceResponse:
+    return EventSourceResponse(as_sse(tailor_stream(req, llm, kb)))

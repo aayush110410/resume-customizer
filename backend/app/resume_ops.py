@@ -3,7 +3,7 @@
 from collections.abc import Callable, Iterable, Iterator
 from typing import Literal
 
-from app.schemas import Bullet, Entry, ResumeDoc, SectionKey
+from app.schemas import Bullet, Contact, Entry, ResumeDoc, SectionKey
 
 _ENTRY_SECTIONS: tuple[tuple[SectionKey, str], ...] = (
     ("experience", "exp"),
@@ -91,3 +91,8 @@ def render_for_matching(doc: ResumeDoc) -> str:
 
 def render_plain(doc: ResumeDoc) -> str:
     return _render(doc, _entry_line, lambda b: f"- {b.text}")
+
+
+def render_contact(contact: Contact) -> str:
+    details = [d for d in (contact.email, contact.phone, contact.location, *contact.links) if d]
+    return contact.name + ("\n" + " | ".join(details) if details else "")
