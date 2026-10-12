@@ -1,0 +1,29 @@
+Neha Iyer
+neha.iyer@example.com | +91 99887 66554 | Bengaluru | github.com/neha-demo
+
+SUMMARY
+Backend engineer with 5 years building high-throughput payment services in Java (Spring Boot) and Python at fintech product companies.
+
+EXPERIENCE
+Senior Software Engineer — PayGrid Fintech | Bengaluru | Mar 2023 – Present
+- Designed 14 REST APIs in Spring Boot for UPI payment orchestration serving 3M requests/day.
+- Built Kafka-based reconciliation pipeline processing 20M events/day with exactly-once semantics.
+- Migrated 22 services to Kubernetes on AWS (EKS), cutting deployment time from 40 to 6 minutes via GitHub Actions CI/CD.
+- Reduced p99 latency by 35% by redesigning PostgreSQL indexes and adding Redis caching.
+- Mentored 4 junior engineers and led weekly code reviews for a team of 9.
+
+Software Engineer — LedgerLoop | Pune | Jul 2021 – Feb 2023
+- Built Django and FastAPI microservices for merchant settlements handling ₹400 Cr monthly.
+- Instrumented services with Prometheus and Grafana dashboards, reducing incident detection time by 60%.
+- Containerised 10 legacy services with Docker.
+
+EDUCATION
+B.Tech, Computer Science — VIT Vellore | 2021 | CGPA 8.6/10
+
+SKILLS
+Languages: Java, Python, SQL
+Frameworks: Spring Boot, Django, FastAPI
+Infrastructure: Kafka, Kubernetes, AWS, Docker, Redis, PostgreSQL, Prometheus, Grafana
+
+CERTIFICATIONS
+AWS Certified Developer – Associate
