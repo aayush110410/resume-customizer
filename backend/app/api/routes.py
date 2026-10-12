@@ -1,6 +1,7 @@
+import re
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, File, Form, Request, UploadFile
+from fastapi import APIRouter, Depends, File, Form, Request, Response, UploadFile
 from fastapi.concurrency import run_in_threadpool
 from sse_starlette import EventSourceResponse
 
@@ -8,10 +9,13 @@ from app.api.deps import get_cache, get_kb, get_llm, get_settings, rate_limited
 from app.api.errors import PARSE_STATUS, AppError
 from app.cache import AsyncLRU
 from app.config import Settings
+from app.export.docx import render_letter_docx, render_resume_docx
+from app.export.pdf import render_letter_pdf, render_resume_pdf
+from app.export.txt import render_txt
 from app.knowledge.models import Knowledge
 from app.llm.client import LLM
 from app.parsing.extract import ParseError, parse_resume
-from app.schemas import Region, TailorRequest
+from app.schemas import Contact, ExportRequest, Region, TailorRequest
 from app.services import as_sse
 from app.services.analyze import analyze_stream
 from app.services.tailor import tailor_stream
@@ -73,3 +77,38 @@ async def tailor(
     req: TailorRequest, llm: Annotated[LLM, Depends(get_llm)], kb: Annotated[Knowledge, Depends(get_kb)]
 ) -> EventSourceResponse:
     return EventSourceResponse(as_sse(tailor_stream(req, llm, kb)))
+
+
+MEDIA = {
+    "pdf": "application/pdf",
+    "docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "txt": "text/plain; charset=utf-8",
+}
+
+
+@router.post("/export")
+async def export(req: ExportRequest, kb: Annotated[Knowledge, Depends(get_kb)]) -> Response:
+    region = kb.regions[req.region]
+    if req.kind == "resume":
+        if req.resume is None:
+            raise AppError("INVALID_EXPORT", "No resume to export.", 422)
+        name, label = req.resume.contact.name, "Resume"
+        render = {
+            "pdf": lambda: render_resume_pdf(req.resume, region),
+            "docx": lambda: render_resume_docx(req.resume, region),
+            "txt": lambda: render_txt(req.resume).encode(),
+        }[req.format]
+    else:
+        if not (req.cover_letter or "").strip():
+            raise AppError("INVALID_EXPORT", "No cover letter to export.", 422)
+        contact = req.contact or Contact(name="Candidate")
+        name, label = contact.name, "Cover_Letter"
+        render = {
+            "pdf": lambda: render_letter_pdf(req.cover_letter, contact, region),
+            "docx": lambda: render_letter_docx(req.cover_letter, contact),
+            "txt": lambda: req.cover_letter.encode(),
+        }[req.format]
+    content = await run_in_threadpool(render)
+    slug = re.sub(r"[^A-Za-z0-9]+", "_", name).strip("_") or "Candidate"
+    headers = {"Content-Disposition": f'attachment; filename="{slug}_{label}.{req.format}"'}
+    return Response(content, media_type=MEDIA[req.format], headers=headers)
