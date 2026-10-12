@@ -22,4 +22,4 @@ def test_render_strips_version_header_and_fills():
 
 
 def test_prompt_version_stable():
-    assert len(PROMPT_VERSION) == 8 and PROMPT_VERSION == PROMPT_VERSION.lower()
+    assert len(PROMPT_VERSION) == 8 and PROMPT_VERSION.lower() == PROMPT_VERSION

@@ -22,7 +22,9 @@ def _system(region_label: str) -> str:
 
 async def structure_resume(llm: LLM, text: str) -> Structured[ResumeDoc]:
     user = render("structure_resume", resume_block=wrap("resume", text))
-    r = await llm.structured("analysis", _system("India and international markets"), user, ResumeDoc, reasoning_effort="low")
+    r = await llm.structured(
+        "analysis", _system("India and international markets"), user, ResumeDoc, reasoning_effort="low"
+    )
     doc = r.value.model_copy(deep=True)
 
     def grounded(bullets):
@@ -38,7 +40,9 @@ async def structure_resume(llm: LLM, text: str) -> Structured[ResumeDoc]:
 
 async def analyze_jd(llm: LLM, jd_text: str, kb: Knowledge) -> Structured[JDAnalysis]:
     user = render("analyze_jd", jd_block=wrap("jd", jd_text), role_family_keys=", ".join(kb.role_families))
-    r = await llm.structured("analysis", _system("India and international markets"), user, JDAnalysis, reasoning_effort="medium")
+    r = await llm.structured(
+        "analysis", _system("India and international markets"), user, JDAnalysis, reasoning_effort="medium"
+    )
     jd = r.value.model_copy(deep=True)
     reqs = sorted(jd.requirements, key=lambda q: _IMPORTANCE_ORDER[q.importance])[:MAX_REQUIREMENTS]
     for i, req in enumerate(reqs, 1):
