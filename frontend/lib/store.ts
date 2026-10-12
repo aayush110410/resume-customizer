@@ -1,18 +1,22 @@
 import { create } from "zustand";
 import {
+  DEFAULT_SECTIONS,
   STAGES,
   type AppErrorInfo,
   type Analysis,
   type Evidence,
   type Insights,
   type JDAnalysis,
+  type Region,
   type ResumeDoc,
+  type SectionKey,
   type ScoreReport,
   type StageId,
   type StageStatus,
   type StreamEvent,
   type TailoredVersion,
   type TailorItem,
+  type Tone,
 } from "@/lib/types";
 
 interface Partial_ {
@@ -23,7 +27,27 @@ interface Partial_ {
   insights?: Insights;
 }
 
+export interface Inputs {
+  jd: string;
+  file: File | null;
+  region: Region;
+  sections: SectionKey[];
+  tone: Tone;
+  model: string | null;
+}
+export type Busy = "idle" | "analyzing" | "tailoring" | "letter";
+
 interface AppState {
+  inputs: Inputs;
+  busy: Busy;
+  sessionId?: string;
+  sessionStartedAt?: string;
+  setInput: <K extends keyof Inputs>(key: K, value: Inputs[K]) => void;
+  setBusy: (b: Busy) => void;
+  setAnalysis: (a: Analysis) => void;
+  setCoverLetter: (t: string) => void;
+  resetSession: () => void;
+  hydrate: (h: { id: string; created_at: string; analysis: Analysis; versions: TailoredVersion[]; cover_letter: string }) => void;
   runId: number;
   stages: Record<StageId, StageStatus>;
   partial: Partial_;
@@ -45,7 +69,22 @@ interface AppState {
 const idleStages = () => Object.fromEntries(STAGES.map((s) => [s, "idle"])) as Record<StageId, StageStatus>;
 const perRun = () => ({ stages: idleStages(), streamingItems: [] as TailorItem[], error: undefined, warnings: [] as string[] });
 
+const newId = () => (typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID().slice(0, 8) : String(Date.now()));
+
 export const useAppStore = create<AppState>()((set, get) => ({
+  inputs: { jd: "", file: null, region: "india", sections: DEFAULT_SECTIONS, tone: "balanced", model: null },
+  busy: "idle",
+  setInput: (key, value) => set((s) => ({ inputs: { ...s.inputs, [key]: value } })),
+  setBusy: (busy) => set({ busy }),
+  setAnalysis: (analysis) => set({ analysis }),
+  setCoverLetter: (coverLetter) => set({ coverLetter }),
+  resetSession: () =>
+    set({ sessionId: newId(), sessionStartedAt: new Date().toISOString(), partial: {}, analysis: undefined, versions: [],
+          activeVersionId: undefined, coverLetter: "" }),
+  hydrate: (h) =>
+    set({ sessionId: h.id, sessionStartedAt: h.created_at, analysis: h.analysis, partial: {}, versions: h.versions,
+          activeVersionId: h.versions.at(-1)?.id, coverLetter: h.cover_letter, error: undefined, stages: idleStages(),
+          inputs: { ...get().inputs, region: h.analysis.region } }),
   runId: 0,
   partial: {},
   versions: [],
