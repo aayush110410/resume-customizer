@@ -206,3 +206,21 @@ def test_unsupported_trailing_words_are_removed(original, rewritten, expected):
     from app.tailoring import strip_invented_outcomes
 
     assert strip_invented_outcomes(original, rewritten) == expected
+
+
+def test_summary_filler_clauses_are_removed_per_sentence(doc):
+    text = (
+        "Backend engineer with 4 years building payment APIs. "
+        "Built REST APIs and reduced p99 latency by 30%, ensuring scalability and reliability across platforms."
+    )
+    out, _ = apply_tailoring(doc, [SummaryItem(type="summary", text=text)], {"summary"}, [])
+    assert (
+        out.summary
+        == "Backend engineer with 4 years building payment APIs. Built REST APIs and reduced p99 latency by 30%."
+    )
+
+
+def test_supported_summary_is_untouched(doc):
+    text = "Backend engineer with 4 years building payment APIs, reducing p99 latency by 30% for 2M daily payments."
+    out, _ = apply_tailoring(doc, [SummaryItem(type="summary", text=text)], {"summary"}, [])
+    assert out.summary == text

@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 
 from pydantic import TypeAdapter, ValidationError
 
+from app.resume_ops import render_plain
 from app.schemas import (
     Bullet,
     BulletItem,
@@ -149,7 +150,10 @@ def apply_tailoring(
     doc = original.model_copy(deep=True)
     summaries = [i for i in items if isinstance(i, SummaryItem)]
     if "summary" in sections and summaries:
-        doc.summary = summaries[-1].text.strip()
+        # Each sentence is held to the whole original resume: unsupported trailing outcome clauses are cut.
+        support = render_plain(original)
+        sentences = re.split(r"(?<=[.!?])\s+", summaries[-1].text.strip())
+        doc.summary = " ".join(strip_invented_outcomes(support, sent) for sent in sentences if sent.strip())
     skills = [i for i in items if isinstance(i, SkillsItem)]
     if "skills" in sections and plan is not None:
         doc.skills = plan.skills  # code-ranked: JD matches first, nothing dropped
