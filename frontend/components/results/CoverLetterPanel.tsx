@@ -18,7 +18,7 @@ export function CoverLetterPanel() {
   if (!analysis) return null;
   const intl = analysis.region === "international";
   const contact = (versions.find((v) => v.id === activeVersionId)?.resume ?? analysis.resume).contact;
-  const field = "min-h-10 border border-rule-control bg-transparent px-3 text-[13.5px] text-ink placeholder:text-ink-3/70 focus:border-gold/60 focus:outline-none";
+  const field = "min-h-10 rounded-full border border-rule-control bg-[rgba(0,0,0,0.22)] px-4 text-[13.5px] text-ink placeholder:text-ink-3/70 focus:border-gold/60 focus:outline-none";
 
   return (
     <div className="flex flex-col gap-6">
@@ -50,7 +50,7 @@ export function CoverLetterPanel() {
             value={coverLetter}
             onChange={(e) => setCoverLetter(e.target.value)}
             onBlur={() => void saveCoverLetterEdit()}
-            className="min-h-[420px] w-full resize-y border border-rule-control bg-transparent px-4 py-3 text-[14px] leading-[1.75] text-ink-2 focus:border-gold/60 focus:outline-none"
+            className="min-h-[420px] w-full resize-y rounded-[14px] border border-rule-control bg-[rgba(0,0,0,0.22)] px-5 py-4 text-[14px] leading-[1.75] text-ink-2 focus:border-gold/60 focus:outline-none"
           />
           <div className="flex flex-wrap items-center gap-2">
             <OutlineButton onClick={() => navigator.clipboard.writeText(coverLetter).then(() => toast.success("Copied"))}>

@@ -43,7 +43,7 @@ export function DiffView({ before, after, changes = [], onlyChanged = true }: {
             {s.rows.map((r) => {
               const c = why.get(r.id) ?? (r.id === "summary" ? why.get("summary") : r.id.startsWith("skills:") ? why.get("skills") : undefined);
               return (
-                <li key={r.id} className="border-t border-rule-list py-3">
+                <li key={r.id} className="border-t border-rule-section py-3">
                   {r.label && <div className="mb-1 text-[12px] text-ink-3">{r.label}</div>}
                   <div className="flex gap-3">
                     {r.moved !== 0 && (

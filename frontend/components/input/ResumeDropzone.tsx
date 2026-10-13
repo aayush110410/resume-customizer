@@ -17,13 +17,13 @@ export function ResumeDropzone({ file, onFile, error }: { file: File | null; onF
 
   if (file) {
     return (
-      <div className={cn("flex min-h-14 items-center gap-3 border px-3", error ? "border-down/60" : "border-rule-control")}>
+      <div className={cn("tile flex min-h-14 items-center gap-3 px-3", error ? "border-down/60" : "border-rule-control")}>
         <FileText className="size-4 shrink-0 text-gold" aria-hidden />
         <div className="min-w-0 flex-1">
           <div className="truncate text-[13.5px] text-ink">{file.name}</div>
           <div className="figure text-[12px] text-ink-3">{formatBytes(file.size)}</div>
         </div>
-        <button type="button" onClick={() => onFile(null)} aria-label="Remove file" className="grid size-10 place-items-center text-ink-3 hover:text-ink">
+        <button type="button" onClick={() => onFile(null)} aria-label="Remove file" className="grid size-10 place-items-center rounded-full text-ink-3 hover:text-ink">
           <X className="size-4" aria-hidden />
         </button>
       </div>
@@ -33,7 +33,7 @@ export function ResumeDropzone({ file, onFile, error }: { file: File | null; onF
     <div
       {...getRootProps()}
       className={cn(
-        "flex min-h-24 cursor-pointer flex-col items-center justify-center gap-1.5 border border-dashed px-4 text-center transition-colors duration-200",
+        "flex min-h-24 cursor-pointer flex-col items-center justify-center gap-1.5 rounded-[14px] border border-dashed px-4 text-center transition-colors duration-200",
         isDragActive ? "border-gold bg-gold/5" : error ? "border-down/60" : "border-rule-control hover:border-gold/60",
       )}
     >

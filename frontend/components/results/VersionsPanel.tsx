@@ -31,7 +31,7 @@ export function VersionsPanel() {
       </div>
       <ul>
         {versions.map((v, i) => (
-          <li key={v.id} className={cn("ledger-row relative grid grid-cols-[auto_1fr_auto] items-center gap-4 border-t border-rule-list py-3",
+          <li key={v.id} className={cn("ledger-row relative grid grid-cols-[auto_1fr_auto] items-center gap-4 border-t border-rule-section py-3",
             v.id === activeVersionId && "bg-gold/[0.04]")}>
             {v.id === activeVersionId && <span className="absolute inset-y-0 left-0 w-0.5 bg-gold" aria-hidden />}
             <input type="checkbox" aria-label={`Compare version ${i + 1}`} checked={compare.includes(v.id)} onChange={() => toggleCompare(v.id)}
@@ -65,7 +65,7 @@ export function VersionsPanel() {
       )}
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="border border-rule bg-shell p-7 sm:max-w-lg">
+        <DialogContent className="border border-rule bg-rail p-7 sm:max-w-lg">
           <DialogHeader>
             <DialogTitle className="text-[21px] font-medium tracking-[-0.018em]">New version</DialogTitle>
             <DialogDescription className="text-[13.5px] text-ink-3">

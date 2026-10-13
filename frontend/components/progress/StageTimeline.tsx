@@ -13,8 +13,22 @@ const NAMES: Record<StageId, string> = {
 export function StageTimeline() {
   const stages = useAppStore((s) => s.stages);
   if (Object.values(stages).every((s) => s === "idle")) return null;
+  const doneCount = STAGES.filter((id) => stages[id] === "done").length;
+  const current = STAGES.find((id) => stages[id] === "active" || stages[id] === "error");
   return (
-    <ol aria-label="Progress" className="grid grid-cols-4 gap-y-4 sm:grid-cols-7">
+    <>
+    <div className="card edge-lit p-4 sm:hidden" aria-hidden="true">
+      <div className="flex items-baseline justify-between gap-3">
+        <span className="text-[14px] text-ink">{current ? NAMES[current] : doneCount === STAGES.length ? "Done" : "Waiting"}</span>
+        <span className="figure text-[12.5px] text-ink-3">{doneCount} / {STAGES.length}</span>
+      </div>
+      <div className="mt-3 grid grid-cols-7 gap-1">
+        {STAGES.map((id) => (
+          <span key={id} className={cn("h-1 rounded-full", stages[id] === "done" ? "bg-gold" : stages[id] === "active" ? "animate-pulse bg-gold/60" : stages[id] === "error" ? "bg-down" : "bg-rule-control")} />
+        ))}
+      </div>
+    </div>
+    <ol aria-label="Progress" className="card edge-lit hidden grid-cols-7 gap-y-4 p-5 sm:grid">
       {STAGES.map((id, i) => {
         const st = stages[id];
         return (
@@ -38,5 +52,6 @@ export function StageTimeline() {
         );
       })}
     </ol>
+    </>
   );
 }

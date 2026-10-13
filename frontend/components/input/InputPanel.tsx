@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
-import { Segmented, ToggleChip } from "@/components/ledger";
+import { OutlineButton, Segmented, ToggleChip } from "@/components/ledger";
 import { ResumeDropzone } from "@/components/input/ResumeDropzone";
 import { runAnalyzeAndTailor } from "@/lib/flow";
 import { loadSampleResume, SAMPLE_JD } from "@/lib/sample";
@@ -19,7 +19,7 @@ export const TONES: { value: Tone; label: string }[] = [
 ];
 export const REGIONS: { value: Region; label: string }[] = [{ value: "india", label: "India" }, { value: "international", label: "International" }];
 
-export function InputPanel({ meta }: { meta?: Meta }) {
+export function InputPanel({ meta, onSubmitted }: { meta?: Meta; onSubmitted?: () => void }) {
   const { inputs, setInput, busy } = useAppStore();
   const [touched, setTouched] = useState(false);
   const errors = validateInputs(inputs);
@@ -32,6 +32,7 @@ export function InputPanel({ meta }: { meta?: Meta }) {
     setTouched(true);
     if (errors.jd || errors.file) return;
     void runAnalyzeAndTailor();
+    onSubmitted?.();
     if (window.innerWidth < 1024) document.getElementById("results")?.scrollIntoView({ behavior: "smooth" });
   };
   const loadSample = async () => {
@@ -44,12 +45,10 @@ export function InputPanel({ meta }: { meta?: Meta }) {
   const writers = meta?.models.filter((m) => m.role === "writer") ?? [];
 
   return (
-    <form onSubmit={(e) => { e.preventDefault(); submit(); }} className="flex flex-col gap-7" noValidate>
+    <form onSubmit={(e) => { e.preventDefault(); submit(); }} className="card-lit edge-lit flex flex-col gap-6 p-5 sm:p-7" noValidate>
       <div className="flex items-baseline justify-between gap-3">
         <h2 className="text-[22px] font-medium tracking-[-0.018em]">Tailor a resume</h2>
-        <button type="button" onClick={loadSample} className="text-[13px] text-gold-dim underline-offset-4 hover:text-gold hover:underline">
-          Try a sample
-        </button>
+        <OutlineButton tone="gold" onClick={loadSample}>Try a sample</OutlineButton>
       </div>
 
       <section className="flex flex-col gap-2.5">
@@ -68,7 +67,7 @@ export function InputPanel({ meta }: { meta?: Meta }) {
           aria-invalid={!!shown.jd}
           aria-describedby={shown.jd ? "jd-error" : undefined}
           className={cn(
-            "min-h-56 w-full resize-y border bg-transparent px-3 py-2.5 text-[13.5px] leading-[1.65] text-ink placeholder:text-ink-3/80",
+            "min-h-56 w-full resize-y rounded-[14px] border bg-[rgba(0,0,0,0.22)] px-4 py-3 text-[13.5px] leading-[1.65] text-ink placeholder:text-ink-3/80",
             "focus:border-gold/60 focus:outline-none",
             shown.jd ? "border-down/60" : "border-rule-control",
           )}
@@ -101,8 +100,8 @@ export function InputPanel({ meta }: { meta?: Meta }) {
         </div>
       </section>
 
-      <details className="group border-t border-rule pt-4">
-        <summary className="tracked cursor-pointer list-none hover:text-ink">Advanced · tone and model</summary>
+      <details className="group border-t border-rule-section pt-4">
+        <summary className="eyebrow cursor-pointer list-none hover:text-ink">Advanced · tone and model</summary>
         <div className="mt-4 flex flex-col gap-4">
           <Segmented label="Tone" value={inputs.tone} options={TONES} onChange={(v) => setInput("tone", v)} />
           <label className="flex flex-col gap-2 text-[14px] text-ink-3">
@@ -110,7 +109,7 @@ export function InputPanel({ meta }: { meta?: Meta }) {
             <select
               value={inputs.model ?? ""}
               onChange={(e) => setInput("model", e.target.value || null)}
-              className="min-h-10 border border-rule-control bg-shell px-2 text-[13px] text-ink focus:border-gold/60 focus:outline-none"
+              className="min-h-10 rounded-full border border-rule-control bg-shell px-3 text-[13px] text-ink focus:border-gold/60 focus:outline-none"
             >
               <option value="">Automatic (best available)</option>
               {writers.map((m) => <option key={m.id} value={m.id}>{m.id}</option>)}
@@ -119,13 +118,10 @@ export function InputPanel({ meta }: { meta?: Meta }) {
         </div>
       </details>
 
-      <button type="submit" disabled={running || inputs.sections.length === 0} className="gold-cta flex min-h-12 items-center justify-center gap-2 text-[12px] font-semibold tracking-[0.22em] uppercase">
+      <button type="submit" disabled={running || inputs.sections.length === 0} className="gold-cta flex min-h-12 w-full items-center justify-center gap-2 text-[12px] font-semibold tracking-[0.22em] uppercase">
         {running && <Loader2 className="size-4 animate-spin" aria-hidden />}
         {busy === "analyzing" ? "Analysing" : busy === "tailoring" ? "Tailoring" : "Analyse & tailor"}
       </button>
-      <p className="-mt-4 text-[12px] leading-relaxed text-ink-3">
-        Your resume is processed in memory and never stored on our servers. History stays in this browser.
-      </p>
     </form>
   );
 }

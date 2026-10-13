@@ -35,7 +35,7 @@ function Bullets({ bullets, flags, onRevert }: { bullets: Bullet[]; flags: Map<s
 function EntryBlock({ e, flags, onRevert }: { e: Entry; flags: Map<string, FabricationFlag>; onRevert?: Revert }) {
   const dates = [e.start, e.end].filter(Boolean).join(" – ");
   return (
-    <div className="border-t border-rule-list py-3">
+    <div className="border-t border-rule-section py-3">
       <div className="flex flex-wrap items-baseline justify-between gap-x-4">
         <span className="text-[15px] font-medium text-ink">{e.title}<span className="font-normal text-ink-3"> · {e.organization}</span></span>
         <span className="figure text-[12.5px] text-ink-3">{[e.location, dates].filter(Boolean).join(" · ")}</span>
@@ -67,7 +67,7 @@ export function ResumeView({ resume, flags = [], onRevert }: { resume: ResumeDoc
           <Label>Skills</Label>
           <dl className="mt-2">
             {resume.skills.map((g) => (
-              <div key={g.name} className="grid gap-1 border-t border-rule-list py-2 sm:grid-cols-[160px_1fr]">
+              <div key={g.name} className="grid gap-1 border-t border-rule-section py-2 sm:grid-cols-[160px_1fr]">
                 <dt className="text-[13px] text-ink-3">{g.name}</dt><dd className="text-[13.5px] text-ink-2">{g.items.join(", ")}</dd>
               </div>
             ))}
@@ -94,7 +94,7 @@ export function StreamingPreview({ items }: { items: TailorItem[] }) {
       <Label>Rewriting · {lines.length} lines so far</Label>
       <ul className="mt-2">
         {lines.map((i, n) => (
-          <li key={n} className="animate-in fade-in slide-in-from-bottom-1 border-t border-rule-list py-2.5 text-[13.5px] leading-[1.6] text-ink-2 duration-500">
+          <li key={n} className="animate-in fade-in slide-in-from-bottom-1 border-t border-rule-section py-2.5 text-[13.5px] leading-[1.6] text-ink-2 duration-500">
             <span className="tracked mr-3 text-[10.5px]">{i.type === "bullet" ? i.source_id : i.type}</span>
             {i.type === "summary" ? i.text : i.type === "bullet" ? i.text : i.type === "skills" ? i.groups.map((g) => g.items.join(", ")).join(" · ") : null}
           </li>

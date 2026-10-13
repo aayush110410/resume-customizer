@@ -13,7 +13,7 @@ export function HistoryDrawer({ open, onOpenChange }: { open: boolean; onOpenCha
   }, [open]);
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full max-w-sm border-l border-rule bg-shell p-7">
+      <SheetContent side="right" className="w-full max-w-sm border-l border-rule bg-rail p-7">
         <SheetHeader className="p-0">
           <SheetTitle className="text-[22px] font-medium tracking-[-0.018em]">History</SheetTitle>
           <SheetDescription className="text-[13px] text-ink-3">Saved only in this browser. No account, nothing on our servers.</SheetDescription>
@@ -23,7 +23,7 @@ export function HistoryDrawer({ open, onOpenChange }: { open: boolean; onOpenCha
         ) : (
           <ul className="mt-5">
             {items.map((s) => (
-              <li key={s.id} className="ledger-row flex items-center gap-3 border-t border-rule-list py-3">
+              <li key={s.id} className="ledger-row flex items-center gap-3 border-t border-rule-section py-3">
                 <button type="button" className="flex-1 text-left" onClick={() => { void restoreSession(s.id); onOpenChange(false); }}>
                   <div className="text-[14px] text-ink">{s.jd_title}</div>
                   <div className="figure text-[12px] text-ink-3">

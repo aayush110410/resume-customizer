@@ -20,7 +20,7 @@ export function RequirementLedger({ jd, evidence }: { jd: JDAnalysis; evidence: 
         {jd.requirements.map((r) => {
           const m = byId.get(r.id);
           return (
-            <li key={r.id} className="ledger-row grid gap-x-4 gap-y-1.5 border-b border-rule-list py-3 md:grid-cols-[minmax(0,1.1fr)_64px_92px_minmax(0,1.6fr)]">
+            <li key={r.id} className="ledger-row grid gap-x-4 gap-y-1.5 border-b border-rule-section py-3 md:grid-cols-[minmax(0,1.1fr)_64px_92px_minmax(0,1.6fr)]">
               <span className="text-[14px] text-ink">{r.text}</span>
               <span className="text-[13px] text-ink-3">{IMPORTANCE[r.importance]}</span>
               <span>{m ? <StatusChip status={m.status} /> : <StatusChip status="missing" />}</span>

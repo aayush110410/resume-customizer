@@ -17,6 +17,36 @@ const RUBRIC: Record<ScoreKey, string> = {
 };
 const ATS_NOTE = "Estimate — real ATS systems don't publish scores; this models common parsing and keyword-filter behaviour.";
 
+export const REGION_WEIGHTS: Record<Region, Record<ScoreKey, number>> = {
+  india: { match: 0.4, ats: 0.25, quality: 0.2, region: 0.15 },
+  international: { match: 0.4, ats: 0.25, quality: 0.25, region: 0.1 },
+};
+
+export function HowWeScoreSheet({ open, onOpenChange, weights }: { open: boolean; onOpenChange: (o: boolean) => void; weights: Record<string, number> }) {
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="right" className="w-full max-w-md overflow-y-auto border-l border-rule-section bg-rail p-8">
+        <SheetHeader className="p-0">
+          <SheetTitle className="text-[22px] font-medium tracking-[-0.018em]">How we score</SheetTitle>
+          <SheetDescription className="text-[13.5px] leading-relaxed text-ink-3">
+            The language model only extracts evidence and must quote your resume word for word. Unverifiable quotes are
+            downgraded. Every number below is then computed by code, so the same inputs give the same score.
+          </SheetDescription>
+        </SheetHeader>
+        <dl className="mt-6">
+          {KEYS.map((k) => (
+            <div key={k} className="border-t border-rule-section py-4">
+              <dt className="flex justify-between text-[14px] text-ink">{NAME[k]}<span className="figure text-gold">{Math.round(weights[k] * 100)}%</span></dt>
+              <dd className="mt-2 text-[13px] leading-[1.7] text-ink-3">{RUBRIC[k]}</dd>
+            </div>
+          ))}
+        </dl>
+        <p className="border-t border-rule-section pt-4 text-[12.5px] leading-relaxed text-ink-3">{ATS_NOTE}</p>
+      </SheetContent>
+    </Sheet>
+  );
+}
+
 export function ScoreBoard({ before, after, region }: { before: ScoreReport; after?: ScoreReport; region: Region }) {
   const [focus, setFocus] = useState<ScoreKey>("match");
   const [open, setOpen] = useState(false);
@@ -25,12 +55,12 @@ export function ScoreBoard({ before, after, region }: { before: ScoreReport; aft
   const explanations = shown.subscores[focus]?.explanations ?? [];
 
   return (
-    <section aria-label="Scores" className="flex flex-col gap-6">
+    <section aria-label="Scores" className="card-lit edge-lit flex flex-col gap-6 p-5 sm:p-7">
       <div className="flex flex-wrap items-end justify-between gap-6">
         <div>
           <Label>Overall · {region === "india" ? "India" : "International"} weighting</Label>
           <div className="mt-2 flex items-baseline gap-4">
-            <span className="figure text-[58px] leading-[0.9] font-medium tracking-[-0.018em] text-ink">{shown.overall}</span>
+            <span className="figure text-[64px] leading-[0.9] font-light tracking-[-0.02em] text-ink">{shown.overall}</span>
             {after && (
               <span className="figure text-[17px] text-ink-3">
                 from {before.overall} <Delta value={after.overall - before.overall} />
@@ -44,14 +74,14 @@ export function ScoreBoard({ before, after, region }: { before: ScoreReport; aft
       </div>
 
       {shown.knockouts.length > 0 && (
-        <div role="alert" className="flex gap-3 border border-down/40 px-4 py-3 text-[13.5px] leading-relaxed text-ink-2">
+        <div role="alert" className="flex gap-3 rounded-[14px] border border-down/30 bg-[rgba(224,121,107,0.06)] px-4 py-3 text-[13.5px] leading-relaxed text-ink-2">
           <AlertTriangle className="mt-0.5 size-4 shrink-0 text-down" aria-hidden />
           <p><span className="text-down">Knockout risk.</span> No evidence for must-have: {shown.knockouts.join("; ")}. Many screeners reject on this alone.</p>
         </div>
       )}
 
-      <div role="tablist" aria-label="Score breakdown" className="grid grid-cols-2 border-y border-rule sm:grid-cols-4">
-        {KEYS.map((k, i) => {
+      <div role="tablist" aria-label="Score breakdown" className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {KEYS.map((k) => {
           const b = before.subscores[k]?.score ?? 0;
           const a = after?.subscores[k]?.score;
           return (
@@ -61,12 +91,10 @@ export function ScoreBoard({ before, after, region }: { before: ScoreReport; aft
               aria-selected={focus === k}
               onClick={() => setFocus(k)}
               className={cn(
-                "relative flex flex-col items-start gap-1.5 px-4 py-4 text-left transition-colors",
-                i > 0 && "sm:border-l sm:border-rule", i % 2 === 1 && "border-l border-rule", i >= 2 && "border-t border-rule sm:border-t-0",
-                focus === k ? "bg-gold/[0.05]" : "hover:bg-gold/[0.03]",
+                "tile flex flex-col items-start gap-1.5 px-4 py-4 text-left transition-[border-color,box-shadow] duration-300",
+                focus === k ? "border-[rgba(217,189,139,0.45)]! shadow-[0_10px_26px_-14px_rgba(217,189,139,0.45)]" : "hover:border-[rgba(217,189,139,0.25)]!",
               )}
             >
-              {focus === k && <span className="absolute inset-x-0 top-0 h-px bg-gold" aria-hidden />}
               <span className="text-[13px] text-ink-3">{NAME[k]} <span className="figure text-ink-3/80">· {Math.round(shown.weights[k] * 100)}%</span></span>
               <span className="flex items-baseline gap-2">
                 <span className="figure text-[24px] font-medium text-ink">{a ?? b}</span>
@@ -87,7 +115,7 @@ export function ScoreBoard({ before, after, region }: { before: ScoreReport; aft
         ) : (
           <ul className="mt-2">
             {explanations.slice(0, all ? undefined : 3).map((e, i) => (
-              <li key={i} className="ledger-row grid grid-cols-[1fr_auto] gap-x-4 gap-y-1 border-t border-rule-list py-3">
+              <li key={i} className="ledger-row grid grid-cols-[1fr_auto] gap-x-4 gap-y-1 border-t border-rule-section py-3">
                 <span className="text-[13.5px] leading-snug text-ink-2">{e.detail}</span>
                 <span className="figure text-right text-[13px] text-down">{e.impact ? Math.round(e.impact * 10) / 10 : ""}</span>
                 {e.fix && <span className="col-span-2 text-[12.5px] leading-relaxed text-ink-3">{e.fix}</span>}
@@ -102,26 +130,7 @@ export function ScoreBoard({ before, after, region }: { before: ScoreReport; aft
         )}
       </div>
 
-      <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent side="right" className="w-full max-w-md overflow-y-auto border-l border-rule bg-shell p-8">
-          <SheetHeader className="p-0">
-            <SheetTitle className="text-[22px] font-medium tracking-[-0.018em]">How we score</SheetTitle>
-            <SheetDescription className="text-[13.5px] leading-relaxed text-ink-3">
-              The language model only extracts evidence and must quote your resume word for word. Unverifiable quotes are
-              downgraded. Every number below is then computed by code, so the same inputs give the same score.
-            </SheetDescription>
-          </SheetHeader>
-          <dl className="mt-6">
-            {KEYS.map((k) => (
-              <div key={k} className="border-t border-rule py-4">
-                <dt className="flex justify-between text-[14px] text-ink">{NAME[k]}<span className="figure text-gold">{Math.round(shown.weights[k] * 100)}%</span></dt>
-                <dd className="mt-2 text-[13px] leading-[1.7] text-ink-3">{RUBRIC[k]}</dd>
-              </div>
-            ))}
-          </dl>
-          <p className="border-t border-rule pt-4 text-[12.5px] leading-relaxed text-ink-3">{ATS_NOTE}</p>
-        </SheetContent>
-      </Sheet>
+      <HowWeScoreSheet open={open} onOpenChange={setOpen} weights={shown.weights} />
     </section>
   );
 }
