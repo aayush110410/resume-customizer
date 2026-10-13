@@ -5,6 +5,7 @@ import { FileSearch, Plus, Trash2 } from "lucide-react";
 import { deleteSession, listSessions, type SessionSummary } from "@/lib/history";
 import { restoreSession } from "@/lib/flow";
 import { useAppStore } from "@/lib/store";
+import { useHydrated } from "@/lib/useHydrated";
 import { cn } from "@/lib/utils";
 
 const scoreTone = (n: number) => (n >= 70 ? "text-up" : n < 50 ? "text-down" : "text-gold-dim");
@@ -21,6 +22,7 @@ export function Sidebar({ onNew, onHowWeScore, onNavigate }: { onNew: () => void
   const versions = useAppStore((s) => s.versions.length);
   const sessionId = useAppStore((s) => s.sessionId);
   const busy = useAppStore((s) => s.busy);
+  const ready = useHydrated();
   const [recent, setRecent] = useState<SessionSummary[]>([]);
   useEffect(() => { listSessions().then(setRecent).catch(() => setRecent([])); }, [versions, sessionId]);
 
@@ -38,7 +40,7 @@ export function Sidebar({ onNew, onHowWeScore, onNavigate }: { onNew: () => void
 
       <button
         type="button"
-        disabled={busy !== "idle"}
+        disabled={!ready || busy !== "idle"}
         onClick={() => { onNew(); onNavigate?.(); }}
         className="mt-7 flex min-h-12 items-center gap-3.5 rounded-[12px] bg-[linear-gradient(140deg,rgba(var(--c-gold-rgb),0.13),rgba(var(--c-gold-rgb),0.04))] px-2.5 text-[14px] font-medium text-ink shadow-[inset_0_1px_0_rgba(var(--c-gold-hi-rgb),0.08)] transition-opacity disabled:opacity-40"
       >

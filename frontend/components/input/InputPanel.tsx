@@ -9,6 +9,7 @@ import { loadSampleResume, SAMPLE_JD } from "@/lib/sample";
 import { useAppStore } from "@/lib/store";
 import { SECTION_KEYS, type Meta, type Region, type SectionKey, type Tone } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { useHydrated } from "@/lib/useHydrated";
 import { LIMITS, validateInputs } from "@/lib/validation";
 
 export const SECTION_LABEL: Record<SectionKey, string> = {
@@ -21,6 +22,7 @@ export const REGIONS: { value: Region; label: string }[] = [{ value: "india", la
 
 export function InputPanel({ meta, onSubmitted }: { meta?: Meta; onSubmitted?: () => void }) {
   const { inputs, setInput, busy } = useAppStore();
+  const ready = useHydrated();
   const [touched, setTouched] = useState(false);
   const errors = validateInputs(inputs);
   const shown = touched ? errors : {};
@@ -48,7 +50,7 @@ export function InputPanel({ meta, onSubmitted }: { meta?: Meta; onSubmitted?: (
     <form onSubmit={(e) => { e.preventDefault(); submit(); }} className="card-lit edge-lit flex flex-col gap-6 p-5 sm:p-7 xl:grid xl:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] xl:gap-x-10" noValidate>
       <div className="flex items-center justify-between gap-3 xl:col-span-2">
         <h2 className="text-[22px] font-medium tracking-[-0.018em]">New analysis</h2>
-        <OutlineButton tone="gold" onClick={loadSample}>Try a sample</OutlineButton>
+        <OutlineButton tone="gold" onClick={loadSample} disabled={!ready}>Try a sample</OutlineButton>
       </div>
 
       <section className="flex flex-col gap-2.5 xl:row-span-1">
@@ -119,9 +121,9 @@ export function InputPanel({ meta, onSubmitted }: { meta?: Meta; onSubmitted?: (
         </div>
       </details>
 
-      <button type="submit" disabled={running || inputs.sections.length === 0} className="gold-cta flex min-h-12 w-full items-center justify-center gap-2 text-[12px] font-semibold tracking-[0.22em] uppercase">
+      <button type="submit" disabled={!ready || running || inputs.sections.length === 0} className="gold-cta flex min-h-12 w-full items-center justify-center gap-2 text-[12px] font-semibold tracking-[0.22em] uppercase">
         {running && <Loader2 className="size-4 animate-spin" aria-hidden />}
-        {busy === "analyzing" ? "Analysing" : busy === "tailoring" ? "Tailoring" : "Analyse & tailor"}
+        {!ready ? "Loading…" : busy === "analyzing" ? "Analysing" : busy === "tailoring" ? "Tailoring" : "Analyse & tailor"}
       </button>
       </div>
     </form>
