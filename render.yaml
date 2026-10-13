@@ -23,11 +23,14 @@ services:
     rootDir: frontend
     plan: free
     region: singapore
-    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm build
-    startCommand: pnpm start -p $PORT
+    # Render's /usr/bin is read-only, so pnpm runs through corepack instead of `corepack enable`
+    buildCommand: corepack pnpm install --frozen-lockfile && corepack pnpm build
+    startCommand: corepack pnpm start -p $PORT
     healthCheckPath: /api/health
     envVars:
       - key: NEXT_PUBLIC_API_URL
         sync: false
       - key: NODE_VERSION
         value: "24"
+      - key: COREPACK_ENABLE_DOWNLOAD_PROMPT
+        value: "0"
