@@ -15,8 +15,8 @@ class Settings(BaseSettings):
 
     ollama_api_key: str = ""
     ollama_base_url: str = "https://ollama.com/v1"
-    ollama_analysis_models: str = "gpt-oss:120b,gpt-oss:20b"
-    ollama_writer_models: str = "gpt-oss:120b,gpt-oss:20b"
+    ollama_analysis_models: str = "gpt-oss:120b,nemotron-3-super"
+    ollama_writer_models: str = "gpt-oss:120b,nemotron-3-super"
 
     openrouter_api_key: str = ""
     openrouter_base_url: str = "https://openrouter.ai/api/v1"

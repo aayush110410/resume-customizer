@@ -82,10 +82,10 @@ All free:
 
 | Role | Default | Fallbacks |
 |---|---|---|
-| Extraction & judgment | Ollama Cloud `gpt-oss:120b` | `gpt-oss:20b` → OpenRouter `nvidia/nemotron-3-super-120b-a12b:free` → `google/gemma-4-31b-it:free` |
+| Extraction & judgment | Ollama Cloud `gpt-oss:120b` | Ollama `nemotron-3-super` → OpenRouter `nvidia/nemotron-3-super-120b-a12b:free` → `google/gemma-4-31b-it:free` |
 | Writing (tailor, letter) | Ollama Cloud `gpt-oss:120b` | same chain |
 
-- **Why gpt-oss:120b:** it's the strongest model on Ollama Cloud's free plan; Kimi, MiniMax, DeepSeek and GLM return HTTP 402 on the free tier.
+- **Why gpt-oss:120b:** Ollama's free plan serves four models (gpt-oss:120b, nemotron-3-ultra, nemotron-3-super, gemma4:31b); Kimi, MiniMax, DeepSeek-Pro and GLM need Pro. All four were evaluated on this pipeline (below), and gpt-oss:120b gave 100% grounding with low variance at ~22 s per analysis. The larger Nemotron-3-Ultra matched its grounding but varied more and took ~4.4 min per analysis. Community "kimi-k3" uploads on Ollama are `gemma4:31b` behind a renamed system prompt, not Moonshot's model.
 - **Upgrading:** set `OLLAMA_WRITER_MODELS=kimi-k2.6,...` with a Pro key, or point `OPENROUTER_*` at paid models. No code change is needed.
 - **Picking a model in the UI:** users can choose the writing model under *Advanced*.
 - **Every structured call:**
@@ -94,14 +94,16 @@ All free:
 
 ## Accuracy evaluation
 
-`backend/evals/run_eval.py` runs live against the configured models. Latest run (gpt-oss:120b):
+`backend/evals/run_eval.py` runs the real pipeline live: the same resume analysed 3 times, a strong resume vs the weaker sample, and the share of LLM quotes found verbatim in the resume. Results for every model on Ollama's free plan (2026-10-13):
 
-| Check | Result | Gate |
-|---|---|---|
-| Overall-score stability, same resume × 3 full runs | 61, 61, 58 → σ = 1.41 | σ ≤ 3 ✅ |
-| Quality / region sub-scores across runs | identical (44 / 75) | — |
-| Ordering: strong resume vs weaker sample | 95 > 61 | pass ✅ |
-| Quote grounding rate | 97% | ≥ 98% ✗ (unverified quotes are auto-downgraded, never credited) |
+| Model | Overall score, 3 runs | σ (gate ≤ 3) | Strong vs weak | Quote grounding (gate ≥ 98%) | Time per analysis |
+|---|---|---|---|---|---|
+| **gpt-oss:120b** (default) | 59 / 60 / 61 | 0.82 | 92 > 59 | **100%** | **~22 s** |
+| nemotron-3-ultra | 59 / 61 / 58 | 1.25 | 88 > 59 | 100% | ~265 s |
+| nemotron-3-super (fallback) | 57 / 58 / 58 | 0.47 | 92 > 57 | 100% | ~123 s |
+| gemma4:31b | 58 / 57 / 58 | 0.47 | 97 > 58 | 95% ✗ | ~14 s |
+
+Quality and region sub-scores were identical across every run and model (44 / 75), because they're computed by code from the resume itself. Unverified quotes are always downgraded, never credited.
 
 ## Run locally
 

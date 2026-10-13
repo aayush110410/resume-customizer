@@ -6,8 +6,8 @@ def test_build_targets_skips_keyless_and_expands_models(monkeypatch):
     monkeypatch.delenv("OPENROUTER_API_KEY", raising=False)
     monkeypatch.delenv("GROQ_API_KEY", raising=False)
     t = build_targets(Settings(_env_file=None))
-    assert [x.model for x in t["writer"]] == ["gpt-oss:120b", "gpt-oss:20b"]
-    assert [x.model for x in t["analysis"]] == ["gpt-oss:120b", "gpt-oss:20b"]
+    assert [x.model for x in t["writer"]] == ["gpt-oss:120b", "nemotron-3-super"]
+    assert [x.model for x in t["analysis"]] == ["gpt-oss:120b", "nemotron-3-super"]
     assert all(x.provider == "ollama" and x.api_key == "k" for x in t["analysis"])
 
 
