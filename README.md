@@ -7,7 +7,7 @@ Paste a job description, upload a resume (PDF or DOCX), and get:
 - **A truthfully tailored resume:** streamed live, with a diff, multiple versions and PDF/DOCX/TXT downloads.
 - **A matching cover letter.**
 
-**Live app:** _URL added after the Render deploy_ (blueprint services `shortlist-resume-web-aayush` and `shortlist-resume-api-aayush`)
+**Live app:** https://shortlist-resume-web-aayush-1son.onrender.com · API: https://shortlist-resume-api-aayush-v0yd.onrender.com/health
 
 > The free hosting tier sleeps when idle. The first request can take up to a minute while the server wakes, and the UI says so.
 
@@ -169,6 +169,8 @@ cd frontend && pnpm install && cp .env.example .env.local && pnpm dev   # http:/
 `render.yaml` defines both services (Docker API and Node frontend) on Render's free plan.
 
 - **Secrets:** set `OLLAMA_API_KEY`, `OPENROUTER_API_KEY` and `ALLOWED_ORIGINS` on the API, and `NEXT_PUBLIC_API_URL` on the frontend.
+- **URLs:** Render appends a random suffix to service hostnames (e.g. `-v0yd`), so copy the real URLs from each service page into `ALLOWED_ORIGINS` / `NEXT_PUBLIC_API_URL`, then rebuild the frontend (the API URL is inlined at build time).
+- **pnpm:** Render's `/usr/bin` is read-only, so the build runs `corepack pnpm …` rather than `corepack enable`.
 - **Keep-warm:** UptimeRobot pings `/health` and `/api/health` every 5 minutes.
 
 ## Known limitations and trade-offs
