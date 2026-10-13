@@ -20,6 +20,7 @@ log = logging.getLogger("llm")
 Role = Literal["analysis", "writer"]
 Effort = Literal["low", "medium", "high"]
 T = TypeVar("T", bound=BaseModel)
+SEED = 7  # same inputs → same judgments, where the provider honours seeds
 
 
 @dataclass(frozen=True)
@@ -172,7 +173,7 @@ class LLMClient:
         self, t: Target, system: str, user: str, schema: type[T], temperature: float, effort: Effort | None
     ) -> T:
         create = self._client(t).chat.completions.create
-        kwargs: dict[str, Any] = {"model": t.model, "temperature": temperature}
+        kwargs: dict[str, Any] = {"model": t.model, "temperature": temperature, "seed": SEED}
         if effort and "gpt-oss" in t.model:
             kwargs["extra_body"] = {"reasoning_effort": effort}
         # The schema also goes in the prompt: some OpenAI-compatible servers accept json_schema without enforcing it.

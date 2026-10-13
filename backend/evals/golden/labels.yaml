@@ -1,0 +1,43 @@
+# Hand labels: what an experienced Bengaluru tech recruiter would conclude for each JD requirement.
+# A requirement extracted by the model is matched to the first concept whose alias appears in its text/keywords.
+# `ok` lists every status a careful recruiter could defend; anything else counts as wrong.
+jd: jd_sde2_bengaluru.txt
+pairs:
+  - resume: sample            # Arjun Mehta: ~5.7 yrs Java/Spring at Infosys, weak on infra
+    concepts:
+      - {id: years,         aliases: ["years", "yrs"],                                ok: [strong]}
+      - {id: kafka,         aliases: ["kafka", "messaging"],                           ok: [missing]}
+      - {id: kubernetes,    aliases: ["kubernetes", "k8s"],                            ok: [missing]}
+      - {id: aws_cert,      aliases: ["aws certification", "aws certified"],           ok: [missing]}
+      - {id: aws,           aliases: ["aws", "amazon web services"],                   ok: [missing]}
+      - {id: docker,        aliases: ["docker"],                                       ok: [partial]}
+      - {id: redis,         aliases: ["redis"],                                        ok: [missing]}
+      - {id: observability, aliases: ["prometheus", "grafana", "observability"],       ok: [missing]}
+      - {id: mentoring,     aliases: ["mentor", "code review", "review code"],         ok: [missing]}
+      - {id: cicd,          aliases: ["ci/cd", "continuous integration", "pipeline"],  ok: [strong, partial]}
+      - {id: payments,      aliases: ["payment", "banking", "fintech"],                ok: [strong, partial]}
+      - {id: microservices, aliases: ["microservice"],                                 ok: [partial, transferable]}
+      - {id: rest,          aliases: ["rest", "api"],                                  ok: [strong]}
+      - {id: sql,           aliases: ["sql", "postgres", "mysql", "data model"],       ok: [strong, partial]}
+      - {id: java,          aliases: ["java", "spring"],                               ok: [strong]}
+      - {id: python,        aliases: ["python", "django", "fastapi"],                  ok: [partial, strong]}
+      - {id: backend,       aliases: ["backend", "back-end", "services"],              ok: [strong]}
+  - resume: strong_swe        # Neha Iyer: 5 yrs fintech backend, covers nearly everything
+    concepts:
+      - {id: years,         aliases: ["years", "yrs"],                                ok: [strong]}
+      - {id: kafka,         aliases: ["kafka", "messaging"],                           ok: [strong]}
+      - {id: kubernetes,    aliases: ["kubernetes", "k8s"],                            ok: [strong]}
+      - {id: aws_cert,      aliases: ["aws certification", "aws certified"],           ok: [strong]}
+      - {id: aws,           aliases: ["aws", "amazon web services"],                   ok: [strong]}
+      - {id: docker,        aliases: ["docker"],                                       ok: [strong]}
+      - {id: redis,         aliases: ["redis"],                                        ok: [strong]}
+      - {id: observability, aliases: ["prometheus", "grafana", "observability"],       ok: [strong]}
+      - {id: mentoring,     aliases: ["mentor", "code review", "review code"],         ok: [strong]}
+      - {id: cicd,          aliases: ["ci/cd", "continuous integration", "pipeline"],  ok: [strong]}
+      - {id: payments,      aliases: ["payment", "banking", "fintech"],                ok: [strong]}
+      - {id: microservices, aliases: ["microservice"],                                 ok: [strong]}
+      - {id: rest,          aliases: ["rest", "api"],                                  ok: [strong]}
+      - {id: sql,           aliases: ["sql", "postgres", "mysql", "data model"],       ok: [strong]}
+      - {id: java,          aliases: ["java", "spring"],                               ok: [strong]}
+      - {id: python,        aliases: ["python", "django", "fastapi"],                  ok: [strong]}
+      - {id: backend,       aliases: ["backend", "back-end", "services"],              ok: [strong]}

@@ -91,17 +91,19 @@ def _present(term: str, haystack: str, kb: Knowledge) -> bool:
     forms = {term}
     if len(term) > 2 and term.endswith("s") and term[:-1].isupper():
         forms.add(term[:-1])  # APIs -> API
+    if term.isupper():
+        forms.add(term + "s")  # API when the original says APIs
     return any(contains_term(haystack, v) for f in forms for v in kb.synonyms.variants(f))
 
 
 def find_fabrications(
-    original: ResumeDoc, original_text: str, tailored: ResumeDoc, kb: Knowledge
+    original: ResumeDoc, original_text: str, tailored: ResumeDoc, kb: Knowledge, allowed: set[str] | None = None
 ) -> list[FabricationFlag]:
     flags: list[FabricationFlag] = []
-    all_numbers = _numbers(original_text)
+    all_numbers = _numbers(original_text) | {n.rstrip("+") for n in (allowed or set())}
 
     if tailored.summary and tailored.summary != original.summary:
-        bad = [n for n in _numbers(tailored.summary) if n not in all_numbers]
+        bad = [n for n in _numbers(tailored.summary) if n.rstrip("+") not in all_numbers]
         bad += [t for t in _fact_terms(tailored.summary, kb.synonyms.groups) if not _present(t, original_text, kb)]
         if bad:
             flags.append(FabricationFlag(target_id="summary", tokens=bad, reason="Not found in your original resume"))

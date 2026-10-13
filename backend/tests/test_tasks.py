@@ -90,5 +90,51 @@ async def test_match_normalizes_ids_and_verifies(sample_doc, jd_factory):
         ("r2", "partial"),
         ("r3", "missing"),
     ]
-    assert ev.matches[1].verified is False and ev.matches[2].rationale == "Not assessed by model"
+    assert ev.matches[1].quote == "Go" and ev.matches[1].verified  # code fact replaces the unverifiable claim
     assert [g.requirement_id for g in ev.gaps] == ["r3"] and ev.tips == []
+
+
+async def test_structure_computes_years_and_level_from_dates():
+    payload = extraction("Reduced p99 latency by 30% for 2M daily payments")
+    payload["experience"][0] |= {"start": "Jan 2015", "end": "Dec 2022"}
+    payload |= {"total_years_experience": 1.0, "level": "junior"}
+    doc = (await structure_resume(FakeLLM({"ResumeDoc": [payload]}), RESUME_TEXT)).value
+    assert doc.total_years_experience == 8.0 and doc.level == "senior"
+
+
+async def test_match_code_facts_floor_and_hints(sample_doc, jd_factory):
+    kb = load_knowledge()
+    doc = assign_ids(sample_doc.model_copy(update={"total_years_experience": 4.0}))
+    reqs = [
+        {"id": "r1", "text": "3+ years of backend experience", "type": "experience", "importance": "must"},
+        {"id": "r2", "text": "Go", "type": "hard_skill", "importance": "must", "keywords": ["go"]},
+        {"id": "r3", "text": "Kafka", "type": "tool", "importance": "should", "keywords": ["kafka"]},
+    ]
+    payload = {
+        "matches": [
+            {"requirement_id": "r1", "status": "missing", "rationale": "model thinks no"},
+            {"requirement_id": "r2", "status": "missing", "rationale": "model missed the skills list"},
+            {
+                "requirement_id": "r3",
+                "status": "strong",
+                "bullet_ids": ["exp0.b0"],
+                "quote": "Kafka streams at scale",
+                "rationale": "invented",
+            },
+        ],
+        "gaps": [
+            {"requirement_id": "r1", "title": "t", "action": "a"},
+            {"requirement_id": "r3", "title": "Kafka", "action": "a"},
+        ],
+        "recruiter": {"decision": "maybe", "first_impression": "ok", "reasons": []},
+    }
+    llm = FakeLLM({"Evidence": [payload]})
+    ev = (await match_evidence(llm, doc, "raw", jd_factory(requirements=reqs), kb.regions["india"], kb)).value
+    assert [(m.requirement_id, m.status) for m in ev.matches] == [
+        ("r1", "strong"),
+        ("r2", "partial"),
+        ("r3", "missing"),
+    ]
+    assert [g.requirement_id for g in ev.gaps] == ["r3"]  # no gap for a requirement code proved
+    prompt = llm.prompts[0]["user"]
+    assert "r1: DECIDED" in prompt and "r2: listed" in prompt and "r3: no keyword hit" in prompt

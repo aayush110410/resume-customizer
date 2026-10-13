@@ -25,3 +25,31 @@ def test_ordering():
 def test_grounding_rate():
     assert grounding_rate([ev(True, False), ev(True, False)]) == 0.5
     assert grounding_rate([]) == 1.0
+
+
+def test_label_accuracy_maps_requirements_to_first_matching_concept():
+    from app.schemas import Requirement
+    from evals.metrics import label_accuracy
+
+    concepts = [
+        {"id": "aws_cert", "aliases": ["aws certification"], "ok": ["missing"]},
+        {"id": "aws", "aliases": ["aws"], "ok": ["missing"]},
+        {"id": "java", "aliases": ["java"], "ok": ["strong"]},
+    ]
+    reqs = [
+        Requirement(id="r1", text="AWS certification", type="certification", importance="nice"),
+        Requirement(id="r2", text="Hands-on AWS", type="tool", importance="must"),
+        Requirement(id="r3", text="Java or Python", type="hard_skill", importance="must"),
+        Requirement(id="r4", text="Team player", type="soft_skill", importance="nice"),
+    ]
+    ev = ev_with({"r1": "missing", "r2": "partial", "r3": "strong", "r4": "strong"})
+    result = label_accuracy(reqs, ev, concepts)
+    assert result == {"correct": 2, "judged": 3, "wrong": ["aws: partial"], "uncovered": []}
+
+
+def ev_with(statuses):
+    return Evidence(
+        matches=[RequirementMatch(requirement_id=k, status=v, rationale="") for k, v in statuses.items()],
+        gaps=[],
+        recruiter=RecruiterVerdict(decision="maybe", first_impression="", reasons=[]),
+    )

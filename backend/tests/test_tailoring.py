@@ -33,7 +33,9 @@ def test_every_original_bullet_exactly_once(doc):
     ]
     out, _ = apply_tailoring(doc, items, {"experience"}, [])
     assert sorted(bullet_index(out)) == sorted(bullet_index(doc))
-    assert out.experience[0].bullets[0].text == "A" and out.experience[0].bullets[1].text == "Built REST APIs"
+    assert (
+        out.experience[0].bullets[0].text == "A" and out.experience[0].bullets[1].text == "wrong entry"
+    )  # id wins over entry label
 
 
 def test_unselected_sections_untouched(doc):
@@ -121,3 +123,75 @@ def test_rewritten_skills_cannot_drop_original_skills(doc):
     out, _ = apply_tailoring(doc, items, {"skills"}, [])
     assert out.skills[0].items == ["Python"]
     assert [i for g in out.skills for i in g.items] == ["Python", "Go"]
+
+
+def test_plan_decides_order_and_skills(doc):
+    from app.tailor_plan import TailorPlan
+
+    plan = TailorPlan(
+        bullets=[],
+        order={"exp0": ["exp0.b1", "exp0.b2", "exp0.b0"]},
+        skills=[SkillGroup(name="Languages", items=["Go", "Python"])],
+        summary_facts=[],
+    )
+    items = [
+        bullet("exp0", "exp0.b0", "A"),
+        bullet("exp0", "exp0.b2", "C"),
+        SkillsItem(type="skills", groups=[SkillGroup(name="Mine", items=["Python"])]),
+    ]
+    out, changes = apply_tailoring(doc, items, {"experience", "skills"}, [], plan)
+    assert [b.id for b in out.experience[0].bullets] == ["exp0.b1", "exp0.b2", "exp0.b0"]
+    assert [b.text for b in out.experience[0].bullets][1:] == ["C", "A"]
+    assert out.skills == plan.skills and any(c.target_id == "skills" for c in changes)
+
+
+def test_bullets_matched_by_their_own_id_even_if_model_mangles_entry_id(doc):
+    items = [BulletItem(type="bullet", entry_id="entry exp0", source_id="[exp0.b1]", text="Rewritten")]
+    out, _ = apply_tailoring(doc, items, {"experience"}, [])
+    assert next(b for b in out.experience[0].bullets if b.id == "exp0.b1").text == "Rewritten"
+
+
+@pytest.mark.parametrize(
+    "original,rewritten,expected",
+    [
+        (
+            "Handled production support and bug fixes for the payments module.",
+            "Managed production support and bug fixes for the payments module, ensuring uninterrupted transaction processing.",
+            "Managed production support and bug fixes for the payments module.",
+        ),
+        (
+            "Reduced report generation time by 40% by rewriting slow SQL queries.",
+            "Optimised SQL queries, cutting report generation time by 40% and improving data processing efficiency.",
+            "Optimised SQL queries, cutting report generation time by 40%.",
+        ),
+        (
+            "Built REST APIs in Spring Boot used by 3 internal teams.",
+            "Built REST APIs in Spring Boot, serving 3 internal teams.",
+            "Built REST APIs in Spring Boot, serving 3 internal teams.",
+        ),
+    ],
+)
+def test_invented_outcome_clauses_are_removed(original, rewritten, expected):
+    from app.tailoring import strip_invented_outcomes
+
+    assert strip_invented_outcomes(original, rewritten) == expected
+
+
+@pytest.mark.parametrize("original,rewritten,expected", [
+    ("Reduced report generation time by 40% by rewriting slow SQL queries.",
+     "Reduced report generation time by 40% by rewriting slow SQL queries significantly.",
+     "Reduced report generation time by 40% by rewriting slow SQL queries."),
+    ("Handled production support and bug fixes for the payments module.",
+     "Managed production support and bug fixes for the payments module in a banking application.",
+     "Managed production support and bug fixes for the payments module."),
+    ("Completed training in Java, SQL and agile methodology.",
+     "Completed training in Java, SQL and agile methodology to enhance development capabilities.",
+     "Completed training in Java, SQL and agile methodology."),
+    ("Built REST APIs in Spring Boot used by 3 internal teams.",
+     "Built REST APIs in Spring Boot for 3 internal teams.",
+     "Built REST APIs in Spring Boot for 3 internal teams."),
+])
+def test_unsupported_trailing_words_are_removed(original, rewritten, expected):
+    from app.tailoring import strip_invented_outcomes
+
+    assert strip_invented_outcomes(original, rewritten) == expected

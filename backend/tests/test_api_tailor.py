@@ -69,3 +69,23 @@ def test_tailor_llm_down_is_error_event(analysis_json):
         )
     )
     assert events[-1][0] == "error" and events[-1][1]["code"] == "LLM_UNAVAILABLE"
+
+
+def test_must_rewrite_lines_returned_unchanged_get_one_repair_call(analysis_json):
+    a = json.loads(json.dumps(analysis_json))
+    a["resume"]["experience"][0]["bullets"][2]["text"] = "Responsible for migration to Kubernetes."
+    unchanged = (
+        '{"type":"bullet","entry_id":"exp0","source_id":"exp0.b2","text":"Responsible for migration to Kubernetes."}\n'
+    )
+    repair = {
+        "items": [
+            {"type": "bullet", "entry_id": "exp0", "source_id": "exp0.b2", "text": "Led migration to Kubernetes."}
+        ]
+    }
+    llm = FakeLLM({"TailorBatch": [repair], "Evidence": [evidence_payload()]}, stream=[unchanged])
+    events = sse_events(
+        tailor_client(llm).post("/api/tailor", json={"analysis": a, "settings": {"sections": ["experience"]}})
+    )
+    bullets = events[-1][1]["version"]["resume"]["experience"][0]["bullets"]
+    assert next(b["text"] for b in bullets if b["id"] == "exp0.b2") == "Led migration to Kubernetes."
+    assert llm.calls["TailorBatch"] == 1 and "MUST REWRITE" in llm.prompts[-2]["user"]

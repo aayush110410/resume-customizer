@@ -120,3 +120,15 @@ def test_lowercase_known_skill_flagged(doc, kb):
 def test_lowercase_ordinary_words_not_flagged(doc, kb):
     t = tailored_with(doc, exp1_b1="Wrote clear SQL reports for finance stakeholders")
     assert find_fabrications(doc, render_plain(doc), t, kb) == []
+
+
+def test_code_supplied_numbers_are_allowed(doc, kb):
+    t = doc.model_copy(deep=True)
+    t.summary = "Backend engineer with 5+ years building payment APIs."
+    assert find_fabrications(doc, render_plain(doc), t, kb) != []
+    assert find_fabrications(doc, render_plain(doc), t, kb, allowed={"5"}) == []
+
+
+def test_singular_acronym_of_plural_original_not_flagged(doc, kb):
+    t = tailored_with(doc, exp0_b1="Built a REST API")
+    assert find_fabrications(doc, render_plain(doc), t, kb) == []

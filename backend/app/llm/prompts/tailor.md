@@ -1,34 +1,29 @@
-<!-- version: 1 -->
-Task: tailor this resume to the job, truthfully. You may only edit these sections: $sections.
+<!-- version: 2 -->
+Task: rewrite the resume lines below, each by its own instruction. Code has already decided the order and the skills. Do not reorder, merge, split, add or drop lines.
 
 Hiring context:
 $context_brief
 
 Tone: $tone_rule
-Spelling: follow the JD's convention ($spelling); keep the candidate's numbers, currency and units exactly as written.
+Spelling: $spelling
 
-Truthfulness contract (absolute):
-- Rephrase, reorder, emphasise, and mirror the JD's wording ONLY for skills and experience the evidence shows the candidate has.
-- Never add employers, titles, dates, degrees, tools, technologies, metrics or numbers that are not in the resume. Keep every number exactly as written.
-- Missing requirements are handled elsewhere; do not paper over them.
+TRUTH RULES (absolute — a rewrite that breaks one is discarded):
+- Keep every number exactly as written ("keep" lists them).
+- New words may only be the JD terms listed under "use" for that line. Never add a tool, technology, employer, metric, team size or result that the original line does not state.
+- The verb must say what the original says was done: "developing" may become "Developed" or "Built", never "Designed" or "Led".
+- Do not append outcome clauses ("…, improving reliability", "…, ensuring uptime") unless the original states that outcome. Code deletes unsupported ones.
+- Lines marked MUST REWRITE must come back changed. Any other line that is already strong may be returned unchanged.
 
-How to edit:
-- Bullets: lead with a strong past-tense action verb; state scope and result when the original contains them; 1–2 lines each; within each entry, order bullets by relevance to the must-have requirements. Rewrite every bullet you return; you may return a bullet unchanged if it is already strong.
-- Summary (if editable): 40–70 words, no first person, no clichés or objective statements; who the candidate is, years, domain, 1–2 strongest evidenced proofs that match this JD.
-- Skills (if editable): put JD-matched skills first; you may regroup and rename groups; never add a skill the resume does not contain.
+HOW TO REWRITE A LINE:
+1. Open with a strong past-tense verb: Built, Designed, Led, Reduced, Migrated, Automated, Launched, Scaled, Delivered, Optimised. If "weak opener" is named, it must go.
+2. Lead with the outcome or scale when the original has one; then what was done; then how.
+3. Use each term under "use" in place of the resume's wording given before the arrow.
+4. One sentence, 12–30 words, no "I/my/we", no buzzwords (passionate, dynamic, hardworking, synergy, result-oriented).
+$summary_block
+LINES (rewrite every one, in this order):
+$lines
 
-Output format: JSON Lines only — one JSON object per line, no prose, no code fences. Allowed objects:
-{"type":"summary","text":"…"}
-{"type":"skills","groups":[{"name":"…","items":["…"]}]}
-{"type":"bullet","entry_id":"exp0","source_id":"exp0.b2","text":"…","addresses":["r1"]}
-{"type":"change","target_id":"exp0.b2","what":"…","why":"…","requirement_ids":["r1"]}
-- entry_id is the entry ID shown in angle brackets (e.g. <exp0>); achievements use entry_id "ach". source_id is the bullet ID in square brackets. Emit bullets for an entry in the new order.
-- After each summary/skills/bullet line you changed, emit one change line (target_id = "summary", "skills" or the bullet ID) explaining what changed and why, citing requirement IDs.
-
-Requirements:
-$requirements_json
-
-Evidence per requirement (from an earlier review):
-$evidence_json
-
-$resume_block
+OUTPUT: JSON Lines only — one JSON object per line, no prose, no code fences.
+$summary_format{"type":"bullet","entry_id":"<entry id>","source_id":"<line id>","text":"<rewritten line>","addresses":["<requirement ids from 'proves'>"]}
+{"type":"change","target_id":"<line id>","what":"<what changed, ≤ 12 words>","why":"<why it helps for this job, ≤ 15 words>","requirement_ids":["…"]}
+Emit one bullet object per line above. After each line you actually changed, emit one change object.

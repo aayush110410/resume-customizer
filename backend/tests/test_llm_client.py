@@ -123,3 +123,9 @@ async def test_schema_always_in_system_prompt():
     await c.structured("analysis", "SYS", "u", X)
     system = calls["a"][0]["messages"][0]["content"]
     assert system.startswith("SYS") and '"x"' in system and calls["a"][0]["response_format"]["type"] == "json_schema"
+
+
+async def test_structured_calls_use_a_fixed_seed():
+    c, calls = client_with({"a": ['{"x": 1}']})
+    await c.structured("analysis", "s", "u", X)
+    assert calls["a"][0]["seed"] == 7

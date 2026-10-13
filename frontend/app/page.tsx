@@ -146,11 +146,12 @@ export default function Home() {
                           <div className="flex flex-col gap-6">
                             <div className="flex flex-wrap items-center justify-between gap-3">
                               <p className="max-w-xl text-[13px] text-ink-3">
-                                {version.flags.length ? `${version.flags.length} line(s) state something we couldn't find in your original. Check each, or use the original.` : "Every fact traces back to your original resume."}
+                                {version.flags.length ? `${version.flags.length} line(s) state something we couldn't find in your original. Check each, or use the original.` : "Every fact traces back to your original resume."} Highlighted words are terms from the job description.
                               </p>
                               <DownloadMenu request={{ kind: "resume", region: analysis!.region, resume: version.resume }} />
                             </div>
-                            <ResumeView resume={version.resume} flags={version.flags} onRevert={(id) => s.revertFlag(version.id, id)} />
+                            <ResumeView resume={version.resume} flags={version.flags} onRevert={(id) => s.revertFlag(version.id, id)}
+                              terms={jd ? [...jd.ats_keywords, ...jd.requirements.flatMap((q) => q.keywords)] : []} />
                           </div>
                         ) : <p className="text-[13.5px] text-ink-3">The tailored resume appears once analysis finishes.</p>)}
                         {tab === "changes" && (version && analysis ? <DiffView before={analysis.resume} after={version.resume} changes={version.changes} /> : <p className="text-[13.5px] text-ink-3">No tailored version yet.</p>)}
