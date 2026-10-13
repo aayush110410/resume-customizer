@@ -92,7 +92,38 @@ All free:
   - asks for JSON-schema output and also embeds the schema in the prompt (some servers accept `json_schema` without enforcing it);
   - is validated with Pydantic, gets one repair round, then falls back to the next provider.
 
+## How judging works (code first, model second)
+
+The free models are capable but not reliable judges, so every decision that can be made from facts is made in code (`backend/app/judging.py`). The model gets one narrow job, under a numbered procedure.
+
+| Decision | Who decides | How |
+|---|---|---|
+| "N+ years of experience" | **Code** | Years computed from the resume's own dates. Internships are excluded, overlapping roles count once and back-to-back roles merge. |
+| Degree requirements | **Code** | Degree level detected: B.Tech/B.E./BSc/BCA < M.Tech/MSc/MCA/MBA/PGDM < PhD. |
+| Certifications | **Code** | The core name (e.g. "AWS") must appear together with a certification word. |
+| A named skill or tool | **Code floor** | Only skills the requirement actually names count, via ~120 canonical skills plus synonyms and inflections. A bullet that shows the work = strong. A duty-style bullet, the skills list, or only part of an "X and Y" requirement = partial. "X or Y" and "X (e.g. Y)" accept any one. |
+| The same skill in other words ("Spring Boot" → Java, "trained interns" → mentoring) | **Model** | It must cite a bullet ID and an exact quote. Code verifies the quote; the model can only raise a status above the code floor, never lower it, and never overrule a code fact. |
+| Scores, knockouts, ranked fixes | **Code** | Computed from the reconciled evidence (rubric below). |
+
+Tailoring is planned the same way (`backend/app/tailor_plan.py`):
+- **Order:** bullet order comes from the weight of the requirements each bullet proves.
+- **Skills:** JD-matched skills move first and nothing is dropped.
+- **Mirroring:** each line may mirror a JD term only if it already says the same thing in other words (`k8s` → `Kubernetes`).
+- **Must rewrite:** lines with a weak opener are marked; if the model returns one unchanged, it gets one targeted repair call.
+- **Padding removal:** trailing outcome clauses the original never stated ("…, improving reliability") are deleted in code before the fabrication guard runs.
+
 ## Accuracy evaluation
+
+**Judging accuracy against hand labels** (`backend/evals/accuracy.py`, `evals/golden/labels.yaml`). A recruiter-style label was written for every requirement of a Bengaluru SDE-2 job, for a weaker and a strong resume. The test is 3 full runs per resume on gpt-oss:120b:
+
+| Version | Accuracy | JD-match spread across runs (weak / strong resume) | Wrong judgments |
+|---|---|---|---|
+| Model judges alone (v1) | 97.9% of 94 | σ 0.94 / 0 | Docker called "transferable" despite being in skills; observability "partial" with no evidence |
+| First code-floor attempt (v2) | 91.8% of 97 | σ 5.31 / 2.94 | Padded keywords over-credited Kubernetes/AWS; missed "payment"/"payments", "AWS Certified" |
+| **Code-first judging (v3, shipped)** | **98.9% of 94** | σ 1.89 / **0** | One: "production support" read as partial observability evidence |
+
+v2 is kept in the table on purpose: it's why every judging change is benchmarked before it ships.
+
 
 `backend/evals/run_eval.py` runs the real pipeline live: the same resume analysed 3 times, a strong resume vs the weaker sample, and the share of LLM quotes found verbatim in the resume. Results for every model on Ollama's free plan (2026-10-13):
 
@@ -122,8 +153,8 @@ cd frontend && pnpm install && cp .env.example .env.local && pnpm dev   # http:/
 ```
 
 **Tests:**
-- `cd backend && .venv/bin/pytest -q && .venv/bin/ruff check .` (125 tests)
-- `cd frontend && pnpm test && pnpm tsc --noEmit` (20 tests)
+- `cd backend && .venv/bin/pytest -q && .venv/bin/ruff check .` (167 tests)
+- `cd frontend && pnpm test && pnpm tsc --noEmit` (24 tests)
 
 **Live eval:** `cd backend && .venv/bin/python -m evals.run_eval --runs 3`
 
