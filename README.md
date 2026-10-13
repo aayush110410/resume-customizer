@@ -11,6 +11,16 @@ Paste a job description, upload a resume (PDF or DOCX), and get:
 
 > The free hosting tier sleeps when idle. The first request can take up to a minute while the server wakes, and the UI says so.
 
+## Screenshots
+
+All from the live app, using the built-in sample (an Infosys engineer applying for a Bengaluru SDE-2 payments role).
+
+| | |
+|---|---|
+| ![Input: JD and resume upload](docs/screenshots/01-input.jpg) **Input.** Paste a JD, drop a PDF/DOCX (name and size shown), pick region, tone and sections. | ![Live progress](docs/screenshots/02-progress.jpg) **Streaming.** Each stage reports as it runs: parse, read the JD, match evidence, score. |
+| ![Results overview](docs/screenshots/03-overview.jpg) **Results.** Overall and four sub-scores with before→after deltas, ranked fixes, the 7-second verdict and India market notes. | ![Evidence ledger](docs/screenshots/04-evidence.jpg) **Evidence.** Every JD requirement with its status and the verbatim resume quote that proves it. |
+| ![Tailored resume](docs/screenshots/05-tailored.jpg) **Tailored resume.** JD terms highlighted; unverifiable lines flagged "Needs your confirmation", with a one-click revert. Download as PDF, DOCX or TXT. | ![Changes diff](docs/screenshots/06-changes.jpg) **Changes.** Inline or side-by-side diff with moved-bullet markers and a reason for each edit. |
+
 ## What makes it different
 
 1. **The LLM never invents a number.**
