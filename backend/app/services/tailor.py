@@ -13,7 +13,7 @@ from app.resume_ops import render_contact, render_for_matching, render_plain
 from app.schemas import LayoutReport, ResumeDoc, TailorBatch, TailoredVersion, TailorRequest
 from app.scoring import score_all
 from app.services import ServerEvent, stage
-from app.tailoring import apply_tailoring, parse_jsonl_items
+from app.tailoring import apply_tailoring, keep_best_evidence, parse_jsonl_items
 from app.text_utils import estimate_pages
 
 TONE_RULES = {
@@ -74,7 +74,8 @@ async def tailor_stream(req: TailorRequest, llm: LLM, kb: Knowledge) -> AsyncIte
     yield stage("rescoring", "active")
     text, layout = resume_text_for_scoring(tailored)
     ev = await match_evidence(llm, tailored, text, a.jd, pack, kb)
-    scores = score_all(text, layout, tailored, a.jd, ev.value, a.region, kb)
+    evidence = keep_best_evidence(a.evidence, ev.value)
+    scores = score_all(text, layout, tailored, a.jd, evidence, a.region, kb)
     yield stage("rescoring", "done")
 
     version = TailoredVersion(

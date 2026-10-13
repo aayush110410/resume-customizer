@@ -6,7 +6,20 @@ from collections.abc import AsyncIterator
 
 from pydantic import TypeAdapter, ValidationError
 
-from app.schemas import Bullet, BulletItem, ChangeItem, ResumeDoc, SectionKey, SkillsItem, SummaryItem, TailorItem
+from app.schemas import (
+    Bullet,
+    BulletItem,
+    ChangeItem,
+    Evidence,
+    ResumeDoc,
+    SectionKey,
+    SkillGroup,
+    SkillsItem,
+    SummaryItem,
+    TailorItem,
+)
+from app.scoring.match import CREDIT
+from app.text_utils import normalize
 
 _ITEM = TypeAdapter(TailorItem)
 
@@ -50,6 +63,35 @@ def _reorder(bullets: list[Bullet], items: list[BulletItem]) -> list[Bullet]:
     return out + [b for b in bullets if b.id not in used]
 
 
+def _keep_all_skills(original: list[SkillGroup], rewritten: list[SkillGroup]) -> list[SkillGroup]:
+    """The writer may reorder and regroup skills but never drop one: dropped skills return under their old group."""
+    groups = [g.model_copy(deep=True) for g in rewritten]
+    present = {normalize(i) for g in groups for i in g.items}
+    for old in original:
+        dropped = [i for i in old.items if normalize(i) not in present]
+        if dropped:
+            target = next((g for g in groups if normalize(g.name) == normalize(old.name)), None)
+            if target is None:
+                target = SkillGroup(name=old.name, items=[])
+                groups.append(target)
+            target.items.extend(dropped)
+            present |= {normalize(i) for i in dropped}
+    return groups
+
+
+def keep_best_evidence(before: Evidence, after: Evidence) -> Evidence:
+    """Tailoring keeps every original fact, so a requirement can't lose evidence; a weaker re-judgment is model noise."""
+    prior = {m.requirement_id: m for m in before.matches}
+    out = after.model_copy(deep=True)
+    out.matches = [
+        prior[m.requirement_id]
+        if m.requirement_id in prior and CREDIT[prior[m.requirement_id].status] > CREDIT[m.status]
+        else m
+        for m in out.matches
+    ]
+    return out
+
+
 def apply_tailoring(
     original: ResumeDoc, items: list[TailorItem], sections: set[SectionKey], drop: list[str]
 ) -> tuple[ResumeDoc, list[ChangeItem]]:
@@ -59,7 +101,7 @@ def apply_tailoring(
         doc.summary = summaries[-1].text.strip()
     skills = [i for i in items if isinstance(i, SkillsItem)]
     if "skills" in sections and skills:
-        doc.skills = skills[-1].groups
+        doc.skills = _keep_all_skills(original.skills, skills[-1].groups)
 
     bullet_items = [i for i in items if isinstance(i, BulletItem)]
     editable: set[str] = {k for k in ("summary", "skills") if k in sections}

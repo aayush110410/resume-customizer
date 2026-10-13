@@ -90,3 +90,34 @@ async def test_jsonl_parser_skips_bad_lines():
     parsed = parse_jsonl_items(stream)
     items = [i async for i in parsed]
     assert [i.type for i in items] == ["summary", "change"] and parsed.invalid == 1
+
+
+def _ev(*pairs):
+    from app.schemas import Evidence, RecruiterVerdict, RequirementMatch
+
+    return Evidence(
+        matches=[RequirementMatch(requirement_id=r, status=s, quote=f"{r}-{s}", rationale=s) for r, s in pairs],
+        gaps=[],
+        recruiter=RecruiterVerdict(decision="maybe", first_impression="", reasons=[]),
+    )
+
+
+def test_keep_best_evidence_never_downgrades():
+    from app.tailoring import keep_best_evidence
+
+    merged = keep_best_evidence(
+        _ev(("r1", "strong"), ("r2", "partial"), ("r3", "missing")),
+        _ev(("r1", "missing"), ("r2", "strong"), ("r3", "missing")),
+    )
+    assert [(m.requirement_id, m.status, m.quote) for m in merged.matches] == [
+        ("r1", "strong", "r1-strong"),
+        ("r2", "strong", "r2-strong"),
+        ("r3", "missing", "r3-missing"),
+    ]
+
+
+def test_rewritten_skills_cannot_drop_original_skills(doc):
+    items = [SkillsItem(type="skills", groups=[SkillGroup(name="Core", items=["Python"])])]
+    out, _ = apply_tailoring(doc, items, {"skills"}, [])
+    assert out.skills[0].items == ["Python"]
+    assert [i for g in out.skills for i in g.items] == ["Python", "Go"]

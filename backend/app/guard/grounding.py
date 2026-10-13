@@ -73,7 +73,7 @@ def _numbers(text: str) -> set[str]:
     return {re.sub(r"[,\s]", "", n) for n in _NUM.findall(text)}
 
 
-def _fact_terms(text: str) -> list[str]:
+def _fact_terms(text: str, known_skills: dict | None = None) -> list[str]:
     """Tokens that assert a fact: tools/tech (digits, + # . /, internal capitals) and capitalised names mid-sentence."""
     terms = []
     for sentence in _SENTENCE.split(text):
@@ -81,7 +81,8 @@ def _fact_terms(text: str) -> list[str]:
             if _NUMERIC.fullmatch(tok) or tok.lower() in _STOP:
                 continue  # numbers are checked separately
             techy = any(c.isdigit() for c in tok) or any(c in "+#./" for c in tok) or sum(c.isupper() for c in tok) >= 2
-            if techy or (tok[0].isupper() and i > 0):
+            known = known_skills is not None and normalize(tok) in known_skills
+            if techy or known or (tok[0].isupper() and i > 0):
                 terms.append(tok)
     return list(dict.fromkeys(terms))
 
@@ -101,7 +102,7 @@ def find_fabrications(
 
     if tailored.summary and tailored.summary != original.summary:
         bad = [n for n in _numbers(tailored.summary) if n not in all_numbers]
-        bad += [t for t in _fact_terms(tailored.summary) if not _present(t, original_text, kb)]
+        bad += [t for t in _fact_terms(tailored.summary, kb.synonyms.groups) if not _present(t, original_text, kb)]
         if bad:
             flags.append(FabricationFlag(target_id="summary", tokens=bad, reason="Not found in your original resume"))
 
@@ -124,7 +125,7 @@ def find_fabrications(
             continue
         source_numbers = _numbers(source.text)
         bad = [n for n in _numbers(bullet.text) if n not in source_numbers]
-        bad += [t for t in _fact_terms(bullet.text) if not _present(t, original_text, kb)]
+        bad += [t for t in _fact_terms(bullet.text, kb.synonyms.groups) if not _present(t, original_text, kb)]
         if bad:
             flags.append(
                 FabricationFlag(

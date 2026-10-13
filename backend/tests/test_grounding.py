@@ -110,3 +110,13 @@ def test_sentence_start_capitals_are_not_facts(doc, kb):
 def test_slash_terms_kept_whole_and_decimals_reported_once(doc, kb):
     t = tailored_with(doc, exp1_b0="Maintained billing jobs on CI/CD with 99.9% uptime")
     assert find_fabrications(doc, render_plain(doc), t, kb)[0].tokens == ["99.9%", "CI/CD"]
+
+
+def test_lowercase_known_skill_flagged(doc, kb):
+    t = tailored_with(doc, exp1_b1="Wrote SQL reports streamed through kubernetes")
+    assert find_fabrications(doc, render_plain(doc), t, kb)[0].tokens == ["kubernetes"]
+
+
+def test_lowercase_ordinary_words_not_flagged(doc, kb):
+    t = tailored_with(doc, exp1_b1="Wrote clear SQL reports for finance stakeholders")
+    assert find_fabrications(doc, render_plain(doc), t, kb) == []
