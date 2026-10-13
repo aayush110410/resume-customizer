@@ -17,11 +17,12 @@ pairs:
       - {id: cicd,          aliases: ["ci/cd", "continuous integration", "pipeline"],  ok: [strong, partial]}
       - {id: payments,      aliases: ["payment", "banking", "fintech"],                ok: [strong, partial]}
       - {id: microservices, aliases: ["microservice"],                                 ok: [partial, transferable]}
+      - {id: performance,   aliases: ["latency", "reliability", "performance"],       ok: [partial, transferable]}
       - {id: rest,          aliases: ["rest", "api"],                                  ok: [strong]}
       - {id: sql,           aliases: ["sql", "postgres", "mysql", "data model"],       ok: [strong, partial]}
       - {id: java,          aliases: ["java", "spring"],                               ok: [strong]}
       - {id: python,        aliases: ["python", "django", "fastapi"],                  ok: [partial, strong]}
-      - {id: backend,       aliases: ["backend", "back-end", "services"],              ok: [strong]}
+      - {id: backend,       aliases: ["backend", "back-end"],              ok: [strong]}
   - resume: strong_swe        # Neha Iyer: 5 yrs fintech backend, covers nearly everything
     concepts:
       - {id: years,         aliases: ["years", "yrs"],                                ok: [strong]}
@@ -36,8 +37,9 @@ pairs:
       - {id: cicd,          aliases: ["ci/cd", "continuous integration", "pipeline"],  ok: [strong]}
       - {id: payments,      aliases: ["payment", "banking", "fintech"],                ok: [strong]}
       - {id: microservices, aliases: ["microservice"],                                 ok: [strong]}
+      - {id: performance,   aliases: ["latency", "reliability", "performance"],       ok: [strong]}
       - {id: rest,          aliases: ["rest", "api"],                                  ok: [strong]}
       - {id: sql,           aliases: ["sql", "postgres", "mysql", "data model"],       ok: [strong]}
       - {id: java,          aliases: ["java", "spring"],                               ok: [strong]}
       - {id: python,        aliases: ["python", "django", "fastapi"],                  ok: [strong]}
-      - {id: backend,       aliases: ["backend", "back-end", "services"],              ok: [strong]}
+      - {id: backend,       aliases: ["backend", "back-end"],              ok: [strong]}

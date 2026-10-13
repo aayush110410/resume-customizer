@@ -105,7 +105,9 @@ def test_keyword_in_action_bullet_is_strong_in_weak_bullet_partial_in_skills_par
     # "Jenkins" proving CI/CD is a semantic link the requirement never names: the model's job, not code's
     assert code_judgment(req("CI/CD pipelines", keywords=["jenkins", "ci/cd"]), r, kb, 5.7) is None
     jenkins = code_judgment(req("Jenkins", keywords=["jenkins"]), r, kb, 5.7)
-    assert jenkins.status == "partial" and jenkins.bullet_ids == ["exp0.b1"]  # named, but in a duty-style bullet
+    assert jenkins.status == "strong" and jenkins.bullet_ids == [
+        "exp0.b1"
+    ]  # duty wording is a Content issue, not missing evidence
     docker = code_judgment(req("Docker", keywords=["docker"]), r, kb, 5.7)
     assert docker.status == "partial" and docker.bullet_ids == [] and docker.quote == "Docker"
     assert code_judgment(req("Kubernetes", keywords=["kubernetes"]), r, kb, 5.7) is None
@@ -193,3 +195,83 @@ def test_certification_core_name_plus_cert_word(kb):
         == "strong"
     )
     assert code_judgment(req("AWS certification", "certification", "nice", keywords=[]), resume(), kb, 6) is None
+
+
+def test_duty_phrasing_still_counts_as_evidence_only_exposure_is_partial(kb):
+    r = resume(
+        experience=[
+            Entry(
+                title="SE",
+                organization="X",
+                start="Jan 2020",
+                end="Present",
+                bullets=[
+                    Bullet(text="Responsible for developing REST APIs in Spring Boot."),
+                    Bullet(text="Instrumented services with Prometheus and Grafana dashboards."),
+                    Bullet(text="Familiar with Kafka from a training course."),
+                ],
+            )
+        ]
+    )
+    r = assign_ids(r)
+    assert code_judgment(req("REST APIs", keywords=["rest api"]), r, kb, 6).status == "strong"
+    assert code_judgment(req("Observability tools (Prometheus, Grafana)"), r, kb, 6).status == "strong"
+    assert code_judgment(req("Kafka", keywords=["kafka"]), r, kb, 6).status == "partial"
+
+
+def test_framework_implies_language(kb):
+    r = resume()  # "Built REST APIs in Spring Boot…" never says Java
+    assert code_judgment(req("Strong Java skills", keywords=["java"]), r, kb, 6).status == "strong"
+
+
+def test_soft_skill_and_domain_vocabulary_lets_code_decide(kb):
+    r = assign_ids(
+        resume(
+            experience=[
+                Entry(
+                    title="SE",
+                    organization="X",
+                    start="Jan 2020",
+                    end="Present",
+                    bullets=[
+                        Bullet(text="Mentored 4 junior engineers and reviewed code for a team of 9."),
+                        Bullet(text="Designed UPI payment orchestration for 3M requests/day."),
+                        Bullet(text="Instrumented services with Prometheus and Grafana; cut p99 latency by 35%."),
+                    ],
+                )
+            ]
+        )
+    )
+    from app.jd_parse import named_skills
+
+    def code(text):
+        return code_judgment(req(text, keywords=named_skills(text, kb)), r, kb, 6)
+
+    assert code("Mentor junior engineers and review code.").status == "strong"
+    assert code("Payments or banking domain experience.").status == "strong"
+    assert code("Improve latency, reliability and observability of high-throughput services.").status == "strong"
+
+
+def test_merge_passes_keeps_verified_evidence_from_either_pass():
+    from app.judging import merge_passes
+    from app.schemas import Evidence, RecruiterVerdict
+
+    def ev(status, verified=True, quote="q", bullets=("exp0.b0",)):
+        return Evidence(
+            matches=[
+                RequirementMatch(
+                    requirement_id="r1",
+                    status=status,
+                    quote=quote,
+                    bullet_ids=list(bullets),
+                    rationale=status,
+                    verified=verified,
+                )
+            ],
+            gaps=[],
+            recruiter=RecruiterVerdict(decision="maybe", first_impression="", reasons=[]),
+        )
+
+    assert merge_passes(ev("missing", quote=None, bullets=()), ev("strong")).matches[0].status == "strong"
+    assert merge_passes(ev("strong", verified=False), ev("partial")).matches[0].status == "partial"
+    assert merge_passes(ev("partial"), ev("missing", quote=None, bullets=())).matches[0].status == "partial"

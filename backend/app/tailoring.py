@@ -89,7 +89,7 @@ def strip_invented_outcomes(original: str, rewritten: str) -> str:
     tokens = list(re.finditer(r"[A-Za-z][\w+#./-]*|\d[\d,.]*%?", body))
     known = [t for t in tokens if t.group(0)[:5].lower() in stems or t.group(0) in numbers]
     if known and known[-1].end() < len(body):
-        tail = body[known[-1].end():]
+        tail = body[known[-1].end() :]
         if re.search(r"[A-Za-z]{4,}", tail) and not any(n in tail for n in numbers):
             body, changed = body[: known[-1].end()].rstrip(" ,"), True
     return body + end if changed else text

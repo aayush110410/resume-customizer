@@ -99,11 +99,13 @@ def test_rate_limit(monkeypatch, simple_pdf):
 
 def test_identical_inputs_hit_cache(monkeypatch, simple_pdf):
     fake = FakeLLM(
-        {"ResumeDoc": [resume_payload()] * 2, "JDAnalysis": [jd_payload()] * 2, "Evidence": [evidence_payload()] * 2}
+        {"ResumeDoc": [resume_payload()] * 2, "JDAnalysis": [jd_payload()] * 2, "Evidence": [evidence_payload()] * 4}
     )
     client, _ = make_client(monkeypatch, llm=fake)
     post(client, simple_pdf), post(client, simple_pdf)
-    assert fake.calls["ResumeDoc"] == 1 and fake.calls["JDAnalysis"] == 1 and fake.calls["Evidence"] == 2
+    assert (
+        fake.calls["ResumeDoc"] == 1 and fake.calls["JDAnalysis"] == 1 and fake.calls["Evidence"] == 4
+    )  # two parallel matching passes per analysis
 
 
 def test_meta_lists_regions_and_limits(monkeypatch):

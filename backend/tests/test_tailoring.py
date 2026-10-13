@@ -177,20 +177,31 @@ def test_invented_outcome_clauses_are_removed(original, rewritten, expected):
     assert strip_invented_outcomes(original, rewritten) == expected
 
 
-@pytest.mark.parametrize("original,rewritten,expected", [
-    ("Reduced report generation time by 40% by rewriting slow SQL queries.",
-     "Reduced report generation time by 40% by rewriting slow SQL queries significantly.",
-     "Reduced report generation time by 40% by rewriting slow SQL queries."),
-    ("Handled production support and bug fixes for the payments module.",
-     "Managed production support and bug fixes for the payments module in a banking application.",
-     "Managed production support and bug fixes for the payments module."),
-    ("Completed training in Java, SQL and agile methodology.",
-     "Completed training in Java, SQL and agile methodology to enhance development capabilities.",
-     "Completed training in Java, SQL and agile methodology."),
-    ("Built REST APIs in Spring Boot used by 3 internal teams.",
-     "Built REST APIs in Spring Boot for 3 internal teams.",
-     "Built REST APIs in Spring Boot for 3 internal teams."),
-])
+@pytest.mark.parametrize(
+    "original,rewritten,expected",
+    [
+        (
+            "Reduced report generation time by 40% by rewriting slow SQL queries.",
+            "Reduced report generation time by 40% by rewriting slow SQL queries significantly.",
+            "Reduced report generation time by 40% by rewriting slow SQL queries.",
+        ),
+        (
+            "Handled production support and bug fixes for the payments module.",
+            "Managed production support and bug fixes for the payments module in a banking application.",
+            "Managed production support and bug fixes for the payments module.",
+        ),
+        (
+            "Completed training in Java, SQL and agile methodology.",
+            "Completed training in Java, SQL and agile methodology to enhance development capabilities.",
+            "Completed training in Java, SQL and agile methodology.",
+        ),
+        (
+            "Built REST APIs in Spring Boot used by 3 internal teams.",
+            "Built REST APIs in Spring Boot for 3 internal teams.",
+            "Built REST APIs in Spring Boot for 3 internal teams.",
+        ),
+    ],
+)
 def test_unsupported_trailing_words_are_removed(original, rewritten, expected):
     from app.tailoring import strip_invented_outcomes
 

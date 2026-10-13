@@ -18,15 +18,32 @@ def grounding_rate(evs: list[Evidence]) -> float:
     return sum(m.verified for m in quoted) / len(quoted) if quoted else 1.0
 
 
+def _earliest(text: str, concepts: list[dict]) -> dict | None:
+    """The concept the requirement names first (ties: the longer alias, then label order)."""
+    import re
+
+    from app.text_utils import contains_term, normalize
+
+    best, key = None, None
+    norm = normalize(text)
+    for order, c in enumerate(concepts):
+        for a in c["aliases"]:
+            if contains_term(text, a):
+                m = re.search(re.escape(normalize(a)), norm)
+                k = (m.start() if m else 0, -len(a), order)
+                if key is None or k < key:
+                    best, key = c, k
+    return best
+
+
 def label_accuracy(requirements, ev: Evidence, concepts: list[dict]) -> dict:
     """Each extracted requirement is judged against the first hand-labelled concept it names."""
-    from app.text_utils import contains_term
 
     status = {m.requirement_id: m.status for m in ev.matches}
     correct, judged, wrong, seen = 0, 0, [], set()
     for req in requirements:
         text = " ".join([req.text, *req.keywords])
-        concept = next((c for c in concepts if any(contains_term(text, a) for a in c["aliases"])), None)
+        concept = _earliest(text, concepts)
         if concept is None:
             continue
         seen.add(concept["id"])

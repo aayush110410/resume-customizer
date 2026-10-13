@@ -143,7 +143,7 @@ async def tailor_stream(req: TailorRequest, llm: LLM, kb: Knowledge) -> AsyncIte
 
     yield stage("rescoring", "active")
     text, layout = resume_text_for_scoring(tailored)
-    ev = await match_evidence(llm, tailored, text, a.jd, pack, kb)
+    ev = await match_evidence(llm, tailored, text, a.jd, pack, kb, passes=1)
     evidence = keep_best_evidence(a.evidence, ev.value)
     scores = score_all(text, layout, tailored, a.jd, evidence, a.region, kb)
     yield stage("rescoring", "done")

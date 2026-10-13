@@ -1,16 +1,26 @@
 """The three extraction/judgment LLM steps, each followed by deterministic clean-up and verification."""
 
+import asyncio
 import json
 from datetime import date
 
 from app.guard.grounding import verify_evidence, verify_quote
-from app.judging import code_judgment, is_factual, level_for_years, reconcile, years_of_experience
+from app.jd_parse import ats_keywords_from, named_skills, parse_requirements
+from app.judging import (
+    code_judgment,
+    is_factual,
+    level_for_years,
+    merge_passes,
+    reconcile,
+    required_years,
+    years_of_experience,
+)
 from app.knowledge.loader import build_context_brief, select_tips
 from app.knowledge.models import Knowledge, RegionPack
-from app.llm.client import LLM, Structured
+from app.llm.client import LLM, LLMUnavailable, Structured
 from app.llm.prompting import render, wrap
 from app.resume_ops import assign_ids, render_for_matching, render_plain
-from app.schemas import Evidence, JDAnalysis, RequirementMatch, ResumeDoc
+from app.schemas import Evidence, JDAnalysis, Requirement, RequirementMatch, ResumeDoc
 
 STRUCTURE_THRESHOLD = 80
 MAX_REQUIREMENTS = 25
@@ -51,10 +61,24 @@ async def analyze_jd(llm: LLM, jd_text: str, kb: Knowledge) -> Structured[JDAnal
         "analysis", _system("India and international markets"), user, JDAnalysis, reasoning_effort="medium"
     )
     jd = r.value.model_copy(deep=True)
-    reqs = sorted(jd.requirements, key=lambda q: _IMPORTANCE_ORDER[q.importance])[:MAX_REQUIREMENTS]
-    for i, req in enumerate(reqs, 1):
-        req.id = f"r{i}"
-    jd.requirements = reqs
+    parsed = parse_requirements(jd_text, kb)
+    if parsed:
+        # The JD's own bullets, in order, with importance from their heading: same JD → same requirements.
+        order = {"must": 0, "should": 1, "nice": 2}
+        ranked = sorted(parsed, key=lambda p: order[p[1]])[:MAX_REQUIREMENTS]
+        jd.requirements = [
+            Requirement(id=f"r{i}", text=t, type=ty, importance=imp, keywords=named_skills(t, kb))
+            for i, (t, imp, ty) in enumerate(ranked, 1)
+        ]
+        jd.min_years = next((required_years(q.text) for q in jd.requirements if q.type == "experience"), jd.min_years)
+        code_keywords = ats_keywords_from(jd_text, kb)
+        if len(code_keywords) >= 3:
+            jd.ats_keywords = code_keywords[:MAX_ATS_KEYWORDS]
+    else:
+        reqs = sorted(jd.requirements, key=lambda q: _IMPORTANCE_ORDER[q.importance])[:MAX_REQUIREMENTS]
+        for i, req in enumerate(reqs, 1):
+            req.id = f"r{i}"
+        jd.requirements = reqs
     seen: dict[str, str] = {}
     for kw in jd.ats_keywords:
         seen.setdefault(kw.strip().lower(), kw.strip())
@@ -74,7 +98,7 @@ def _finding(req, code) -> str:
 
 
 async def match_evidence(
-    llm: LLM, resume: ResumeDoc, resume_text: str, jd: JDAnalysis, region: RegionPack, kb: Knowledge
+    llm: LLM, resume: ResumeDoc, resume_text: str, jd: JDAnalysis, region: RegionPack, kb: Knowledge, passes: int = 2
 ) -> Structured[Evidence]:
     tips = select_tips(region, jd, resume.level)
     years = years_of_experience(resume, date.today())
@@ -93,18 +117,33 @@ async def match_evidence(
         ),
         resume_block=wrap("resume", render_for_matching(resume)),
     )
-    r = await llm.structured("analysis", _system(region.label), user, Evidence, reasoning_effort="medium")
-    ev = r.value.model_copy(deep=True)
-
-    by_id: dict[str, RequirementMatch] = {}
-    for m in ev.matches:
-        by_id.setdefault(m.requirement_id, m)
-    ev.matches = [
-        by_id.get(q.id) or RequirementMatch(requirement_id=q.id, status="missing", rationale="Not assessed by model")
-        for q in jd.requirements
-    ]
     source = resume_text + "\n" + render_plain(resume)
-    ev = verify_evidence(ev, resume, source)
+
+    async def one_pass(temperature: float) -> Structured[Evidence]:
+        r = await llm.structured(
+            "analysis", _system(region.label), user, Evidence, temperature=temperature, reasoning_effort="medium"
+        )
+        ev = r.value.model_copy(deep=True)
+        by_id: dict[str, RequirementMatch] = {}
+        for m in ev.matches:
+            by_id.setdefault(m.requirement_id, m)
+        ev.matches = [
+            by_id.get(q.id)
+            or RequirementMatch(requirement_id=q.id, status="missing", rationale="Not assessed by model")
+            for q in jd.requirements
+        ]
+        return Structured(verify_evidence(ev, resume, source), r.model)
+
+    # Independent passes run in parallel (no added wait); verified evidence found by either one counts.
+    results = await asyncio.gather(*(one_pass(0.0 if i == 0 else 0.3) for i in range(passes)), return_exceptions=True)
+    done = [x for x in results if isinstance(x, Structured)]
+    if not done:
+        failure = results[0]
+        raise failure if isinstance(failure, Exception) else LLMUnavailable([])
+    r = done[0]
+    ev = r.value
+    for extra in done[1:]:
+        ev = merge_passes(ev, extra.value)
     ev.matches = [reconcile(q, code[q.id], m) for q, m in zip(jd.requirements, ev.matches, strict=True)]
     final = {m.requirement_id: m.status for m in ev.matches}
     known = {q.id for q in jd.requirements}

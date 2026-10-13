@@ -13,7 +13,7 @@ from datetime import date
 
 from app.knowledge.models import Knowledge
 from app.resume_ops import iter_bullets
-from app.schemas import Level, MatchStatus, Requirement, RequirementMatch, ResumeDoc
+from app.schemas import Evidence, Level, MatchStatus, Requirement, RequirementMatch, ResumeDoc
 from app.scoring.match import CREDIT
 from app.text_utils import contains_term, normalize
 
@@ -41,6 +41,22 @@ _DEGREES = (
     ),
 )
 _METRIC = re.compile(r"\d|%|₹|\$")
+# A bullet proves a skill unless it only signals exposure (writing quality is scored separately, in Content).
+_EXPOSURE = re.compile(
+    r"\b(exposure|exposed|familiar|familiarity|basic|basics|learn(ed|ing|t)?|train(ed|ing)|course|coursework|assisted|helped|shadow(ed|ing)?|introduc(ed|tion) to|knowledge of|aware(ness)?)\b",
+    re.I,
+)
+# Working in a framework proves the language it is written in.
+_IMPLIES = {
+    "java": ["spring boot", "spring", "hibernate", "j2ee"],
+    "python": ["django", "fastapi", "flask", "pandas", "pyspark"],
+    "javascript": ["react", "node.js", "next.js", "angular", "vue", "express"],
+    "typescript": ["angular", "nestjs"],
+    "c#": [".net", "asp.net", "dotnet"],
+    "sql": ["postgresql", "postgres", "mysql", "oracle", "sql server", "pl/sql", "t-sql", "snowflake", "bigquery"],
+    "kotlin": ["jetpack compose"],
+    "observability": ["prometheus", "grafana", "datadog", "new relic", "opentelemetry", "elk", "splunk", "cloudwatch"],
+}
 _GENERIC = {
     "experience",
     "development",
@@ -153,7 +169,9 @@ def _named_groups(req: Requirement, kb: Knowledge) -> list[tuple[set[str], bool]
         forms = {f for v in variants for f in _forms(v, kb) if len(f) >= 2}
         if not any(contains_term(text, f) for f in forms) or any(forms & g or forms <= g for g, _ in groups):
             return
-        groups.append((forms, not any(contains_term(outside, f) for f in forms)))
+        named_inside = not any(contains_term(outside, f) for f in forms)
+        implied = {normalize(x) for v in variants for x in _IMPLIES.get(v, [])}
+        groups.append((forms | implied, named_inside))
 
     for c in candidates:
         add(c)
@@ -172,9 +190,7 @@ def _best(forms: set[str], resume: ResumeDoc, kb: Knowledge, cert: bool) -> tupl
     strong, weak = [], []
     for _, _, b in iter_bullets(resume, ["experience", "projects"]):
         if any(contains_term(b.text, f) for f in forms):
-            first = re.findall(r"[a-z]+", normalize(b.text))[:1]
-            demonstrated = bool(first and first[0] in kb.lexicons.action_verbs) or bool(_METRIC.search(b.text))
-            (strong if demonstrated else weak).append(b)
+            (weak if _EXPOSURE.search(b.text) else strong).append(b)
     if strong:
         return "strong", strong[0].text, [b.id for b in strong]
     if weak:
@@ -241,6 +257,26 @@ def code_judgment(req: Requirement, resume: ResumeDoc, kb: Knowledge, years: flo
         "partial": "Named only in a list, in a duty-style bullet, or only part of a compound requirement is shown.",
     }[tier]
     return _match(req, tier, reason, quote, list(dict.fromkeys(ids)))
+
+
+def merge_passes(a: Evidence, b: Evidence) -> Evidence:
+    """Two independent judging passes, per requirement: the stronger *verified* claim wins.
+    Evidence a pass found and code verified exists in the resume; the other pass simply missed it."""
+    other = {m.requirement_id: m for m in b.matches}
+    out = a.model_copy(deep=True)
+
+    def trusted(m: RequirementMatch) -> bool:
+        return m.status == "missing" or (m.verified and bool(m.quote) and (m.status != "strong" or bool(m.bullet_ids)))
+
+    merged = []
+    for m in out.matches:
+        n = other.get(m.requirement_id)
+        candidates = [x for x in (m, n) if x is not None and trusted(x)] or [m]
+        merged.append(max(candidates, key=lambda x: CREDIT[x.status]))
+    out.matches = merged
+    known = {g.requirement_id for g in out.gaps}
+    out.gaps += [g for g in b.gaps if g.requirement_id not in known]
+    return out
 
 
 def reconcile(req: Requirement, code: RequirementMatch | None, model: RequirementMatch) -> RequirementMatch:

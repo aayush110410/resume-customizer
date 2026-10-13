@@ -53,3 +53,19 @@ def ev_with(statuses):
         gaps=[],
         recruiter=RecruiterVerdict(decision="maybe", first_impression="", reasons=[]),
     )
+
+
+def test_label_maps_to_the_concept_named_earliest_in_the_requirement():
+    from app.schemas import Requirement
+    from evals.metrics import label_accuracy
+
+    concepts = [
+        {"id": "payments", "aliases": ["payment"], "ok": ["missing"]},
+        {"id": "python", "aliases": ["python"], "ok": ["strong"]},
+    ]
+    reqs = [
+        Requirement(
+            id="r1", text="Build Python microservices for payment orchestration", type="hard_skill", importance="should"
+        )
+    ]
+    assert label_accuracy(reqs, ev_with({"r1": "strong"}), concepts)["correct"] == 1

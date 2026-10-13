@@ -138,3 +138,24 @@ async def test_match_code_facts_floor_and_hints(sample_doc, jd_factory):
     assert [g.requirement_id for g in ev.gaps] == ["r3"]  # no gap for a requirement code proved
     prompt = llm.prompts[0]["user"]
     assert "r1: DECIDED" in prompt and "r2: listed" in prompt and "r3: no keyword hit" in prompt
+
+
+async def test_structured_jd_requirements_come_from_code_not_the_model():
+    from pathlib import Path
+
+    kb = load_knowledge()
+    jd_text = (Path(__file__).parent.parent / "evals/golden/jd_sde2_bengaluru.txt").read_text()
+    jd = (await analyze_jd(FakeLLM({"JDAnalysis": [jd_payload(5)]}), jd_text, kb)).value
+    texts = [q.text for q in jd.requirements]
+    assert texts[0] == "3+ years of backend development experience." and "Skill 0" not in texts
+    assert [q.id for q in jd.requirements[:2]] == ["r1", "r2"] and jd.requirements[0].type == "experience"
+    assert jd.min_years == 3 and jd.ats_keywords[:2] == ["Python", "Java"]
+    docker = next(q for q in jd.requirements if q.text == "Experience with Docker")
+    assert docker.importance == "must" and docker.keywords == ["Docker"]
+
+
+async def test_prose_jd_keeps_model_requirements():
+    jd = (
+        await analyze_jd(FakeLLM({"JDAnalysis": [jd_payload(5)]}), "We need a great engineer. " * 30, load_knowledge())
+    ).value
+    assert [q.text for q in jd.requirements][:1] == ["Skill 2"]
