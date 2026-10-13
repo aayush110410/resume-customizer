@@ -114,13 +114,19 @@ Tailoring is planned the same way (`backend/app/tailor_plan.py`):
 
 ## Accuracy evaluation
 
-**Judging accuracy against hand labels** (`backend/evals/accuracy.py`, `evals/golden/labels.yaml`). A recruiter-style label was written for every requirement of a Bengaluru SDE-2 job, for a weaker and a strong resume. The test is 3 full runs per resume on gpt-oss:120b:
+**Judging accuracy against hand labels** (`backend/evals/accuracy.py`, `evals/golden/labels.yaml`). A recruiter-style label was written for every requirement of a Bengaluru SDE-2 job, for a weaker and a strong resume. Each version is run end to end on gpt-oss:120b:
 
-| Version | Accuracy | JD-match spread across runs (weak / strong resume) | Wrong judgments |
-|---|---|---|---|
-| Model judges alone (v1) | 97.9% of 94 | σ 0.94 / 0 | Docker called "transferable" despite being in skills; observability "partial" with no evidence |
-| First code-floor attempt (v2) | 91.8% of 97 | σ 5.31 / 2.94 | Padded keywords over-credited Kubernetes/AWS; missed "payment"/"payments", "AWS Certified" |
-| **Code-first judging (v3, shipped)** | **98.9% of 94** | σ 1.89 / **0** | One: "production support" read as partial observability evidence |
+| Version | Runs | Accuracy | Overall score, weak resume | JD-match σ (weak / strong) |
+|---|---|---|---|---|
+| v1: the model judges alone | 3 | 97.9% of 94 | 56–58 | 0.94 / 0 (but a 3-run diagnostic later showed JD match ranging 48–63) |
+| v2: first code-floor attempt | 3 | 91.8% of 97 | — | 5.31 / 2.94 |
+| v3: code-first judging | 3 | 98.9% of 94 | — | 1.89 / 0 |
+| v4: + deterministic JD parsing | 5 | 92.5% of 160 | 58–59 | 1.36 / 1.2 |
+| **v6: + evidence rules, vocabulary, two-pass matching (shipped)** | 5 | **98.8% of 160** | **58–61 (σ 1.0)** | 2.83 / **0** |
+
+- **The biggest source of variance** was the model re-reading the JD differently each run: 13–16 requirements, merged into compounds, with shifting wording. Code now reads the JD's own bullets and headings.
+- **The strong resume** now scores 97 overall and 100 JD match on every run.
+- **The one remaining error:** a weak-resume duty no skill vocabulary covers ("Improve latency, reliability and observability…"), which only the model can judge. It accounts for the remaining JD-match spread.
 
 v2 is kept in the table on purpose: it's why every judging change is benchmarked before it ships.
 
