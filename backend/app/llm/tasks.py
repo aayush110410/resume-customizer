@@ -19,8 +19,19 @@ from app.knowledge.loader import build_context_brief, select_tips
 from app.knowledge.models import Knowledge, RegionPack
 from app.llm.client import LLM, LLMUnavailable, Structured
 from app.llm.prompting import render, wrap
+from app.profile.projects import rule_facts
 from app.resume_ops import assign_ids, render_for_matching, render_plain
-from app.schemas import Evidence, JDAnalysis, Requirement, RequirementMatch, ResumeDoc
+from app.schemas import (
+    CustomName,
+    Evidence,
+    JDAnalysis,
+    ProjectFacts,
+    ProjectFactsBatch,
+    Requirement,
+    RequirementMatch,
+    ResumeDoc,
+)
+from app.text_utils import contains_term, normalize
 
 STRUCTURE_THRESHOLD = 80
 MAX_REQUIREMENTS = 25
@@ -155,3 +166,49 @@ async def match_evidence(
     allowed = {t.id for t in tips}
     ev.tips = [t for t in ev.tips if t.tip_id in allowed][:5]
     return Structured(ev, r.model)
+
+
+async def read_projects(llm: LLM, resume: ResumeDoc, resume_text: str, kb: Knowledge) -> Structured[list[ProjectFacts]]:
+    """Quoted facts per project; anything whose quote does not verify is dropped, missing projects use rules."""
+    if not resume.projects:
+        return Structured([], "none")
+    user = render(
+        "read_projects",
+        tutorial_list=", ".join(kb.tutorial_projects),
+        resume_block=wrap("resume", render_for_matching(resume)),
+    )
+    r = await llm.structured(
+        "analysis", _system("India and international markets"), user, ProjectFactsBatch, reasoning_effort="low"
+    )
+    source = resume_text + "\n" + render_plain(resume)
+    norm = normalize(source)
+
+    def quoted(value: str | None) -> str | None:
+        return value if value and verify_quote(value, source) else None
+
+    got = {f.project_id: f for f in r.value.projects}
+    out = []
+    for entry in resume.projects:
+        f = got.get(entry.id)
+        if f is None:
+            out.append(rule_facts(entry, kb))
+            continue
+        names = []
+        for c in f.custom_names:
+            if not contains_term(source, c.name) or kb.synonyms.groups.get(normalize(c.name)):
+                continue
+            ok = quoted(c.quote)
+            names.append(CustomName(name=c.name, what=c.what if ok else None, quote=ok))
+        out.append(
+            ProjectFacts(
+                project_id=entry.id,
+                purpose=quoted(f.purpose),
+                users=quoted(f.users),
+                scale=quoted(f.scale),
+                links=[link for link in f.links if normalize(link) in norm],
+                tutorial_pattern=f.tutorial_pattern if f.tutorial_pattern in kb.tutorial_projects else None,
+                extension=quoted(f.extension),
+                custom_names=names,
+            )
+        )
+    return Structured(out, r.model)
