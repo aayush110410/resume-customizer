@@ -58,6 +58,8 @@ All from the live app, using the built-in sample (an Infosys engineer applying f
 | ★ Section-wise | Choose Summary / Skills / Experience / Projects / Education / Achievements |
 | ★ Cover letter | Streamed and editable; region conventions; notice period / work authorisation |
 | ★ Streaming | SSE pipeline stages plus rewritten lines appearing live |
+| ★ Career story | A fifth score judged for the candidate's stage (2nd/3rd/4th-year student, fresh graduate, 1–3 / 3–7 / 7+ years): projects read for real work, internships and apprenticeships, gaps, short stints, and the move this application represents (services → product, startup → MNC, MNC → mega-MNC, field switch) |
+| ★ Clarify step | After scoring, up to six questions only the candidate can answer (why a gap, what a short role was, what "Zephyr" is). Answers re-score instantly in code (no model call) and carry into the next tailored version |
 | Extras | Region switch, recruiter verdict, "How we score" panel, browser-only history (no login), sample data |
 
 ## Architecture
@@ -121,6 +123,26 @@ Tailoring is planned the same way (`backend/app/tailor_plan.py`):
 - **Mirroring:** each line may mirror a JD term only if it already says the same thing in other words (`k8s` → `Kubernetes`).
 - **Must rewrite:** lines with a weak opener are marked; if the model returns one unchanged, it gets one targeted repair call.
 - **Padding removal:** trailing outcome clauses the original never stated ("…, improving reliability") are deleted in code before the fabrication guard runs.
+
+### Career story (stage-aware, `backend/app/profile/`)
+
+The same split applies to the candidate's history. Code reads the timeline from the resume's dates, then judges it for the stage the candidate is at; the model's only job is to quote what each project does.
+
+- **Stage**: a degree ending after today with under a year of full-time work is a student, and the study year counts back from graduation by course length (B.Tech 4, BCA/BSc 3, MBA 2). Otherwise: fresh graduate (< 1 year), 1–3, 3–7 or 7+ years. Internships, NATS/NAPS apprenticeships and virtual simulations (Forage) never count as full-time work.
+- **Gaps and short stints**: breaks between study and work, and roles under a year. Year-only dates widen to the whole year, so imprecise dates never create a flag. Degrees taken mid-career (an MBA) are not gaps.
+- **Moves**: employers are classified from a curated India-first list (`employers.yaml`: services, product, MNC, mega-MNC, govt); unknown ones become a question, never a guess. The target move is the latest role against the JD's employer and field.
+- **Projects**: purpose 25 · original (not a todo/weather/Netflix-clone tutorial, or one with a stated extension) 20 · real use 20 · numbers 15 · technical depth 20 · −5 per custom name nobody explained. "Zephyr" is never treated as an unknown skill; it only needs five words saying what it is.
+
+| Component | Student · fresh graduate | 1–3 years | 3+ years |
+|---|---|---|---|
+| Projects | 40 | 20 | 10 |
+| Internships / apprenticeships | 25 | 5 | — |
+| Presentation (graduation year, CGPA, profile link) | 20 | 10 | — |
+| Continuity (gaps) | 15 | 20 | 25 |
+| Stability (roles under a year) | — | 25 | 30 |
+| Transition evidence for the move | — | 20 | 35 |
+
+Thresholds live in the region packs: India flags a 6-month gap (−30, or −50 at 12+ months) and roles under 12 months; International uses 9 months (−15/−25) and 9 months. An answered gap costs 10 until the resume states it, then nothing. Paid or unpaid never changes a score. Sixteen persona fixtures (`backend/tests/personas.yaml`: students, NATS apprentice, exam-prep gap, TCS → product, IBM → Google, sales → developer, a job-hopper with and without contract answers, a custom framework) pin each behaviour.
 
 ## Accuracy evaluation
 
