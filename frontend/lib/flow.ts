@@ -1,10 +1,10 @@
 import { toast } from "sonner";
-import { analyze, coverLetter, tailor } from "@/lib/api";
+import { analyze, coverLetter, rescore, tailor } from "@/lib/api";
 import { messageFor } from "@/lib/errors";
 import { loadSession, saveSession } from "@/lib/history";
 import { ApiError } from "@/lib/sse";
 import { useAppStore } from "@/lib/store";
-import type { Analysis, StreamEvent, TailoredVersion, TailorSettings, Tone } from "@/lib/types";
+import type { Analysis, Answer, StreamEvent, TailoredVersion, TailorSettings, Tone } from "@/lib/types";
 
 let controller: AbortController | null = null;
 const store = () => useAppStore.getState();
@@ -137,4 +137,19 @@ export const saveCoverLetterEdit = persist;
 export function retryLast() {
   const { analysis, inputs } = store();
   return analysis ? runNewVersion({ sections: inputs.sections, tone: inputs.tone, model: inputs.model }) : runAnalyzeAndTailor();
+}
+
+/** Clarify answers → instant re-score (code only on the server); returns the overall before and after. */
+export async function runRescore(answers: Record<string, Answer>): Promise<{ before: number; after: number } | undefined> {
+  const analysis = store().analysis;
+  if (!analysis?.profile) return;
+  try {
+    const r = await rescore(analysis, answers);
+    store().applyRescore(r);
+    await persist();
+    return { before: analysis.scores.overall, after: r.scores.overall };
+  } catch (err) {
+    const code = err instanceof ApiError ? err.code : "INTERNAL";
+    toast.error(messageFor(code));
+  }
 }

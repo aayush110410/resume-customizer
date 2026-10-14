@@ -8,6 +8,7 @@ import {
   type Insights,
   type JDAnalysis,
   type Region,
+  type RescoreResponse,
   type ResumeDoc,
   type SectionKey,
   type ScoreReport,
@@ -45,6 +46,7 @@ interface AppState {
   setInput: <K extends keyof Inputs>(key: K, value: Inputs[K]) => void;
   setBusy: (b: Busy) => void;
   setAnalysis: (a: Analysis) => void;
+  applyRescore: (r: RescoreResponse) => void;
   setCoverLetter: (t: string) => void;
   resetSession: () => void;
   hydrate: (h: { id: string; created_at: string; analysis: Analysis; versions: TailoredVersion[]; cover_letter: string }) => void;
@@ -78,6 +80,8 @@ export const useAppStore = create<AppState>()((set, get) => ({
   setInput: (key, value) => set((s) => ({ inputs: { ...s.inputs, [key]: value } })),
   setBusy: (busy) => set({ busy }),
   setAnalysis: (analysis) => set({ analysis }),
+  applyRescore: (r) =>
+    set((s) => (s.analysis ? { analysis: { ...s.analysis, profile: r.profile, scores: r.scores, insights: r.insights } } : {})),
   setCoverLetter: (coverLetter) => set({ coverLetter }),
   resetSession: () =>
     set({ sessionId: newId(), sessionStartedAt: new Date().toISOString(), partial: {}, analysis: undefined, versions: [],

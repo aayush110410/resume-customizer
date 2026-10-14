@@ -3,14 +3,14 @@ import { buildFixes, keywordGain } from "@/lib/fixes";
 import type { Insights, ScoreKey, ScoreReport } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-const SOURCE: Record<ScoreKey, string> = { match: "JD match", ats: "ATS", quality: "Content", region: "Region fit" };
+const SOURCE: Record<ScoreKey, string> = { match: "JD match", ats: "ATS", quality: "Content", region: "Region fit", story: "Story" };
 
 export function FixesPanel({ scores, insights, focus, onFocus }: {
   scores: ScoreReport; insights: Insights; focus: ScoreKey | "all"; onFocus: (k: ScoreKey | "all") => void;
 }) {
   const all = buildFixes(scores, insights);
   const shown = focus === "all" ? all : all.filter((f) => f.source === focus);
-  const filters: (ScoreKey | "all")[] = ["all", "match", "ats", "quality", "region"];
+  const filters: (ScoreKey | "all")[] = ["all", "match", "ats", "quality", "region", ...(scores.subscores.story ? (["story"] as const) : [])];
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap gap-2" role="group" aria-label="Filter fixes">

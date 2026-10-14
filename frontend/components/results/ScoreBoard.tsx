@@ -6,20 +6,21 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "
 import type { Region, ScoreKey, ScoreReport } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-const KEYS: ScoreKey[] = ["match", "ats", "quality", "region"];
-const NAME: Record<ScoreKey, string> = { match: "JD match", ats: "ATS", quality: "Content quality", region: "Region fit" };
-const SHORT: Record<ScoreKey, string> = { match: "JD match", ats: "ATS", quality: "Content", region: "Region fit" };
+const KEYS: ScoreKey[] = ["match", "ats", "quality", "region", "story"];
+const NAME: Record<ScoreKey, string> = { match: "JD match", ats: "ATS", quality: "Content quality", region: "Region fit", story: "Career story" };
+const SHORT: Record<ScoreKey, string> = { match: "JD match", ats: "ATS", quality: "Content", region: "Region fit", story: "Story" };
 const RUBRIC: Record<ScoreKey, string> = {
   match: "Each JD requirement is weighted must 3 · should 2 · nice 1 and credited strong 1.0 · partial 0.6 · transferable 0.4 · missing 0, from evidence the model must quote verbatim. A years-of-experience shortfall scales the result down (to at most −25%). A missing must-have is flagged as a knockout risk.",
   ats: "Parseability 30 (columns, tables, images, hidden text, contact info) · keyword coverage 35 (in a bullet counts more than a skills-list mention) · structure 20 (sections, date format, order) · length 15 (page norms for your level and region).",
   quality: "Quantified bullets 30 · action-verb openers 20 · bullet length 15 · outcomes vs duties 15 · hygiene 10 (no pronouns or buzzwords) · a specific summary 10.",
   region: "Starts at 100. Deductions for personal details and conventions the region's recruiters read as dated or risky (by employer type), over-length for your level, and expected signals that are missing (e.g. CGPA for freshers in services hiring).",
+  story: "Judged for your stage. Students and fresh graduates: projects 40 · internships 25 · presentation 20 · continuity 15. 1–3 years: projects 20 · internships 5 · presentation 10 · continuity 20 · stability 25 · move 20. 3+ years: projects 10 · continuity 25 · stability 30 · move 35. Projects are read for purpose, originality, real use, numbers and depth. Unexplained gaps (India: 6+ months) and roles under a year count against you until you explain them; paid or unpaid never matters.",
 };
 const ATS_NOTE = "Estimate — real ATS systems don't publish scores; this models common parsing and keyword-filter behaviour.";
 
 export const REGION_WEIGHTS: Record<Region, Record<ScoreKey, number>> = {
-  india: { match: 0.4, ats: 0.25, quality: 0.2, region: 0.15 },
-  international: { match: 0.4, ats: 0.25, quality: 0.25, region: 0.1 },
+  india: { match: 0.35, ats: 0.2, quality: 0.15, region: 0.1, story: 0.2 },
+  international: { match: 0.35, ats: 0.2, quality: 0.2, region: 0.1, story: 0.15 },
 };
 
 export function HowWeScoreSheet({ open, onOpenChange, weights }: { open: boolean; onOpenChange: (o: boolean) => void; weights: Record<string, number> }) {
@@ -34,7 +35,7 @@ export function HowWeScoreSheet({ open, onOpenChange, weights }: { open: boolean
           </SheetDescription>
         </SheetHeader>
         <dl className="mt-6">
-          {KEYS.map((k) => (
+          {KEYS.filter((k) => weights[k] !== undefined).map((k) => (
             <div key={k} className="border-t border-rule-section py-4">
               <dt className="flex justify-between text-[14px] text-ink">{NAME[k]}<span className="figure text-gold">{Math.round(weights[k] * 100)}%</span></dt>
               <dd className="mt-2 text-[13px] leading-[1.7] text-ink-3">{RUBRIC[k]}</dd>
@@ -47,12 +48,14 @@ export function HowWeScoreSheet({ open, onOpenChange, weights }: { open: boolean
   );
 }
 
-/** Overall score and the four sub-scores as one strip; a tile filters the Fixes list to that score. */
+/** Overall score and the sub-scores as one strip; a tile filters the Fixes list to that score. Story only appears
+ * when the analysis has one (saved analyses from before the career profile have four). */
 export function ScoreBoard({ before, after, region, focus, onFocus, onHowWeScore }: {
   before: ScoreReport; after?: ScoreReport; region: Region; focus: ScoreKey | "all";
   onFocus: (k: ScoreKey | "all") => void; onHowWeScore: () => void;
 }) {
   const shown = after ?? before;
+  const keys = KEYS.filter((k) => before.subscores[k]);
   return (
     <section aria-label="Scores" className="card-lit edge-lit p-5 sm:p-6">
       <div className="grid gap-5 md:grid-cols-[minmax(0,190px)_minmax(0,1fr)] md:items-center">
@@ -61,8 +64,8 @@ export function ScoreBoard({ before, after, region, focus, onFocus, onHowWeScore
           <span className="figure mt-1 block text-[60px] leading-[0.95] font-light tracking-[-0.02em] text-ink">{shown.overall}</span>
           {after && <span className="figure mt-1 block text-[13.5px] text-ink-3">was {before.overall} <Delta value={after.overall - before.overall} /></span>}
         </button>
-        <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
-          {KEYS.map((k) => {
+        <div className={cn("grid grid-cols-2 gap-2.5", keys.length > 4 ? "sm:grid-cols-3 lg:grid-cols-5" : "lg:grid-cols-4")}>
+          {keys.map((k) => {
             const b = before.subscores[k]?.score ?? 0;
             const a = after?.subscores[k]?.score;
             return (

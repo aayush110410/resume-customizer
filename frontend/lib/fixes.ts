@@ -7,12 +7,12 @@ export function buildFixes(scores: ScoreReport, insights: Insights): Fix[] {
   const gaps: Fix[] = insights.actions
     .filter((a) => a.source === "match")
     .map((a) => ({ source: "match", title: a.title, detail: a.detail, gain: a.est_gain, suggested_bullet: a.suggested_bullet }));
-  const deductions: Fix[] = (["ats", "quality", "region"] as const).flatMap((key) =>
+  const deductions: Fix[] = (["ats", "quality", "region", "story"] as const).flatMap((key) =>
     (scores.subscores[key]?.explanations ?? [])
       .filter((e) => e.impact < 0 && e.fix && e.signal !== "missing_keywords")
       .map((e) => ({
         source: key, title: e.detail, detail: e.fix!, suggested_bullet: null,
-        gain: Math.round(scores.weights[key] * -e.impact * 10) / 10,
+        gain: Math.round((scores.weights[key] ?? 0) * -e.impact * 10) / 10,
       })),
   );
   return [...gaps, ...deductions].sort((a, b) => b.gain - a.gain);

@@ -8,6 +8,7 @@ const MESSAGES: Record<string, string> = {
   CORRUPT_FILE: "We couldn't read this file. It may be damaged; try re-exporting it.",
   JD_TOO_SHORT: "The job description is too short. Paste the full posting (at least 300 characters).",
   JD_TOO_LONG: "The job description is too long (over 20,000 characters). Paste just the role details.",
+  INVALID_ANSWERS: "Those answers no longer match this analysis. Run it again to refresh the questions.",
   NOT_A_JD: "This doesn't look like a job description, so results may be unreliable.",
   RATE_LIMITED: "You've hit the hourly limit for this free demo. Please try again later.",
   LLM_UNAVAILABLE: "All AI providers are busy right now. Your inputs are kept, so try again in a moment.",

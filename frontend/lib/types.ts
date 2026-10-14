@@ -8,7 +8,12 @@ export type ReqType = "hard_skill" | "soft_skill" | "experience" | "education" |
 export type MatchStatus = "strong" | "partial" | "transferable" | "missing";
 export type SectionKey = "summary" | "skills" | "experience" | "projects" | "education" | "achievements";
 export type Tone = "conservative" | "balanced" | "bold";
-export type ScoreKey = "match" | "ats" | "quality" | "region";
+export type ScoreKey = "match" | "ats" | "quality" | "region" | "story";
+export type Stage = "student" | "fresh_grad" | "early" | "mid" | "senior";
+export type EmployerKind = "startup" | "product" | "it_services" | "mnc" | "mega_mnc" | "govt" | "unknown";
+export type StintKind = "job" | "internship" | "apprenticeship" | "trainee" | "freelance" | "virtual_program";
+export type MoveKind = "startup_to_mnc" | "mnc_to_mega" | "services_to_product" | "field_switch";
+export type QuestionKind = "stage" | "gap" | "stint" | "employer" | "custom_name" | "internship";
 export type StageId = "parsing" | "understanding" | "matching" | "scoring" | "tailoring" | "verifying" | "rescoring";
 export type StageStatus = "idle" | "active" | "done" | "error";
 
@@ -52,10 +57,33 @@ export interface ScoreReport {
 }
 export interface Action { title: string; detail: string; est_gain: number; source: ScoreKey; suggested_bullet: string | null }
 export interface Insights { actions: Action[]; tips: PersonalizedTip[]; recruiter: RecruiterVerdict; missing_keywords: string[] }
+export interface Stint {
+  entry_id: string; organization: string; title: string; start: string | null; end: string | null; months: number | null;
+  precise: boolean; kind: StintKind; employer_kind: EmployerKind; field: string | null; short: boolean;
+}
+export interface CareerGap { id: string; after_entry_id: string | null; start: string; end: string; months: number }
+export interface Move { kind: MoveKind; from_label: string; to_label: string; target: boolean }
+export interface CustomName { name: string; what: string | null; quote: string | null }
+export interface ProjectFacts {
+  project_id: string; purpose: string | null; users: string | null; scale: string | null; links: string[];
+  tutorial_pattern: string | null; extension: string | null; custom_names: CustomName[];
+}
+export interface ProjectRead { project_id: string; title: string; score: number; notes: string[]; facts: ProjectFacts }
+export interface QuestionOption { value: string; label: string }
+export interface Question {
+  id: string; kind: QuestionKind; target_id: string; prompt: string; options: QuestionOption[]; allow_text: boolean; impact: number;
+}
+export interface Answer { value: string; text: string | null; state_on_resume: boolean }
+export interface Profile {
+  stage: Stage; study_year: number | null; grad_year: number | null; stints: Stint[]; gaps: CareerGap[]; moves: Move[];
+  projects: ProjectRead[]; questions: Question[]; answers: Record<string, Answer>; rules_only: boolean; as_of: string;
+}
 export interface Analysis {
   region: Region; resume: ResumeDoc; resume_text: string; layout: LayoutReport; jd: JDAnalysis; evidence: Evidence;
   scores: ScoreReport; insights: Insights; prompt_version: string; models: Record<string, string>;
+  profile?: Profile | null; // absent on analyses saved before the career profile existed
 }
+export interface RescoreResponse { profile: Profile; scores: ScoreReport; insights: Insights }
 export interface SummaryItem { type: "summary"; text: string }
 export interface SkillsItem { type: "skills"; groups: SkillGroup[] }
 export interface BulletItem { type: "bullet"; entry_id: string; source_id: string; text: string; addresses: string[] }

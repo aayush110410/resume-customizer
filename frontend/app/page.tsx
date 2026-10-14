@@ -6,6 +6,7 @@ import { Grain } from "@/components/Grain";
 import { InputPanel } from "@/components/input/InputPanel";
 import { LedgerTabs, OutlineButton } from "@/components/ledger";
 import { StageTimeline } from "@/components/progress/StageTimeline";
+import { ClarifyCard } from "@/components/results/ClarifyCard";
 import { CoverLetterPanel } from "@/components/results/CoverLetterPanel";
 import { DiffView } from "@/components/results/DiffView";
 import { DownloadMenu } from "@/components/results/DownloadMenu";
@@ -14,6 +15,7 @@ import { InsightsRail } from "@/components/results/InsightsRail";
 import { RequirementLedger } from "@/components/results/RequirementLedger";
 import { ResumeView, StreamingPreview } from "@/components/results/ResumeView";
 import { HowWeScoreSheet, REGION_WEIGHTS, ScoreBoard } from "@/components/results/ScoreBoard";
+import { StoryTimeline } from "@/components/results/StoryTimeline";
 import { VersionsPanel } from "@/components/results/VersionsPanel";
 import { Sidebar } from "@/components/Sidebar";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
@@ -123,6 +125,7 @@ export default function Home() {
                   {scores && (
                     <ScoreBoard before={scores} after={version?.scores} region={region} focus={focus} onFocus={focusScore} onHowWeScore={() => setHow(true)} />
                   )}
+                  {analysis?.profile && !running && <ClarifyCard key={s.sessionId} profile={analysis.profile} />}
 
                   {(jd || streaming) && (
                     <section className="card edge-lit flex flex-col gap-5 p-5 sm:p-6">
@@ -140,7 +143,12 @@ export default function Home() {
                         ]}
                       />
                       <div role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`} className="min-h-[280px]">
-                        {tab === "fixes" && (scores && insights ? <FixesPanel scores={version?.scores ?? scores} insights={insights} focus={focus} onFocus={setFocus} /> : <p className="text-[13.5px] text-ink-3">Fixes appear once scoring finishes.</p>)}
+                        {tab === "fixes" && (scores && insights ? (
+                          <div className="flex flex-col gap-5">
+                            {focus === "story" && analysis?.profile && <StoryTimeline profile={analysis.profile} />}
+                            <FixesPanel scores={version?.scores ?? scores} insights={insights} focus={focus} onFocus={setFocus} />
+                          </div>
+                        ) : <p className="text-[13.5px] text-ink-3">Fixes appear once scoring finishes.</p>)}
                         {tab === "evidence" && (jd && evidence ? <RequirementLedger jd={jd} evidence={evidence} /> : <p className="text-[13.5px] text-ink-3">Matching evidence…</p>)}
                         {tab === "resume" && (streaming ? <StreamingPreview items={s.streamingItems} /> : version ? (
                           <div className="flex flex-col gap-6">

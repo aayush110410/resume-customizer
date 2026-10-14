@@ -1,5 +1,5 @@
 import { ApiError, postSSE, toApiError } from "@/lib/sse";
-import type { Analysis, CoverLetterRequest, ExportRequest, Meta, Region, StreamEvent, TailorSettings } from "@/lib/types";
+import type { Analysis, Answer, CoverLetterRequest, ExportRequest, Meta, Region, RescoreResponse, StreamEvent, TailorSettings } from "@/lib/types";
 
 export const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000").replace(/\/$/, "");
 type OnEvent = (e: StreamEvent) => void;
@@ -33,6 +33,13 @@ export function tailor(analysis: Analysis, settings: TailorSettings, onEvent: On
 
 export function coverLetter(req: CoverLetterRequest, onEvent: OnEvent, signal?: AbortSignal) {
   return postSSE(`${API_URL}/api/cover-letter`, JSON.stringify(req), onEvent, signal, JSON_HEADERS);
+}
+
+/** Apply clarifications in code on the server (no model call): new profile, scores and fixes. */
+export async function rescore(analysis: Analysis, answers: Record<string, Answer>): Promise<RescoreResponse> {
+  const res = await fetch(`${API_URL}/api/rescore`, { method: "POST", body: JSON.stringify({ analysis, answers }), headers: JSON_HEADERS });
+  if (!res.ok) throw await toApiError(res);
+  return res.json();
 }
 
 export async function exportFile(req: ExportRequest): Promise<{ blob: Blob; filename: string }> {
