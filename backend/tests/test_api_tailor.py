@@ -100,5 +100,5 @@ def test_tailor_carries_confirmed_answers(analysis_json):
     events = sse_events(r)
     assert events[-1][0] == "done"
     writer = next(p for p in llm.prompts if p["schema"] == "stream")
-    assert "CONFIRMED BY THE CANDIDATE" in writer["user"] and "(none)" in writer["user"]
+    assert "CONFIRMED BY THE CANDIDATE" in writer["user"] and "<confirmed>\n(none)\n</confirmed>" in writer["user"]
     assert "story" in events[-1][1]["version"]["scores"]["subscores"]

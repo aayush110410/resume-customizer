@@ -174,6 +174,7 @@ class CareerGap(BaseModel):
     start: str
     end: str
     months: int
+    precise: bool = True  # False when a bounding date gave only a year: then months is a lower bound
 
 
 class Move(BaseModel):

@@ -35,7 +35,7 @@ STAGE_WEIGHTS: dict[Stage, dict[str, int]] = {
     "mid": {"projects": 10, "continuity": 25, "stability": 30, "transition": 35},
     "senior": {"projects": 10, "continuity": 25, "stability": 30, "transition": 35},
 }
-STABILITY = {0: 100, 1: 85, 2: 60}
+STABILITY = {0: 100, 1: 85, 2: 60, 3: 40, 4: 30}  # 5+ → 20: every explained stint counts
 EXPLAINED_STINT = {"contract", "layoff", "project", "internship"}
 _STATED_GAP = re.compile(r"career break|sabbatical|gap year", re.I)
 _GRADES = re.compile(r"\b(c?gpa|cpi|sgpa)\b|\b\d{1,2}(\.\d+)?\s?%|\b\d\.\d{1,2}\s?/\s?10\b", re.I)
@@ -151,7 +151,7 @@ def stability_score(profile: Profile) -> Result:
         answer = profile.answers.get(f"stint:{s.entry_id}")
         if answer is None or answer.value not in EXPLAINED_STINT:
             counted.append(s)
-    score = STABILITY.get(len(counted), 30)
+    score = STABILITY.get(len(counted), 20)
     if score == 100:
         return score, []
     detail = f"{len(counted)} role(s) under a year in the last five years" + (

@@ -150,3 +150,12 @@ def test_promotion_at_same_employer_is_not_a_short_stint(kb):
     assert not any(s.short for s in build_stints(resume, kb, rules, TODAY))
     boomerang = doc([("Engineer", "Acme", "Jan 2022", "Apr 2022"), ("Engineer", "Acme", "Jun 2023", "Sep 2023")])
     assert sum(s.short for s in build_stints(boomerang, kb, rules, TODAY)) == 2  # 8 months in total: still short
+
+
+def test_gap_precision(kb):
+    rules = kb.regions["india"].story
+    rough = doc([("Engineer", "A", "2022", "Present")], [("B.Tech", "NIT", None, "2019")])
+    (g,) = find_gaps(rough, build_stints(rough, kb, rules, TODAY), rules, TODAY)
+    assert (g.start, g.end, g.precise) == ("2020-01", "2021-12", False)
+    exact = doc([("Engineer", "A", "Aug 2022", "Present")], [("B.Tech", "NIT", "Jul 2017", "May 2021")])
+    assert find_gaps(exact, build_stints(exact, kb, rules, TODAY), rules, TODAY)[0].precise is True

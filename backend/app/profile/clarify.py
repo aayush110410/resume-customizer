@@ -30,9 +30,11 @@ from app.schemas import (
 )
 
 STAGE_OPTIONS = [
+    ("student:1", "1st-year student"),
     ("student:2", "2nd-year student"),
     ("student:3", "3rd-year student"),
     ("student:4", "4th-year student"),
+    ("student:5", "5th-year student (B.Arch, dual degree)"),
     ("fresh_grad", "Fresh graduate"),
     ("early", "1–3 years of work"),
     ("mid", "3–7 years of work"),
@@ -122,7 +124,9 @@ def _targets(base: Profile) -> list[Question]:
                 target_id=g.id,
                 allow_text=True,
                 options=_options(GAP_OPTIONS),
-                prompt=f"What were you doing from {month_label(g.start)} to {month_label(g.end)} ({g.months} months)?",
+                prompt=f"What were you doing from {month_label(g.start)} to {month_label(g.end)} ({g.months} months)?"
+                if g.precise
+                else f"What were you doing between {g.start[:4]} and {g.end[:4]}?",
             )
         )
     for s in base.stints:

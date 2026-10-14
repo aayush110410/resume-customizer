@@ -112,3 +112,18 @@ def test_past_moves_are_not_targets(kb):
     stints = classify(build_stints(resume, kb, kb.regions["india"].story, TODAY), resume, kb)
     moves = detect_moves(stints, jd(employer_type="product_startup"), kb)
     assert [(m.kind, m.target) for m in moves] == [("services_to_product", False)]
+
+
+def test_student_freelancing_during_degree_stays_student(kb):
+    resume = doc([("Freelance Developer", "Self", "2024", "Present")], [("B.Tech, Computer Science", "May 2027")])
+    assert stage_of(kb, resume) == ("student", 4, 2027)
+
+
+def test_year_only_start_counts_conservatively(kb):
+    resume = doc([("Engineer", "Acme", "2023", "Present")], [("B.Tech", "2023")])
+    assert stage_of(kb, resume)[0] == "early"  # Dec 2023 → Oct 2026 at least, not Jan 2023
+
+
+def test_job_before_a_part_time_degree_is_not_a_student(kb):
+    resume = doc([("Engineer", "Acme", "Jan 2018", "Present")], [("MBA (part-time)", "May 2027")])
+    assert stage_of(kb, resume)[0] == "senior"

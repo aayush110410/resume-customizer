@@ -126,7 +126,7 @@ def test_continuity_by_region(kb):
 
 
 def test_stability_steps(kb):
-    for n, expected in ((0, 100), (1, 85), (2, 60), (3, 30)):
+    for n, expected in ((0, 100), (1, 85), (2, 60), (3, 40), (4, 30), (5, 20)):
         p = Profile(
             stage="early", stints=[stint(i, months=4, short=True, start="2024-01") for i in range(n)], as_of="2026-10"
         )

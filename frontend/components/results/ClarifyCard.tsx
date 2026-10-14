@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { CardTitle, Delta, OutlineButton, Segmented } from "@/components/ledger";
-import { answerSummary, pendingAnswers, stageLine } from "@/lib/clarify";
+import { answerSummary, chosenAnswers, pendingAnswers, sameAnswers, stageLine } from "@/lib/clarify";
 import { runNewVersion, runRescore } from "@/lib/flow";
 import { useAppStore } from "@/lib/store";
 import type { Answer, Profile } from "@/lib/types";
@@ -18,7 +18,7 @@ export function ClarifyCard({ profile }: { profile: Profile }) {
   const [open, setOpen] = useState(profile.questions.length > 1 && Object.keys(profile.answers).length === 0);
   const [saving, setSaving] = useState(false);
   const [result, setResult] = useState<{ before: number; after: number }>();
-  const dirty = JSON.stringify(answers) !== JSON.stringify(profile.answers);
+  const dirty = !sameAnswers(chosenAnswers(answers), profile.answers);
 
   const set = (id: string, patch: Partial<Answer>) =>
     setAnswers((a) => {
@@ -28,8 +28,7 @@ export function ClarifyCard({ profile }: { profile: Profile }) {
 
   const submit = async () => {
     setSaving(true);
-    const chosen = Object.fromEntries(Object.entries(answers).filter(([, a]) => a.value));
-    const r = await runRescore(pendingAnswers(profile.questions, chosen));
+    const r = await runRescore(pendingAnswers(profile.questions, chosenAnswers(answers)));
     setSaving(false);
     if (r) {
       setResult(r);

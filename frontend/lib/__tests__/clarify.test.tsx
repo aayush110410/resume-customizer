@@ -1,7 +1,7 @@
 import { renderToString } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { ScoreBoard } from "@/components/results/ScoreBoard";
-import { answerSummary, pendingAnswers } from "@/lib/clarify";
+import { answerSummary, chosenAnswers, pendingAnswers, sameAnswers } from "@/lib/clarify";
 import type { Profile, Question, ScoreReport } from "@/lib/types";
 
 const q = (id: string): Question => ({ id, kind: "gap", target_id: id, prompt: id, options: [], allow_text: false, impact: 0 });
@@ -16,6 +16,14 @@ describe("clarify helpers", () => {
   it("sends only answers to questions that are still asked", () => {
     const ans = { "gap:2024-06": { value: "health", text: null, state_on_resume: false }, "gap:1999-01": { value: "x", text: null, state_on_resume: false } };
     expect(Object.keys(pendingAnswers([q("stage"), q("gap:2024-06")], ans))).toEqual(["gap:2024-06"]);
+  });
+  it("ignores typed text until an option is picked, and compares answers regardless of key order", () => {
+    const a = (value: string, text: string | null = null) => ({ value, text, state_on_resume: false });
+    const local = { "name:zephyr": a("", "lead sync"), "gap:2024-06": a("health"), stage: a("mid") };
+    const saved = { stage: a("mid"), "gap:2024-06": a("health") };
+    expect(Object.keys(chosenAnswers(local)).sort()).toEqual(["gap:2024-06", "stage"]);
+    expect(sameAnswers(chosenAnswers(local), saved)).toBe(true);
+    expect(sameAnswers({ stage: a("early") }, saved)).toBe(false);
   });
   it("summarises progress", () => {
     expect(answerSummary(profile({ stage: "early", "gap:2024-06": "health", "stint:exp1": "contract" }))).toBe("3 of 5 confirmed");

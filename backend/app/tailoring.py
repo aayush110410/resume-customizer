@@ -234,14 +234,27 @@ _NAME_DEFAULT = {"own": "library or framework", "internal": "tool", "third_party
 
 def _break_reason(answer) -> str | None:
     if answer.value == "other":
-        return answer.text or None
+        return _one_line(answer.text)
     return REASON_PHRASE.get(answer.value)
 
 
-def confirmed_facts(profile) -> tuple[str, set[str]]:
-    """Prompt block of facts the candidate confirmed, and their words (allowed past the fabrication guard)."""
+def _break_dates(g, profile) -> tuple[str, str]:
+    """A break's dates as the resume would show them: years only when a bounding date gave only a year, and
+    "Present" when the break runs to today."""
+    start = month_label(g.start) if g.precise else g.start[:4]
+    if g.end == profile.as_of:
+        return start, "Present"
+    return start, month_label(g.end) if g.precise else g.end[:4]
+
+
+def _one_line(text: str | None) -> str | None:
+    return " ".join(text.split()) if text else None
+
+
+def confirmed_facts(profile) -> str:
+    """Prompt block of facts the candidate confirmed (one line each; the caller wraps it as data)."""
     if profile is None:
-        return "(none)", set()
+        return "(none)"
     names = {c.name.lower(): c.name for r in profile.projects for c in r.facts.custom_names}
     orgs = {s.entry_id: s.organization for s in profile.stints}
     gaps = {g.id: g for g in profile.gaps}
@@ -249,17 +262,14 @@ def confirmed_facts(profile) -> tuple[str, set[str]]:
     for qid, a in profile.answers.items():
         kind, _, target = qid.partition(":")
         if kind == "name" and a.value in _NAME_KIND:
-            what = _NAME_KIND[a.value].format(a.text or _NAME_DEFAULT[a.value])
+            what = _NAME_KIND[a.value].format(_one_line(a.text) or _NAME_DEFAULT[a.value])
             lines.append(f"- {names.get(target, target)}: {what}")
         elif kind == "stint" and a.value == "contract" and target in orgs:
             lines.append(f"- {orgs[target]}: a contract role (the title is labelled by code)")
         elif kind == "gap" and a.state_on_resume and qid in gaps and (reason := _break_reason(a)):
-            g = gaps[qid]
-            lines.append(f"- Career break {month_label(g.start)} to {month_label(g.end)}: {reason} (added by code)")
-    if not lines:
-        return "(none)", set()
-    block = "\n".join(lines)
-    return block, set(re.findall(r"[\w+#.-]+", block))
+            start, end = _break_dates(gaps[qid], profile)
+            lines.append(f"- Career break {start} to {end}: {reason} (added by code)")
+    return "\n".join(lines) if lines else "(none)"
 
 
 def apply_confirmed(doc: ResumeDoc, profile) -> ResumeDoc:
@@ -277,7 +287,7 @@ def apply_confirmed(doc: ResumeDoc, profile) -> ResumeDoc:
                     e.title = f"{e.title} (Contract)"
         elif kind == "gap" and a.state_on_resume and qid in gaps and (reason := _break_reason(a)):
             g = gaps[qid]
-            start, end = month_label(g.start), month_label(g.end)
+            start, end = _break_dates(g, profile)
             if any(e.title.startswith("Career break") and e.start == start for e in doc.experience):
                 continue
             entry = Entry(

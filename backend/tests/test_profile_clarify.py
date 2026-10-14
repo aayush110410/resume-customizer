@@ -188,3 +188,34 @@ def test_rescore_is_fast_and_reverifies_names(kb):
     assert time.perf_counter() - start < 0.5
     kept = {c.name for p in r.profile.projects for c in p.facts.custom_names}
     assert kept == set(names)
+
+
+def test_stage_options_cover_first_and_fifth_year(kb):
+    q = build_profile(_resume(), _jd(), _ev(), [], "india", kb, TODAY).questions[0]
+    assert {"student:1", "student:5"} <= {o.value for o in q.options}
+
+
+def test_every_short_stint_answer_moves_the_score(kb):
+    from app.profile.story import score_story
+
+    resume = assign_ids(
+        ResumeDoc(
+            contact=Contact(name="T"),
+            experience=[
+                Entry(title="Software Engineer", organization=f"Org{i}", start=f"{m1} 2024", end=f"{m2} 2024")
+                for i, (m1, m2) in enumerate([("Jan", "Mar"), ("Apr", "Jun"), ("Jul", "Sep"), ("Oct", "Dec")])
+            ]
+            + [Entry(title="Software Engineer", organization="Stay", start="Jan 2025", end="Present")],
+        )
+    )
+
+    def story(answers):
+        p = build_profile(resume, _jd(), _ev(), [], "india", kb, TODAY, answers=answers)
+        return score_story(p, resume, _jd(), _ev(), "india", kb).score
+
+    one_contract = story({"stint:exp0": Answer(value="contract")})
+    assert (
+        story({})
+        < one_contract
+        < story({"stint:exp0": Answer(value="contract"), "stint:exp1": Answer(value="contract")})
+    )

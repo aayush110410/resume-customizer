@@ -7,7 +7,7 @@ from app.guard.grounding import find_fabrications
 from app.knowledge.loader import build_context_brief, drop_patterns
 from app.knowledge.models import Knowledge
 from app.llm.client import LLM, LLMUnavailable
-from app.llm.prompting import render
+from app.llm.prompting import render, wrap
 from app.llm.tasks import match_evidence
 from app.profile import build_profile
 from app.resume_ops import render_contact, render_plain
@@ -76,9 +76,9 @@ async def tailor_stream(req: TailorRequest, llm: LLM, kb: Knowledge) -> AsyncIte
         )
         summary_format = '{"type":"summary","text":"<summary>"}\n'
     system = render("system_core", region_label=pack.label)
-    confirmed_block, _ = confirmed_facts(a.profile)
+    confirmed_block = confirmed_facts(a.profile)
     render_args = dict(
-        confirmed_block=confirmed_block,
+        confirmed_block=wrap("confirmed", confirmed_block),
         context_brief=build_context_brief(pack, a.jd, a.resume.level, kb),
         tone_rule=TONE_RULES[s.tone],
         spelling={"us": "US English", "uk": "British English"}.get(a.jd.spelling, "match the JD"),

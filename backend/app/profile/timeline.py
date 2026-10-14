@@ -81,8 +81,8 @@ def stint_kind(entry: Entry) -> StintKind:
     return next((kind for kind, rx in _KINDS if rx.search(text)), "job")
 
 
-def _bounds(entry: Entry, today: date) -> tuple[int, int, bool] | None:
-    """Widest month-index interval for an entry: (start, end, both ends precise)."""
+def _bounds(entry: Entry, today: date) -> tuple[int, int, bool, bool] | None:
+    """Widest month-index interval for an entry: (start, end, start month known, end month known)."""
     start = parse_date(entry.start, today)
     if not start:
         return None
@@ -91,7 +91,19 @@ def _bounds(entry: Entry, today: date) -> tuple[int, int, bool] | None:
         return None
     s = _index(start[0])
     e = _index(end[0]) + (0 if end[1] else 11)  # year-only end → December
-    return (s, e, start[1] and end[1]) if e >= s else None
+    return (s, e, start[1], end[1]) if e >= s else None
+
+
+def narrow_bounds(entry: Entry, today: date) -> tuple[int, int] | None:
+    """Narrowest reading of an entry's dates (year-only start → December, year-only end → January): the least
+    time the candidate can have spent there. Used for experience, where overstating is the risk."""
+    start = parse_date(entry.start, today)
+    end = parse_date(entry.end, today) if entry.end else (date(today.year, today.month, 1), True)
+    if not start or not end:
+        return None
+    s = _index(start[0]) + (0 if start[1] else 11)
+    e = _index(end[0])
+    return (s, e) if e >= s else None
 
 
 def build_stints(resume: ResumeDoc, kb: Knowledge, rules: StoryRules, today: date) -> list[Stint]:
@@ -106,7 +118,8 @@ def build_stints(resume: ResumeDoc, kb: Knowledge, rules: StoryRules, today: dat
         ongoing = not entry.end or bool(ONGOING.search(entry.end or ""))
         stint = Stint(entry_id=entry.id, organization=entry.organization, title=entry.title, kind=kind)
         if b:
-            s, e, precise = b
+            s, e, start_exact, end_exact = b
+            precise = start_exact and end_exact
             stint.start, stint.end = month_key(_from_index(s)), None if ongoing else month_key(_from_index(e))
             stint.precise = precise
             stint.months = e - s + 1 if precise else None
@@ -160,15 +173,15 @@ def is_school(entry: Entry) -> bool:
     return bool(_SCHOOL.search(f"{entry.title} {entry.organization}"))
 
 
-def _study(entry: Entry, today: date) -> tuple[int, int] | None:
-    """Months spent on a degree; a missing start is inferred from the course length."""
+def study_span(entry: Entry, today: date) -> tuple[int, int, bool, bool] | None:
+    """Months spent on a degree; a missing start is inferred from the course length (and is not exact)."""
     if b := _bounds(entry, today):
-        return b[0], b[1]
+        return b
     end = parse_date(entry.end, today)
     if not end:
         return None
     e = _index(end[0]) + (0 if end[1] else 11)
-    return e - course_years(entry.title) * 12 + 1, e
+    return e - course_years(entry.title) * 12 + 1, e, False, end[1]
 
 
 def find_gaps(resume: ResumeDoc, stints: list[Stint], rules: StoryRules, today: date) -> list[CareerGap]:
@@ -176,22 +189,22 @@ def find_gaps(resume: ResumeDoc, stints: list[Stint], rules: StoryRules, today: 
     if any(st.kind != "virtual_program" and not st.start for st in stints):
         return []  # an undated role could sit in any break: judging gaps would accuse a working candidate
     by_id = {e.id: e for e in resume.experience}
-    activity = []  # (start, end, entry id)
+    activity = []  # (start, end, entry id, start exact, end exact)
     for st in stints:
         if st.kind != "virtual_program" and st.entry_id in by_id and (b := _bounds(by_id[st.entry_id], today)):
-            activity.append((b[0], b[1], st.entry_id))
+            activity.append((*b[:2], st.entry_id, *b[2:]))
     for e in resume.experience:  # a career break the resume already states covers its own months
         if _BREAK.match(e.title) and (b := _bounds(e, today)):
-            activity.append((b[0], b[1], e.id))
+            activity.append((*b[:2], e.id, *b[2:]))
     for edu in resume.education:
-        if not is_school(edu) and (b := _study(edu, today)):
-            activity.append((b[0], b[1], edu.id))
+        if not is_school(edu) and (b := study_span(edu, today)):
+            activity.append((*b[:2], edu.id, *b[2:]))
     if not activity:
         return []
     activity.sort()
     gaps = []
 
-    def hole(start: int, end: int, after_id: str):
+    def hole(start: int, end: int, after_id: str, precise: bool):
         if end - start + 1 >= rules.gap_months:
             k = month_key(_from_index(start))
             gaps.append(
@@ -201,15 +214,16 @@ def find_gaps(resume: ResumeDoc, stints: list[Stint], rules: StoryRules, today: 
                     start=k,
                     end=month_key(_from_index(end)),
                     months=end - start + 1,
+                    precise=precise,
                 )
             )
 
-    _, cursor, after = activity[0]
-    for s, e, entry_id in activity[1:]:
+    _, cursor, after, _, cursor_exact = activity[0]
+    for s, e, entry_id, s_exact, e_exact in activity[1:]:
         if s > cursor + 1:
-            hole(cursor + 1, s - 1, after)
+            hole(cursor + 1, s - 1, after, cursor_exact and s_exact)
         if e > cursor:
-            cursor, after = e, entry_id
+            cursor, after, cursor_exact = e, entry_id, e_exact
     if cursor < _index(today):
-        hole(cursor + 1, _index(today), after)
+        hole(cursor + 1, _index(today), after, cursor_exact)
     return gaps
