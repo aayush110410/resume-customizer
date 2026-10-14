@@ -17,6 +17,7 @@ ONGOING = re.compile(r"present|current|now|till date|to date|ongoing", re.I)
 _YEAR = re.compile(r"(?:19|20)\d{2}")
 _YM = re.compile(r"\b((?:19|20)\d{2})[-/.](\d{1,2})\b")  # 2021-05
 _MY = re.compile(r"\b(\d{1,2})[-/.]((?:19|20)\d{2})\b")  # 05/2021
+_BREAK = re.compile(r"\s*career break\b", re.I)
 _SHORT_YEAR = re.compile(r"'(\d{2})\b")
 _KINDS: list[tuple[StintKind, re.Pattern[str]]] = [
     ("virtual_program", re.compile(r"\bforage\b|job simulation|virtual (experience|internship)", re.I)),
@@ -81,6 +82,8 @@ def build_stints(resume: ResumeDoc, kb: Knowledge, rules: StoryRules, today: dat
     del kb  # employer kind and field come from app.profile.employers
     out = []
     for entry in resume.experience:
+        if _BREAK.match(entry.title):
+            continue  # a stated career break is context, not a role
         kind = stint_kind(entry)
         b = _bounds(entry, today)
         ongoing = not entry.end or bool(ONGOING.search(entry.end or ""))

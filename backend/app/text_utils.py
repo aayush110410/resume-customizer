@@ -3,6 +3,7 @@
 import math
 import re
 import unicodedata
+from functools import lru_cache
 
 _TRANSLATE = str.maketrans(
     {
@@ -39,6 +40,7 @@ def normalize(text: str) -> str:
     return _WS.sub(" ", text).strip().lower()
 
 
+@lru_cache(maxsize=8192)
 def _term_pattern(term: str) -> re.Pattern[str]:
     # A term is "word-bounded" only on sides where it begins/ends with a word character, so `c++` and `.net`
     # still match while `go` does not match inside `golang`.

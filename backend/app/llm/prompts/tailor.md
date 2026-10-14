@@ -19,6 +19,9 @@ HOW TO REWRITE A LINE:
 2. Lead with the outcome or scale when the original has one; then what was done; then how.
 3. Use each term under "use" in place of the resume's wording given before the arrow.
 4. One sentence, 12–30 words, no "I/my/we", no buzzwords (passionate, dynamic, hardworking, synergy, result-oriented).
+CONFIRMED BY THE CANDIDATE (true facts you may use; give each named system its confirmed description on first mention, and never add a career-break or contract line yourself — code does that):
+$confirmed_block
+
 $summary_block
 LINES (rewrite every one, in this order):
 $lines

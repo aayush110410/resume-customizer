@@ -3,15 +3,18 @@
 import json
 import re
 from collections.abc import AsyncIterator
+from datetime import date
 from typing import TYPE_CHECKING
 
 from pydantic import TypeAdapter, ValidationError
 
+from app.profile.timeline import month_key, parse_date
 from app.resume_ops import render_plain
 from app.schemas import (
     Bullet,
     BulletItem,
     ChangeItem,
+    Entry,
     Evidence,
     ResumeDoc,
     SectionKey,
@@ -211,3 +214,86 @@ def apply_tailoring(
             kept.append(other)
     doc.other_sections = kept
     return doc, changes
+
+
+# --- Candidate-confirmed facts ------------------------------------------------------------------------------
+
+REASON_PHRASE = {
+    "higher_studies": "higher studies",
+    "exam_prep": "exam preparation",
+    "health": "health",
+    "family": "family responsibilities",
+    "caregiving": "caregiving",
+    "layoff": "job search after a layoff",
+    "startup": "building a startup",
+    "relocation": "relocation",
+}
+_NAME_KIND = {"own": "my own {}", "internal": "an internal {} at my company", "third_party": "a third-party {}"}
+_NAME_DEFAULT = {"own": "library or framework", "internal": "tool", "third_party": "product"}
+_MONTH = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+
+def _month_label(key: str) -> str:
+    return f"{_MONTH[int(key[5:7]) - 1]} {key[:4]}"
+
+
+def _break_reason(answer) -> str | None:
+    if answer.value == "other":
+        return answer.text or None
+    return REASON_PHRASE.get(answer.value)
+
+
+def confirmed_facts(profile) -> tuple[str, set[str]]:
+    """Prompt block of facts the candidate confirmed, and their words (allowed past the fabrication guard)."""
+    if profile is None:
+        return "(none)", set()
+    names = {c.name.lower(): c.name for r in profile.projects for c in r.facts.custom_names}
+    orgs = {s.entry_id: s.organization for s in profile.stints}
+    gaps = {g.id: g for g in profile.gaps}
+    lines = []
+    for qid, a in profile.answers.items():
+        kind, _, target = qid.partition(":")
+        if kind == "name" and a.value in _NAME_KIND:
+            what = _NAME_KIND[a.value].format(a.text or _NAME_DEFAULT[a.value])
+            lines.append(f"- {names.get(target, target)}: {what}")
+        elif kind == "stint" and a.value == "contract" and target in orgs:
+            lines.append(f"- {orgs[target]}: a contract role (the title is labelled by code)")
+        elif kind == "gap" and a.state_on_resume and qid in gaps and (reason := _break_reason(a)):
+            g = gaps[qid]
+            lines.append(f"- Career break {_month_label(g.start)} to {_month_label(g.end)}: {reason} (added by code)")
+    if not lines:
+        return "(none)", set()
+    block = "\n".join(lines)
+    return block, set(re.findall(r"[\w+#.-]+", block))
+
+
+def apply_confirmed(doc: ResumeDoc, profile) -> ResumeDoc:
+    """Code-made edits from answers: "(Contract)" on confirmed contract titles and an opted-in career-break entry.
+    Idempotent: applying twice changes nothing more."""
+    if profile is None:
+        return doc
+    doc = doc.model_copy(deep=True)
+    gaps = {g.id: g for g in profile.gaps}
+    for qid, a in profile.answers.items():
+        kind, _, target = qid.partition(":")
+        if kind == "stint" and a.value == "contract":
+            for e in doc.experience:
+                if e.id == target and not e.title.endswith("(Contract)"):
+                    e.title = f"{e.title} (Contract)"
+        elif kind == "gap" and a.state_on_resume and qid in gaps and (reason := _break_reason(a)):
+            g = gaps[qid]
+            start, end = _month_label(g.start), _month_label(g.end)
+            if any(e.title.startswith("Career break") and e.start == start for e in doc.experience):
+                continue
+            entry = Entry(
+                id=f"brk{len(doc.experience)}", title=f"Career break: {reason}", organization="", start=start, end=end
+            )
+            # experience runs newest first: the break goes before the first role that started before it
+            older = next((i for i, e in enumerate(doc.experience) if _starts_before(e, g.start)), len(doc.experience))
+            doc.experience.insert(older, entry)
+    return doc
+
+
+def _starts_before(entry: Entry, key: str) -> bool:
+    parsed = parse_date(entry.start, date.today())
+    return bool(parsed) and month_key(parsed[0]) < key

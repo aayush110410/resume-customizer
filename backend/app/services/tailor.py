@@ -1,7 +1,7 @@
 import re
 import uuid
 from collections.abc import AsyncIterator
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 
 from app.guard.grounding import find_fabrications
 from app.knowledge.loader import build_context_brief, drop_patterns
@@ -9,12 +9,13 @@ from app.knowledge.models import Knowledge
 from app.llm.client import LLM, LLMUnavailable
 from app.llm.prompting import render
 from app.llm.tasks import match_evidence
+from app.profile import build_profile
 from app.resume_ops import render_contact, render_plain
 from app.schemas import BulletItem, LayoutReport, ResumeDoc, TailorBatch, TailoredVersion, TailorRequest
 from app.scoring import score_all
 from app.services import ServerEvent, stage
 from app.tailor_plan import build_plan
-from app.tailoring import apply_tailoring, keep_best_evidence, parse_jsonl_items
+from app.tailoring import apply_confirmed, apply_tailoring, confirmed_facts, keep_best_evidence, parse_jsonl_items
 from app.text_utils import estimate_pages, normalize
 
 TONE_RULES = {
@@ -75,7 +76,9 @@ async def tailor_stream(req: TailorRequest, llm: LLM, kb: Knowledge) -> AsyncIte
         )
         summary_format = '{"type":"summary","text":"<summary>"}\n'
     system = render("system_core", region_label=pack.label)
+    confirmed_block, _ = confirmed_facts(a.profile)
     render_args = dict(
+        confirmed_block=confirmed_block,
         context_brief=build_context_brief(pack, a.jd, a.resume.level, kb),
         tone_rule=TONE_RULES[s.tone],
         spelling={"us": "US English", "uk": "British English"}.get(a.jd.spelling, "match the JD"),
@@ -138,14 +141,32 @@ async def tailor_stream(req: TailorRequest, llm: LLM, kb: Knowledge) -> AsyncIte
 
     yield stage("verifying", "active")
     tailored, changes = apply_tailoring(a.resume, items, sections, drop_patterns(pack, a.jd.employer_type), plan)
-    flags = find_fabrications(a.resume, a.resume_text, tailored, kb, allowed={str(years)} if years else None)
+    tailored = apply_confirmed(tailored, a.profile)  # "(Contract)" labels and an opted-in career break, by code
+    # what the candidate confirmed counts as original text for the fabrication guard
+    source = a.resume_text if confirmed_block == "(none)" else a.resume_text + "\n" + confirmed_block
+    flags = find_fabrications(a.resume, source, tailored, kb, allowed={str(years)} if years else None)
     yield stage("verifying", "done")
 
     yield stage("rescoring", "active")
     text, layout = resume_text_for_scoring(tailored)
     ev = await match_evidence(llm, tailored, text, a.jd, pack, kb, passes=1)
     evidence = keep_best_evidence(a.evidence, ev.value)
-    scores = score_all(text, layout, tailored, a.jd, evidence, a.region, kb)
+    profile = None
+    if a.profile and a.profile.as_of:
+        as_of = date(int(a.profile.as_of[:4]), int(a.profile.as_of[5:7]), 1)
+        profile = build_profile(
+            tailored,
+            a.jd,
+            evidence,
+            [r.facts for r in a.profile.projects],
+            a.region,
+            kb,
+            as_of,
+            answers=a.profile.answers,
+            rules_only=a.profile.rules_only,
+            strict=False,
+        )
+    scores = score_all(text, layout, tailored, a.jd, evidence, a.region, kb, profile)
     yield stage("rescoring", "done")
 
     version = TailoredVersion(

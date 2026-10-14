@@ -23,6 +23,7 @@ def build_profile(
     today: date,
     answers: dict[str, Answer] | None = None,
     rules_only: bool = False,
+    strict: bool = True,
 ) -> Profile:
     answers = answers or {}
     rules = kb.regions[region_key].story
@@ -41,6 +42,6 @@ def build_profile(
         rules_only=rules_only,
         as_of=month_key(today),
     )
-    profile = apply_answers(base, answers, resume, jd, kb)
-    profile.questions = make_questions(base, answers, resume, jd, ev, region_key, kb)
+    profile = apply_answers(base, answers, resume, jd, kb, strict)
+    profile.questions = make_questions(base, profile.answers, resume, jd, ev, region_key, kb)
     return profile

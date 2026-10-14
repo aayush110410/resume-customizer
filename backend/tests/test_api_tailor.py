@@ -89,3 +89,16 @@ def test_must_rewrite_lines_returned_unchanged_get_one_repair_call(analysis_json
     bullets = events[-1][1]["version"]["resume"]["experience"][0]["bullets"]
     assert next(b["text"] for b in bullets if b["id"] == "exp0.b2") == "Led migration to Kubernetes."
     assert llm.calls["TailorBatch"] == 1 and "MUST REWRITE" in llm.prompts[-2]["user"]
+
+
+def test_tailor_carries_confirmed_answers(analysis_json):
+    analysis_json["profile"]["answers"] = {"stage": {"value": "mid", "text": None, "state_on_resume": False}}
+    llm = FakeLLM({"Evidence": [evidence_payload()]}, stream=JSONL)
+    r = tailor_client(llm).post(
+        "/api/tailor", json={"analysis": analysis_json, "settings": {"sections": ["summary", "experience"]}}
+    )
+    events = sse_events(r)
+    assert events[-1][0] == "done"
+    writer = next(p for p in llm.prompts if p["schema"] == "stream")
+    assert "CONFIRMED BY THE CANDIDATE" in writer["user"] and "(none)" in writer["user"]
+    assert "story" in events[-1][1]["version"]["scores"]["subscores"]

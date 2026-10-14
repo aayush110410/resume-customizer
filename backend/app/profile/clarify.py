@@ -177,15 +177,25 @@ def _targets(base: Profile) -> list[Question]:
 
 
 def apply_answers(
-    base: Profile, answers: dict[str, Answer], resume: ResumeDoc, jd: JDAnalysis, kb: Knowledge
+    base: Profile, answers: dict[str, Answer], resume: ResumeDoc, jd: JDAnalysis, kb: Knowledge, strict: bool = True
 ) -> Profile:
-    """Pure: the unanswered profile with these answers applied. Unknown ids or options raise ValueError."""
+    """Pure: the unanswered profile with these answers applied. Unknown ids or options raise ValueError, or are
+    dropped when not strict (a tailored resume can retire a question, e.g. a stint now labelled "(Contract)")."""
     valid = {q.id: q for q in _targets(base)}
+    kept = {}
     for qid, a in answers.items():
-        if qid not in valid:
-            raise ValueError(f"unknown question: {qid}")
-        if a.value not in {o.value for o in valid[qid].options}:
-            raise ValueError(f"invalid answer for {qid}: {a.value}")
+        problem = (
+            f"unknown question: {qid}"
+            if qid not in valid
+            else f"invalid answer for {qid}: {a.value}"
+            if a.value not in {o.value for o in valid[qid].options}
+            else None
+        )
+        if problem and strict:
+            raise ValueError(problem)
+        if not problem:
+            kept[qid] = a
+    answers = kept
     p = base.model_copy(deep=True)
     stints = {s.entry_id: s for s in p.stints}
     for qid, a in answers.items():
@@ -228,6 +238,7 @@ def make_questions(
         sub = score_story(apply_answers(base, ans, resume, jd, kb), resume, jd, ev, region_key, kb)
         return sub.score if sub else 0
 
+    answers = {k: v for k, v in answers.items() if k in {q.id for q in _targets(base)}}
     current = story(answers)
     stage, *rest = _targets(base)
     for q in rest:
