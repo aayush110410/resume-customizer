@@ -9,6 +9,7 @@ from datetime import date
 
 from app.knowledge.models import Knowledge, StoryRules
 from app.schemas import CareerGap, Entry, ResumeDoc, Stint, StintKind
+from app.text_utils import normalize
 
 MONTHS = {
     m: i for i, m in enumerate(["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"], 1)
@@ -113,7 +114,25 @@ def build_stints(resume: ResumeDoc, kb: Knowledge, rules: StoryRules, today: dat
                 precise and not ongoing and kind in ("job", "trainee") and stint.months < rules.short_stint_months
             )
         out.append(stint)
+    # Tenure is per employer: a trainee stint that turns into a role at the same company is one stay, not a hop.
+    groups: dict[str, list[Stint]] = {}
+    for st in out:
+        if st.kind in ("job", "trainee"):
+            groups.setdefault(_employer_key(st.organization), []).append(st)
+    for same in groups.values():
+        if len(same) > 1:
+            ongoing = any(st.start and st.end is None for st in same)
+            total = sum(st.months or 0 for st in same)
+            for st in same:
+                st.short = st.precise and not ongoing and total < rules.short_stint_months
     return sorted(out, key=lambda st: st.start or "9999")
+
+
+_ORG_SUFFIX = re.compile(r"\b(ltd|limited|pvt|private|inc|llp|llc|corp|corporation|co)\b\.?")
+
+
+def _employer_key(organization: str) -> str:
+    return " ".join(_ORG_SUFFIX.sub(" ", normalize(organization)).replace(",", " ").split())
 
 
 _SCHOOL = re.compile(

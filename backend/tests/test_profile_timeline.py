@@ -137,3 +137,16 @@ def test_stated_career_break_covers_gap(kb):
         [("B.Tech", "NIT", "Jul 2017", "May 2021")],
     )
     assert find_gaps(resume, build_stints(resume, kb, rules, TODAY), rules, TODAY) == []
+
+
+def test_promotion_at_same_employer_is_not_a_short_stint(kb):
+    rules = kb.regions["india"].story
+    resume = doc(
+        [
+            ("Senior Systems Engineer", "Infosys", "Aug 2021", "Present"),
+            ("Systems Engineer Trainee", "Infosys Ltd", "Feb 2021", "Jul 2021"),
+        ]
+    )
+    assert not any(s.short for s in build_stints(resume, kb, rules, TODAY))
+    boomerang = doc([("Engineer", "Acme", "Jan 2022", "Apr 2022"), ("Engineer", "Acme", "Jun 2023", "Sep 2023")])
+    assert sum(s.short for s in build_stints(boomerang, kb, rules, TODAY)) == 2  # 8 months in total: still short
