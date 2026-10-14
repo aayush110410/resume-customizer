@@ -98,6 +98,19 @@ def _present(term: str, haystack: str, kb: Knowledge) -> bool:
 
 # Ordinary resume glue: never a claim on its own, even when the JD happens to use it.
 _GLUE = {
+    "strong",
+    "solid",
+    "proven",
+    "excellent",
+    "good",
+    "great",
+    "deep",
+    "extensive",
+    "hands-on",
+    "highly",
+    "skills",
+    "skill",
+    "ability",
     "year",
     "years",
     "experience",

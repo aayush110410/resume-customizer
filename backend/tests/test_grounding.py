@@ -190,3 +190,10 @@ def test_years_of_experience_wording_is_not_a_claim(doc, real_kb):
     jd = "3+ years of backend development experience."
     # the years figure itself is computed by code and passed as allowed, as the tailor service does
     assert find_fabrications(d, render_plain(d), t, real_kb, allowed={"4"}, jd_text=jd) == []
+
+
+def test_intensifiers_are_not_claims(doc, real_kb):
+    d = doc.model_copy(update={"summary": "Engineer who builds payment APIs."})
+    t = d.model_copy(update={"summary": "Engineer with strong, proven and solid skills building payment APIs."})
+    jd = "Strong problem solving. Proven, solid engineering skills."
+    assert find_fabrications(d, render_plain(d), t, real_kb, jd_text=jd) == []
