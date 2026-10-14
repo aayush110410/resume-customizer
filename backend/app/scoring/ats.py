@@ -62,6 +62,19 @@ def _year_month(value: str | None) -> tuple[int, int] | None:
     return int(year.group(1)), month
 
 
+MIN_CONTENT_WORDS = 200
+
+
+def content_words(resume: ResumeDoc) -> int:
+    """Words ATS can match on: summary, skills, experience, projects, education and achievements. Declarations,
+    personal details and hobbies don't count, so removing them never makes a resume "too thin"."""
+    parts = [resume.summary or "", *(i for g in resume.skills for i in g.items)]
+    for e in [*resume.experience, *resume.projects, *resume.education]:
+        parts += [e.title, e.organization, *(b.text for b in e.bullets)]
+    parts += [b.text for b in resume.achievements]
+    return len(" ".join(parts).split())
+
+
 def score_ats(
     text: str, layout: LayoutReport, resume: ResumeDoc, jd: JDAnalysis, region: RegionPack, kb: Knowledge
 ) -> SubScore:
@@ -196,8 +209,10 @@ def score_ats(
         length = 15 - lose(
             15, "too_long", f"{layout.pages} pages; {limit} is the norm at this level.", "Cut to the norm."
         )
-    if layout.word_count < 200:
-        length = max(0.0, length - lose(5, "too_thin", "Under 200 words — too little for ATS to match.", "Add detail."))
+    if content_words(resume) < MIN_CONTENT_WORDS:
+        detail = f"Under {MIN_CONTENT_WORDS} words of real content — too little for ATS to match."
+        fix = "Add detail to experience and projects: what you built, with what, and the result."
+        length = max(0.0, length - lose(5, "too_thin", detail, fix))
 
     ex.sort(key=lambda e: e.impact)
     return SubScore(key="ats", score=round_half_up(parse + keywords + structure + length), explanations=ex)
