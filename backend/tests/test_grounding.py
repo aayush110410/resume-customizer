@@ -132,3 +132,61 @@ def test_code_supplied_numbers_are_allowed(doc, kb):
 def test_singular_acronym_of_plural_original_not_flagged(doc, kb):
     t = tailored_with(doc, exp0_b1="Built a REST API")
     assert find_fabrications(doc, render_plain(doc), t, kb) == []
+
+
+JD = (
+    "Design, build and own Python and Java microservices for payment orchestration and reconciliation. "
+    "Run services on Kubernetes. Mentor junior engineers."
+)
+
+
+@pytest.fixture
+def real_kb():
+    from app.knowledge.loader import load_knowledge
+
+    return load_knowledge()
+
+
+def _with_bullets(doc, *texts):
+    d = doc.model_copy(deep=True)
+    d.experience[1].bullets = [Bullet(id=f"exp1.b{i}", text=t) for i, t in enumerate(texts)]
+    return d
+
+
+def test_new_jd_wording_flagged(doc, real_kb):
+    d = _with_bullets(doc, "Handled support and bug fixes for the payments module")
+    t = tailored_with(d, exp1_b0="Supported and fixed bugs in the payment orchestration module")
+    flags = find_fabrications(d, render_plain(d), t, real_kb, jd_text=JD)
+    assert [(f.target_id, f.tokens) for f in flags] == [("exp1.b0", ["orchestration"])]
+    assert "job description" in flags[0].reason
+
+
+def test_jd_verbs_synonyms_and_existing_words_not_flagged(doc, real_kb):
+    d = _with_bullets(doc, "Made billing APIs for merchants", "Wrote SQL reports for reconciliation", "Ran jobs on k8s")
+    t = tailored_with(
+        d,
+        exp1_b0="Designed billing APIs for merchants",  # JD verb: wording, not a fact
+        exp1_b1="Built SQL reports for monthly reconciliation",  # "reconciliation" is already in the original
+        exp1_b2="Ran jobs on Kubernetes",  # synonym of k8s
+    )
+    assert find_fabrications(d, render_plain(d), t, real_kb, jd_text=JD) == []
+
+
+def test_new_jd_wording_in_summary_flagged(doc, real_kb):
+    t = doc.model_copy(update={"summary": "Backend engineer with 4 years building payment orchestration APIs."})
+    flags = find_fabrications(doc, render_plain(doc), t, real_kb, jd_text=JD)
+    assert ("summary", ["orchestration"]) in [(f.target_id, f.tokens) for f in flags]
+
+
+def test_without_jd_text_behaviour_is_unchanged(doc, real_kb):
+    d = _with_bullets(doc, "Handled support and bug fixes for the payments module")
+    t = tailored_with(d, exp1_b0="Supported and fixed bugs in the payment orchestration module")
+    assert find_fabrications(d, render_plain(d), t, real_kb) == []
+
+
+def test_years_of_experience_wording_is_not_a_claim(doc, real_kb):
+    d = doc.model_copy(update={"summary": "Engineer who builds payment APIs."})
+    t = d.model_copy(update={"summary": "Engineer with 4 years of experience building payment APIs."})
+    jd = "3+ years of backend development experience."
+    # the years figure itself is computed by code and passed as allowed, as the tailor service does
+    assert find_fabrications(d, render_plain(d), t, real_kb, allowed={"4"}, jd_text=jd) == []

@@ -9,7 +9,7 @@ Spelling: $spelling
 
 TRUTH RULES (absolute — a rewrite that breaks one is discarded):
 - Keep every number exactly as written ("keep" lists them).
-- New words may only be the JD terms listed under "use" for that line. Never add a tool, technology, employer, metric, team size or result that the original line does not state.
+- New words may only be the JD terms listed under "use" for that line. Never add a tool, technology, employer, metric, team size or result that the original line does not state, and never borrow other JD wording: "payments module" stays "payments module", never "payment orchestration module". Code flags borrowed JD words.
 - The verb must say what the original says was done: "developing" may become "Developed" or "Built", never "Designed" or "Led".
 - Do not append outcome clauses ("…, improving reliability", "…, ensuring uptime") unless the original states that outcome. Code deletes unsupported ones.
 - Lines marked MUST REWRITE must come back changed. Any other line that is already strong may be returned unchanged.

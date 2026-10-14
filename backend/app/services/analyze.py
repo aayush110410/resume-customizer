@@ -75,5 +75,6 @@ async def analyze_stream(
             "projects": proj_r.model if isinstance(proj_r, Structured) else "rules",
         },
         profile=profile,
+        jd_text=jd_text,
     )
     yield ServerEvent("done", {"analysis": analysis.model_dump()})

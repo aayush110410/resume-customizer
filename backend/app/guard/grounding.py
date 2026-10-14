@@ -96,17 +96,113 @@ def _present(term: str, haystack: str, kb: Knowledge) -> bool:
     return any(contains_term(haystack, v) for f in forms for v in kb.synonyms.variants(f))
 
 
+# Ordinary resume glue: never a claim on its own, even when the JD happens to use it.
+_GLUE = {
+    "year",
+    "years",
+    "experience",
+    "experienced",
+    "using",
+    "across",
+    "within",
+    "through",
+    "multiple",
+    "various",
+    "including",
+    "based",
+    "related",
+    "their",
+    "these",
+    "those",
+    "which",
+    "while",
+    "where",
+    "other",
+    "about",
+    "into",
+    "over",
+    "under",
+    "team",
+    "teams",
+    "work",
+    "worked",
+    "working",
+    "with",
+    "from",
+    "that",
+    "this",
+    "more",
+    "than",
+    "also",
+    "each",
+    "both",
+    "such",
+    "well",
+    "new",
+    "end",
+}
+_IRREGULAR_VERBS = {"build", "lead", "run", "drive", "write", "make", "grow", "own", "ship", "set", "take", "find"}
+_SUFFIXES = ("ations", "ation", "ings", "ing", "ies", "ied", "ed", "es", "s")
+_WORD = re.compile(r"[a-z][a-z-]{3,}")
+
+
+def _stem(word: str) -> str:
+    for suffix in _SUFFIXES:
+        if word.endswith(suffix) and len(word) - len(suffix) >= 3:
+            return word[: -len(suffix)]
+    return word
+
+
+def _stems(text: str) -> set[str]:
+    return {_stem(w) for w in _WORD.findall(normalize(text))}
+
+
+def _jd_wording(
+    text: str, original_text: str, original_stems: set[str], jd_stems: set[str], kb: Knowledge
+) -> list[str]:
+    """Words a rewrite took from the job description that the original resume never says: "payments module" →
+    "payment orchestration module" adds a claim. Action verbs, glue words and genuine synonyms are wording, not facts."""
+    verbs = {_stem(v) for v in kb.lexicons.action_verbs} | _IRREGULAR_VERBS
+    out = []
+    for w in _WORD.findall(normalize(text)):
+        st = _stem(w)
+        new = st in jd_stems and st not in original_stems and st not in verbs and w not in _GLUE
+        if new and not _present(w, original_text, kb):
+            out.append(w)
+    return list(dict.fromkeys(out))
+
+
+def _merge(bad: list[str], jd_words: list[str]) -> list[str]:
+    seen = {b.lower() for b in bad}
+    return bad + [w for w in jd_words if w not in seen]
+
+
+JD_REASON = "Uses job description wording your original doesn't state"
+
+
 def find_fabrications(
-    original: ResumeDoc, original_text: str, tailored: ResumeDoc, kb: Knowledge, allowed: set[str] | None = None
+    original: ResumeDoc,
+    original_text: str,
+    tailored: ResumeDoc,
+    kb: Knowledge,
+    allowed: set[str] | None = None,
+    jd_text: str | None = None,
 ) -> list[FabricationFlag]:
     flags: list[FabricationFlag] = []
     all_numbers = _numbers(original_text) | {n.rstrip("+") for n in (allowed or set())}
+    jd_stems = _stems(jd_text) if jd_text else set()
+    original_stems = _stems(original_text)
+
+    def jd_words(text: str) -> list[str]:
+        return _jd_wording(text, original_text, original_stems, jd_stems, kb) if jd_stems else []
 
     if tailored.summary and tailored.summary != original.summary:
         bad = [n for n in _numbers(tailored.summary) if n.rstrip("+") not in all_numbers]
         bad += [t for t in _fact_terms(tailored.summary, kb.synonyms.groups) if not _present(t, original_text, kb)]
-        if bad:
-            flags.append(FabricationFlag(target_id="summary", tokens=bad, reason="Not found in your original resume"))
+        from_jd = jd_words(tailored.summary)
+        if bad or from_jd:
+            reason = "Not found in your original resume" if bad else JD_REASON
+            flags.append(FabricationFlag(target_id="summary", tokens=_merge(bad, from_jd), reason=reason))
 
     original_skills = {normalize(i) for g in original.skills for i in g.items}
     new_skills = [
@@ -128,10 +224,10 @@ def find_fabrications(
         source_numbers = _numbers(source.text)
         bad = [n for n in _numbers(bullet.text) if n not in source_numbers]
         bad += [t for t in _fact_terms(bullet.text, kb.synonyms.groups) if not _present(t, original_text, kb)]
-        if bad:
+        from_jd = jd_words(bullet.text)
+        if bad or from_jd:
+            reason = "Not in the original bullet" if bad else JD_REASON
             flags.append(
-                FabricationFlag(
-                    target_id=bullet.id, tokens=list(dict.fromkeys(bad)), reason="Not in the original bullet"
-                )
+                FabricationFlag(target_id=bullet.id, tokens=_merge(list(dict.fromkeys(bad)), from_jd), reason=reason)
             )
     return flags

@@ -40,7 +40,7 @@ All from the live app, using the built-in sample (an Infosys engineer applying f
 3. **No fabrication.**
    - Tailoring may rephrase, reorder and mirror JD wording only for evidenced skills.
    - Companies, titles and dates are copied by code, never by the model.
-   - Any number, tool or name in the output that isn't in the original is flagged **"Needs your confirmation"**.
+   - Any number, tool or name in the output that isn't in the original is flagged **"Needs your confirmation"**, and so is any job-description wording a rewritten line borrows that the original never says ("payments module" → "payment orchestration module"). Action verbs and genuine synonyms (k8s → Kubernetes) are allowed.
    - Missing skills become **"Add only if true"** suggestions with `[placeholders]`.
 
 ## Features (brief → implementation)

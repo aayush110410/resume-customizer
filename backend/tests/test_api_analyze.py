@@ -123,6 +123,7 @@ def test_analyze_emits_profile(monkeypatch, simple_pdf):
     analysis = events[-1][1]["analysis"]
     assert analysis["profile"]["stage"] == "mid" and analysis["profile"]["questions"][0]["id"] == "stage"
     assert "story" in analysis["scores"]["subscores"]
+    assert analysis["jd_text"] == JD_TEXT.strip()  # kept for the tailoring guard
 
 
 def test_analyze_survives_project_reader_failure(monkeypatch, simple_pdf):

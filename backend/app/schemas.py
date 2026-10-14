@@ -298,6 +298,7 @@ class Analysis(BaseModel):
     prompt_version: str
     models: dict[str, str]
     profile: Profile | None = None
+    jd_text: str = ""  # the pasted JD, so the tailoring guard can spot borrowed wording
 
 
 class RescoreRequest(BaseModel):

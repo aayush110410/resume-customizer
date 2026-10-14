@@ -82,6 +82,7 @@ export interface Analysis {
   region: Region; resume: ResumeDoc; resume_text: string; layout: LayoutReport; jd: JDAnalysis; evidence: Evidence;
   scores: ScoreReport; insights: Insights; prompt_version: string; models: Record<string, string>;
   profile?: Profile | null; // absent on analyses saved before the career profile existed
+  jd_text?: string; // the pasted JD (for the tailoring guard); absent on older saved analyses
 }
 export interface RescoreResponse { profile: Profile; scores: ScoreReport; insights: Insights; level: Level }
 export interface SummaryItem { type: "summary"; text: string }

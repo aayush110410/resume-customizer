@@ -144,7 +144,9 @@ async def tailor_stream(req: TailorRequest, llm: LLM, kb: Knowledge) -> AsyncIte
     tailored = apply_confirmed(tailored, a.profile)  # "(Contract)" labels and an opted-in career break, by code
     # what the candidate confirmed counts as original text for the fabrication guard
     source = a.resume_text if confirmed_block == "(none)" else a.resume_text + "\n" + confirmed_block
-    flags = find_fabrications(a.resume, source, tailored, kb, allowed={str(years)} if years else None)
+    # saved analyses from before jd_text existed fall back to what the JD analysis kept
+    jd_text = a.jd_text or " ".join([a.jd.title, *a.jd.ats_keywords, *(q.text for q in a.jd.requirements)])
+    flags = find_fabrications(a.resume, source, tailored, kb, allowed={str(years)} if years else None, jd_text=jd_text)
     yield stage("verifying", "done")
 
     yield stage("rescoring", "active")
