@@ -113,3 +113,23 @@ def test_meta_lists_regions_and_limits(monkeypatch):
     meta = client.get("/api/meta").json()
     assert [r["key"] for r in meta["regions"]] == ["india", "international"]
     assert meta["limits"]["jd_min_chars"] == 300 and "summary" in meta["sections"]
+
+
+def test_analyze_emits_profile(monkeypatch, simple_pdf):
+    client, _ = make_client(monkeypatch)
+    events = sse_events(post(client, simple_pdf))
+    names = [e for e, _ in events]
+    assert names.index("evidence") < names.index("profile") < names.index("scores")
+    analysis = events[-1][1]["analysis"]
+    assert analysis["profile"]["stage"] == "mid" and analysis["profile"]["questions"][0]["id"] == "stage"
+    assert "story" in analysis["scores"]["subscores"]
+
+
+def test_analyze_survives_project_reader_failure(monkeypatch, simple_pdf):
+    payload = resume_payload()
+    payload["projects"] = [{"title": "Zephyr", "organization": "Personal", "bullets": []}]
+    llm = FakeLLM({"ResumeDoc": [payload], "JDAnalysis": [jd_payload()], "Evidence": [evidence_payload()]})
+    client, fake = make_client(monkeypatch, llm)
+    analysis = sse_events(post(client, simple_pdf))[-1][1]["analysis"]
+    assert fake.calls["ProjectFactsBatch"] == 1 and analysis["profile"]["rules_only"] is True
+    assert analysis["profile"]["projects"][0]["title"] == "Zephyr"

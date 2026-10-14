@@ -15,7 +15,16 @@ from app.export.txt import render_txt
 from app.knowledge.models import Knowledge
 from app.llm.client import LLM
 from app.parsing.extract import ParseError, parse_resume
-from app.schemas import Contact, CoverLetterRequest, ExportRequest, Region, TailorRequest
+from app.profile.clarify import rescore
+from app.schemas import (
+    Contact,
+    CoverLetterRequest,
+    ExportRequest,
+    Region,
+    RescoreRequest,
+    RescoreResponse,
+    TailorRequest,
+)
 from app.services import as_sse
 from app.services.analyze import analyze_stream
 from app.services.cover_letter import cover_letter_stream
@@ -85,6 +94,15 @@ async def cover_letter(
     req: CoverLetterRequest, llm: Annotated[LLM, Depends(get_llm)], kb: Annotated[Knowledge, Depends(get_kb)]
 ) -> EventSourceResponse:
     return EventSourceResponse(as_sse(cover_letter_stream(req, llm, kb)))
+
+
+@router.post("/rescore", dependencies=[Depends(export_rate_limited)])
+def rescore_answers(req: RescoreRequest, kb: Annotated[Knowledge, Depends(get_kb)]) -> RescoreResponse:
+    """Apply the candidate's clarifications in code: no model call, same evidence, new profile and scores."""
+    try:
+        return rescore(req.analysis, req.answers, kb)
+    except ValueError as e:
+        raise AppError("INVALID_ANSWERS", str(e), 422) from e
 
 
 MEDIA = {
