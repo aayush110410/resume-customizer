@@ -12,15 +12,12 @@ import re
 from datetime import date
 
 from app.knowledge.models import Knowledge
+from app.profile.timeline import parse_date
 from app.resume_ops import iter_bullets
 from app.schemas import Evidence, Level, MatchStatus, Requirement, RequirementMatch, ResumeDoc
 from app.scoring.match import CREDIT
 from app.text_utils import contains_term, normalize
 
-_MONTHS = {
-    m: i for i, m in enumerate(["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"], 1)
-}
-_ONGOING = re.compile(r"present|current|now|till date|to date|ongoing", re.I)
 _INTERN = re.compile(r"\bintern(ship)?\b", re.I)
 _YEARS = re.compile(r"(\d+(?:\.\d+)?)\s*\+?\s*(?:(?:-|–|to)\s*\d+(?:\.\d+)?\s*)?\+?\s*(?:years?|yrs?)\b", re.I)
 _DEGREES = (
@@ -72,18 +69,8 @@ _GENERIC = {
 
 
 def _parse_date(value: str | None, today: date) -> date | None:
-    if not value:
-        return None
-    v = value.strip().lower()
-    if _ONGOING.search(v):
-        return today
-    year = re.search(r"(19|20)\d{2}", v) or re.search(r"'(\d{2})\b", v)
-    if not year:
-        return None
-    y = int(year.group(0)) if len(year.group(0)) == 4 else 2000 + int(year.group(1))
-    numeric = re.match(r"(\d{1,2})[/-]", v)
-    month = int(numeric.group(1)) if numeric and 1 <= int(numeric.group(1)) <= 12 else _MONTHS.get(v[:3], 0)
-    return date(y, month or 1, 1)
+    parsed = parse_date(value, today)
+    return parsed[0] if parsed else None
 
 
 def years_of_experience(resume: ResumeDoc, today: date) -> float | None:
