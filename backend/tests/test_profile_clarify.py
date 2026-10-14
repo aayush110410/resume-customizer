@@ -104,6 +104,7 @@ def test_gap_options(kb):
         "other",
     ]
     assert q.options[1].label == "Exam prep (UPSC/GATE/CAT/other)" and q.allow_text
+    assert q.prompt == "What were you doing from Jun 2021 to Apr 2023 (23 months)?"
 
 
 def test_answers_reclassify_and_retarget(kb):

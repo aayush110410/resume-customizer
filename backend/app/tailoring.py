@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 from pydantic import TypeAdapter, ValidationError
 
-from app.profile.timeline import month_key, parse_date
+from app.profile.timeline import month_key, month_label, parse_date
 from app.resume_ops import render_plain
 from app.schemas import (
     Bullet,
@@ -230,11 +230,6 @@ REASON_PHRASE = {
 }
 _NAME_KIND = {"own": "my own {}", "internal": "an internal {} at my company", "third_party": "a third-party {}"}
 _NAME_DEFAULT = {"own": "library or framework", "internal": "tool", "third_party": "product"}
-_MONTH = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-
-
-def _month_label(key: str) -> str:
-    return f"{_MONTH[int(key[5:7]) - 1]} {key[:4]}"
 
 
 def _break_reason(answer) -> str | None:
@@ -260,7 +255,7 @@ def confirmed_facts(profile) -> tuple[str, set[str]]:
             lines.append(f"- {orgs[target]}: a contract role (the title is labelled by code)")
         elif kind == "gap" and a.state_on_resume and qid in gaps and (reason := _break_reason(a)):
             g = gaps[qid]
-            lines.append(f"- Career break {_month_label(g.start)} to {_month_label(g.end)}: {reason} (added by code)")
+            lines.append(f"- Career break {month_label(g.start)} to {month_label(g.end)}: {reason} (added by code)")
     if not lines:
         return "(none)", set()
     block = "\n".join(lines)
@@ -282,7 +277,7 @@ def apply_confirmed(doc: ResumeDoc, profile) -> ResumeDoc:
                     e.title = f"{e.title} (Contract)"
         elif kind == "gap" and a.state_on_resume and qid in gaps and (reason := _break_reason(a)):
             g = gaps[qid]
-            start, end = _month_label(g.start), _month_label(g.end)
+            start, end = month_label(g.start), month_label(g.end)
             if any(e.title.startswith("Career break") and e.start == start for e in doc.experience):
                 continue
             entry = Entry(

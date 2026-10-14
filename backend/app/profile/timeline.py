@@ -51,6 +51,11 @@ def month_key(d: date) -> str:
     return f"{d.year:04d}-{d.month:02d}"
 
 
+def month_label(key: str) -> str:
+    """ "2021-06" → "Jun 2021"."""
+    return f"{list(MONTHS)[int(key[5:7]) - 1].capitalize()} {key[:4]}"
+
+
 def _index(d: date) -> int:
     return d.year * 12 + d.month - 1
 

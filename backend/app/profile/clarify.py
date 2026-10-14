@@ -12,6 +12,7 @@ from app.profile.moves import detect_moves
 from app.profile.projects import score_project
 from app.profile.stage import FULL_TIME
 from app.profile.story import score_story
+from app.profile.timeline import month_label
 from app.schemas import (
     Analysis,
     Answer,
@@ -120,7 +121,7 @@ def _targets(base: Profile) -> list[Question]:
                 target_id=g.id,
                 allow_text=True,
                 options=_options(GAP_OPTIONS),
-                prompt=f"What were you doing from {g.start} to {g.end} ({g.months} months)?",
+                prompt=f"What were you doing from {month_label(g.start)} to {month_label(g.end)} ({g.months} months)?",
             )
         )
     for s in base.stints:
