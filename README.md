@@ -20,6 +20,7 @@ All from the live app, using the built-in sample (an Infosys engineer applying f
 | ![Input: JD and resume upload](docs/screenshots/01-input.jpg) **Input.** Paste a JD, drop a PDF/DOCX (name and size shown), pick region, tone and sections. | ![Live progress](docs/screenshots/02-progress.jpg) **Streaming.** Seven stages report live as they run: read, understand, match, score, tailor, verify, re-score. |
 | ![Results overview](docs/screenshots/03-overview.jpg) **Results.** Overall and four sub-scores with before→after deltas, ranked fixes, the 7-second verdict and India market notes. | ![Evidence ledger](docs/screenshots/04-evidence.jpg) **Evidence.** Every JD requirement with its status and the verbatim resume quote that proves it. |
 | ![Tailored resume](docs/screenshots/05-tailored.jpg) **Tailored resume.** JD terms highlighted; unverifiable lines flagged "Needs your confirmation", with a one-click revert. Download as PDF, DOCX or TXT. | ![Changes diff](docs/screenshots/06-changes.jpg) **Changes.** Inline or side-by-side diff with moved-bullet markers and a reason for each edit. |
+| ![Career story](docs/screenshots/07-story.jpg) **Career story.** The fifth score, judged for the candidate's stage: a timeline of roles (a trainee stint promoted at the same employer is one stay), the move this application represents, and how each project reads. The confirm line above re-scores answers instantly in code. | |
 
 ## What makes it different
 
