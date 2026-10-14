@@ -26,6 +26,11 @@ _DEPTH = re.compile(
     r"scheduler|elasticsearch|search index|recommendation engine|compiler|interpreter|consensus|encryption)\b",
     re.I,
 )
+_USERS = re.compile(
+    r"\bused by\b|\b\d[\d,]*\+?\s+(?:\w+\s+)?(users|customers|students|residents|members|visitors|teams|people|"
+    r"clubs|analysts|reps|downloads|installs)\b",
+    re.I,
+)
 MAX_NAME_PENALTY = 15
 
 
@@ -40,14 +45,17 @@ def _technologies(text: str, kb: Knowledge) -> int:
 
 
 def rule_facts(entry: Entry, kb: Knowledge) -> ProjectFacts:
-    """What code alone can read when the model is unavailable."""
+    """What code alone can read when the model is unavailable. Tutorial builds are judged from the title only:
+    a bullet like "EMI calculator API used by 30 analysts" is not a calculator tutorial."""
     text = _text(entry)
-    head = normalize(f"{entry.title} {entry.bullets[0].text if entry.bullets else ''}")
+    used = next((b.text for b in entry.bullets if _USERS.search(b.text)), None)
     return ProjectFacts(
         project_id=entry.id,
         purpose=entry.bullets[0].text if entry.bullets else None,
+        users=used,
+        scale=used if used and re.search(r"\d", used) else None,
         links=[m.group(0) for m in URL.finditer(text)],
-        tutorial_pattern=next((t for t in kb.tutorial_projects if contains_term(head, t)), None),
+        tutorial_pattern=next((t for t in kb.tutorial_projects if contains_term(entry.title, t)), None),
     )
 
 

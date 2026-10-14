@@ -108,3 +108,9 @@ async def test_read_projects_without_projects_makes_no_call(kb):
     fake = FakeLLM()
     r = await read_projects(fake, ResumeDoc(contact=Contact(name="T")), "", kb)
     assert r.value == [] and fake.calls == {}
+
+
+def test_rule_facts_reads_users_and_scale(kb):
+    entry = project("Laundry Queue", "Slot-booking app used by 300 hostel residents, built with Flask")
+    facts = rule_facts(entry, kb)
+    assert facts.users and facts.scale

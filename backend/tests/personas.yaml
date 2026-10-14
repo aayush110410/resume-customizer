@@ -1,0 +1,208 @@
+# Persona fixtures for the career profile (today = 2026-10-14). Each one pins detection and a Story band
+# worked out from the Story rubric in app/profile/story.py. Bullets are plain strings.
+# Default JD: Software Engineer, software_engineering, product_startup, four must-haves (python, sql, javascript,
+# docker); default evidence: all four partial.
+
+- id: student_2nd_year_projects
+  resume:
+    contact: {name: Ananya, links: [github.com/ananya]}
+    education: [{title: "B.Tech CSE (CGPA 8.7)", organization: VIT, end: May 2029}]
+    projects:
+      - title: Campus Bites
+        organization: Personal
+        bullets:
+          - Food pre-order app for 2,000 students using React, Node.js and MongoDB
+          - Live at campusbites.in
+      - title: Todo App
+        organization: Personal
+        bullets: [Made a todo list with React]
+  expect: {stage: student, study_year: 2, gaps: 0, short_stints: 0, target_moves: [], tutorial_projects: [Todo App], story: [55, 75]}
+
+- id: student_3rd_year_unpaid_and_forage
+  resume:
+    contact: {name: Rohan, links: [github.com/rohan]}
+    education: [{title: "B.Tech IT (CGPA 8.1)", organization: SRM, end: May 2028}]
+    experience:
+      - title: Web Development Intern (Unpaid)
+        organization: Pixel Studio
+        start: May 2026
+        end: Jul 2026
+        bullets: [Built landing pages in React for 4 client sites]
+      - title: Software Engineering Virtual Experience
+        organization: JPMorgan Chase (Forage)
+        start: Jun 2026
+        end: Jun 2026
+        bullets: [Completed a job simulation on Kafka basics]
+    projects:
+      - title: Hostel Laundry Queue
+        organization: Personal
+        bullets: [Slot-booking app used by 300 hostel residents, built with Flask, Redis and PostgreSQL]
+  expect: {stage: student, study_year: 3, gaps: 0, short_stints: 0, target_moves: [], tutorial_projects: [], story: [75, 95]}
+
+- id: student_4th_year_two_internships
+  resume:
+    contact: {name: Meera, links: [github.com/meera, leetcode.com/meera]}
+    education: [{title: "B.E. Computer Engineering (CGPA 9.0)", organization: PICT, end: May 2027}]
+    experience:
+      - {title: SDE Intern, organization: Razorpay, start: Jan 2026, end: Jun 2026, bullets: [Built a reconciliation job in Python that cut manual checks by 40%]}
+      - {title: Software Engineering Intern, organization: Persistent, start: May 2025, end: Jul 2025, bullets: [Wrote REST endpoints in Java for an internal tool]}
+    projects:
+      - title: GitPulse
+        organization: Personal
+        bullets: [Dashboard of GitHub activity for 150 college clubs; FastAPI, React and PostgreSQL; live at gitpulse.dev]
+  expect: {stage: student, study_year: 4, gaps: 0, short_stints: 0, target_moves: [], tutorial_projects: [], story: [90, 100]}
+
+- id: fresh_grad_nats_apprentice
+  resume:
+    contact: {name: Vikram}
+    education: [{title: "B.E. Mechanical (72%)", organization: GEC, end: May 2025}]
+    experience:
+      - {title: Graduate Apprentice (NATS), organization: BHEL, start: Jul 2025, end: Jun 2026, bullets: [Maintained CNC line schedules for 3 shifts]}
+  jd: {title: Graduate Engineer Trainee, role_family: operations, employer_type: psu_govt}
+  expect: {stage: fresh_grad, study_year: null, gaps: 0, short_stints: 0, target_moves: [], tutorial_projects: [], story: [35, 55]}
+
+- id: fresh_grad_exam_prep_gap
+  resume:
+    contact: {name: Kavya, links: [github.com/kavya]}
+    education: [{title: "B.Tech ECE (CGPA 7.9)", organization: NIT Warangal, end: May 2024}]
+    projects:
+      - {title: Signal Classifier, organization: Personal, bullets: [Trained a CNN in PyTorch on 12,000 ECG samples to 91% accuracy]}
+  expect: {stage: fresh_grad, study_year: null, gaps: 1, short_stints: 0, target_moves: [], tutorial_projects: [], story: [60, 68]}
+
+- id: fresh_grad_exam_prep_gap_answered
+  same_as: fresh_grad_exam_prep_gap
+  answers: {"gap:2024-06": {value: exam_prep}}
+  expect: {stage: fresh_grad, study_year: null, gaps: 1, short_stints: 0, target_moves: [], tutorial_projects: [], story: [69, 76]}
+
+- id: startup_to_mnc
+  resume:
+    contact: {name: Arjun}
+    education: [{title: B.Tech CSE, organization: IIIT Hyderabad, end: Jun 2023}]
+    experience:
+      - title: Software Engineer
+        organization: Kitebird Labs
+        start: Jul 2023
+        end: Present
+        bullets:
+          - Founding engineer at a seed-stage startup
+          - Built the order service in Go handling 1,200 orders a day
+          - Shipped features end to end with the founders
+  jd: {company: Barclays, employer_type: gcc}
+  expect: {stage: mid, study_year: null, gaps: 0, short_stints: 0, target_moves: [startup_to_mnc], tutorial_projects: [], story: [80, 95]}
+
+- id: tcs_to_product
+  resume:
+    contact: {name: Sneha}
+    education: [{title: B.Tech IT, organization: KIIT, end: Jun 2023}]
+    experience:
+      - title: Systems Engineer
+        organization: TCS
+        start: Jul 2023
+        end: Present
+        bullets:
+          - Responsible for maintaining billing batch jobs
+          - Worked on client support tickets
+          - Supported UAT releases for the insurance client
+  expect: {stage: mid, study_year: null, gaps: 0, short_stints: 0, target_moves: [services_to_product], tutorial_projects: [], story: [50, 70]}
+
+- id: mnc_to_mega
+  resume:
+    contact: {name: Farhan}
+    education: [{title: B.Tech CSE, organization: DTU, end: Jun 2020}]
+    experience:
+      - title: Software Engineer
+        organization: IBM
+        start: Jul 2020
+        end: Present
+        bullets:
+          - Scaled the search API to 2 million daily users
+          - Cut p99 latency from 900 ms to 210 ms on a distributed cache
+  jd: {company: Google}
+  expect: {stage: mid, study_year: null, gaps: 0, short_stints: 0, target_moves: [mnc_to_mega], tutorial_projects: [], story: [90, 100]}
+
+- id: fintech_analyst_to_swe
+  resume:
+    contact: {name: Neha}
+    summary: Risk analyst moving into backend software engineering.
+    education: [{title: B.Com, organization: SRCC, end: Jun 2023}]
+    experience:
+      - title: Credit Risk Analyst
+        organization: PhonePe
+        start: Jul 2023
+        end: Present
+        bullets: [Built credit-limit reports for 40 lending partners]
+    projects:
+      - {title: Loan EMI API, organization: Personal, bullets: [EMI calculator API in Python and FastAPI used by 30 analysts at work]}
+  evidence: [partial, missing, missing, missing]
+  expect: {stage: mid, study_year: null, gaps: 0, short_stints: 0, target_moves: [field_switch], tutorial_projects: [], story: [70, 90]}
+
+- id: it_engineer_to_presales
+  resume:
+    contact: {name: Rahul}
+    education: [{title: B.Tech CSE, organization: VIT, end: Jun 2022}]
+    experience:
+      - title: Software Engineer
+        organization: Infosys
+        start: Jul 2022
+        end: Present
+        bullets: [Built Spring Boot services for a retail client]
+  jd: {title: Pre-Sales Consultant, role_family: sales_bd, employer_type: it_services}
+  evidence: [partial, missing, missing, missing]
+  expect: {stage: mid, study_year: null, gaps: 0, short_stints: 0, target_moves: [field_switch], tutorial_projects: [], story: [55, 75]}
+
+- id: sales_exec_to_developer
+  resume:
+    contact: {name: Ishaan, links: [github.com/ishaan]}
+    summary: Sales professional switching to full stack development.
+    education: [{title: B.Com, organization: Christ University, end: Jun 2023}]
+    experience:
+      - {title: Inside Sales Associate, organization: Unacademy, start: Jul 2023, end: Mar 2026, bullets: [Closed 140 course subscriptions a quarter]}
+    projects:
+      - {title: Leads Tracker, organization: Bootcamp, bullets: [Full stack CRM in Node.js, Express and MongoDB used by 12 sales reps, deployed at leadstracker.app]}
+      - {title: Netflix Clone, organization: Bootcamp, bullets: [Built a Netflix clone in React]}
+  evidence: [partial, partial, missing, missing]
+  expect: {stage: early, study_year: null, gaps: 1, short_stints: 0, target_moves: [field_switch], tutorial_projects: [Netflix Clone], story: [65, 85]}
+
+- id: job_hopper
+  resume:
+    contact: {name: Dev}
+    education: [{title: B.Tech CSE, organization: LPU, end: Dec 2023}]
+    experience:
+      - {title: Software Engineer, organization: Quillbyte, start: Apr 2025, end: Present, bullets: [Built internal dashboards]}
+      - {title: Software Engineer, organization: Nexora, start: Dec 2024, end: Mar 2025, bullets: [Fixed UI bugs]}
+      - {title: Software Engineer, organization: Brightwave, start: Aug 2024, end: Nov 2024, bullets: [Wrote API tests]}
+      - {title: Software Engineer, organization: Corelink, start: May 2024, end: Jul 2024, bullets: [Updated docs]}
+      - {title: Software Engineer, organization: Zentrix, start: Jan 2024, end: Apr 2024, bullets: [Migrated scripts]}
+  expect: {stage: early, study_year: null, gaps: 0, short_stints: 4, target_moves: [], tutorial_projects: [], story: [30, 50]}
+
+- id: job_hopper_contracts
+  same_as: job_hopper
+  answers:
+    "stint:exp1": {value: contract}
+    "stint:exp2": {value: contract}
+    "stint:exp3": {value: layoff}
+    "stint:exp4": {value: project}
+  expect: {stage: early, study_year: null, gaps: 0, short_stints: 4, target_moves: [], tutorial_projects: [], story: [55, 70]}
+
+- id: student_custom_framework
+  resume:
+    contact: {name: Tara, links: [github.com/tara]}
+    education: [{title: "B.Tech CSE (CGPA 8.9)", organization: BITS Pilani, end: May 2028}]
+    projects:
+      - title: Zephyr
+        organization: Personal
+        bullets: [Built Zephyr and Nimbus to process 5,000 orders a day using Go, Redis and PostgreSQL; code at github.com/tara/zephyr]
+  facts:
+    - project_id: prj0
+      purpose: process 5,000 orders a day
+      scale: 5,000 orders a day
+      links: [github.com/tara/zephyr]
+      custom_names: [{name: Zephyr}, {name: Nimbus}]
+  expect: {stage: student, study_year: 3, gaps: 0, short_stints: 0, target_moves: [], tutorial_projects: [], story: [74, 78]}
+
+- id: student_custom_framework_answered
+  same_as: student_custom_framework
+  answers:
+    "name:zephyr": {value: own, text: event-sourcing library}
+    "name:nimbus": {value: own, text: job scheduler}
+  expect: {stage: student, study_year: 3, gaps: 0, short_stints: 0, target_moves: [], tutorial_projects: [], story: [79, 82]}
