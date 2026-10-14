@@ -1,0 +1,135 @@
+# Employer kinds for career-move detection. India-first; matched whole-word, case-insensitive, after normalize().
+# Anything not listed is "unknown" and becomes a clarify question — code never guesses.
+it_services:
+  - {name: TCS, aliases: [Tata Consultancy Services]}
+  - {name: Infosys, aliases: [Infosys Ltd, Infosys Limited, Infosys BPM]}
+  - {name: Wipro}
+  - {name: HCLTech, aliases: [HCL, HCL Technologies]}
+  - {name: Tech Mahindra}
+  - {name: Cognizant, aliases: [CTS]}
+  - {name: Capgemini}
+  - {name: Accenture}
+  - {name: LTIMindtree, aliases: [L&T Infotech, LTI, Mindtree]}
+  - {name: Mphasis}
+  - {name: Hexaware}
+  - {name: Persistent, aliases: [Persistent Systems]}
+  - {name: Coforge, aliases: [NIIT Technologies]}
+  - {name: Birlasoft}
+  - {name: Zensar}
+  - {name: NTT Data}
+  - {name: DXC, aliases: [DXC Technology]}
+  - {name: Virtusa}
+  - {name: UST, aliases: [UST Global]}
+  - {name: Sonata Software}
+  - {name: Cyient}
+  - {name: KPIT}
+  - {name: Tata Elxsi}
+  - {name: Larsen & Toubro Technology Services, aliases: [LTTS]}
+mega_mnc:
+  - {name: Google, aliases: [Alphabet]}
+  - {name: Microsoft}
+  - {name: Amazon, aliases: [AWS, Amazon Web Services]}
+  - {name: Meta, aliases: [Facebook]}
+  - {name: Apple}
+  - {name: Netflix}
+  - {name: Nvidia}
+  - {name: Adobe}
+  - {name: Salesforce}
+  - {name: Uber}
+  - {name: Atlassian}
+  - {name: LinkedIn}
+  - {name: Intuit}
+  - {name: Walmart Global Tech, aliases: [Walmart]}
+  - {name: Goldman Sachs}
+  - {name: JPMorgan, aliases: [JP Morgan, JPMorgan Chase, J.P. Morgan]}
+  - {name: Morgan Stanley}
+  - {name: Oracle}
+  - {name: SAP}
+  - {name: Cisco}
+  - {name: Qualcomm}
+  - {name: Intel}
+  - {name: VMware}
+mnc:
+  - {name: IBM}
+  - {name: Deloitte}
+  - {name: PwC, aliases: [PricewaterhouseCoopers]}
+  - {name: EY, aliases: [Ernst & Young]}
+  - {name: KPMG}
+  - {name: Siemens}
+  - {name: Bosch}
+  - {name: Honeywell}
+  - {name: American Express, aliases: [Amex]}
+  - {name: Visa}
+  - {name: Mastercard}
+  - {name: Barclays}
+  - {name: HSBC}
+  - {name: Wells Fargo}
+  - {name: Citi, aliases: [Citibank, Citigroup]}
+  - {name: Target}
+  - {name: "Lowe's", aliases: [Lowes]}
+  - {name: Societe Generale}
+  - {name: Philips}
+  - {name: Deutsche Bank}
+  - {name: Standard Chartered}
+  - {name: Dell}
+  - {name: HP, aliases: [Hewlett Packard, HPE]}
+  - {name: Ericsson}
+  - {name: Nokia}
+  - {name: Samsung}
+  - {name: McKinsey}
+  - {name: BCG, aliases: [Boston Consulting Group]}
+  - {name: Bain}
+  - {name: Unilever, aliases: [Hindustan Unilever, HUL]}
+  - {name: Procter & Gamble, aliases: [P&G]}
+product:
+  - {name: Flipkart}
+  - {name: Swiggy}
+  - {name: Zomato}
+  - {name: Razorpay}
+  - {name: PhonePe}
+  - {name: Paytm}
+  - {name: CRED}
+  - {name: Zerodha}
+  - {name: Meesho}
+  - {name: Ola, aliases: [Ola Cabs, Ola Electric]}
+  - {name: Freshworks}
+  - {name: Zoho}
+  - {name: InMobi}
+  - {name: Groww}
+  - {name: Dream11}
+  - {name: Nykaa}
+  - {name: PolicyBazaar}
+  - {name: BrowserStack}
+  - {name: Postman}
+  - {name: Myntra}
+  - {name: MakeMyTrip}
+  - {name: Urban Company}
+  - {name: Lenskart}
+  - {name: ShareChat}
+  - {name: Unacademy}
+  - {name: upGrad}
+  - {name: Chargebee}
+  - {name: Druva}
+  - {name: Juspay}
+  - {name: Pine Labs}
+  - {name: BharatPe}
+  - {name: Slice}
+  - {name: Jupiter}
+  - {name: Atlan}
+  - {name: Hasura}
+govt:
+  - {name: ISRO}
+  - {name: DRDO}
+  - {name: BHEL}
+  - {name: ONGC}
+  - {name: NIC, aliases: [National Informatics Centre]}
+  - {name: C-DAC, aliases: [CDAC]}
+  - {name: BSNL}
+  - {name: SBI, aliases: [State Bank of India]}
+  - {name: RBI, aliases: [Reserve Bank of India]}
+  - {name: NTPC}
+  - {name: GAIL}
+  - {name: HAL, aliases: [Hindustan Aeronautics]}
+  - {name: BEL, aliases: [Bharat Electronics]}
+  - {name: Indian Railways, aliases: [CRIS]}
+  - {name: IOCL, aliases: [Indian Oil]}

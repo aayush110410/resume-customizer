@@ -49,3 +49,30 @@ def test_synonyms_and_lexicons():
     assert kb.synonyms.variants("unknown-skill-xyz") == {"unknown-skill-xyz"}
     assert "spearheaded" in kb.lexicons.action_verbs and "responsible for" in kb.lexicons.weak_openers
     assert len(kb.lexicons.action_verbs) >= 150
+
+
+def test_employers_loaded():
+    kb = load_knowledge()
+    assert kb.employers["infosys"] == "it_services"
+    assert kb.employers["hcl"] == "it_services"
+    assert kb.employers["google"] == "mega_mnc"
+    assert kb.employers["razorpay"] == "product"
+    assert kb.employers["isro"] == "govt"
+
+
+def test_story_rules_by_region():
+    kb = load_knowledge()
+    india, intl = kb.regions["india"].story, kb.regions["international"].story
+    assert (india.gap_months, india.gap_penalty, india.short_stint_months) == (6, {"short": 30, "long": 50}, 12)
+    assert (intl.gap_months, intl.gap_penalty, intl.short_stint_months) == (9, {"short": 15, "long": 25}, 9)
+    assert "exam_prep" in india.accepted_gap_reasons
+
+
+def test_role_family_titles():
+    kb = load_knowledge()
+    assert "bde" in kb.role_families["sales_bd"].titles
+    assert "developer" in kb.role_families["software_engineering"].titles
+
+
+def test_tutorial_list():
+    assert "todo" in load_knowledge().tutorial_projects

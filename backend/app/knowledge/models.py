@@ -5,7 +5,7 @@ from typing import Literal
 
 from pydantic import BaseModel
 
-from app.schemas import EmployerType, Level, Region
+from app.schemas import EmployerKind, EmployerType, Level, Region
 from app.text_utils import normalize
 
 Severity = Literal["ok", "minor", "major"]
@@ -47,6 +47,13 @@ class Tip(BaseModel):
     role_families: list[str] = []
 
 
+class StoryRules(BaseModel):
+    gap_months: int
+    gap_penalty: dict[Literal["short", "long"], int]
+    short_stint_months: int
+    accepted_gap_reasons: list[str]
+
+
 class RegionPack(BaseModel):
     key: Region
     label: str
@@ -62,6 +69,7 @@ class RegionPack(BaseModel):
     context: list[str]
     cover_letter: list[str]
     tips: list[Tip]
+    story: StoryRules
 
     def max_pages(self, level: Level) -> int:
         return next((n.max_pages for n in self.length_norms if n.level == level), 2)
@@ -71,6 +79,7 @@ class RoleFamily(BaseModel):
     key: str
     label: str
     signals: list[str]
+    titles: list[str] = []
 
 
 @dataclass(frozen=True)
@@ -105,3 +114,5 @@ class Knowledge:
     role_families: dict[str, RoleFamily]
     lexicons: Lexicons
     synonyms: SynonymIndex
+    employers: dict[str, EmployerKind] = field(default_factory=dict)  # normalized name or alias -> kind
+    tutorial_projects: list[str] = field(default_factory=list)

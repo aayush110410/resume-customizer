@@ -12,7 +12,12 @@ ReqType = Literal["hard_skill", "soft_skill", "experience", "education", "certif
 MatchStatus = Literal["strong", "partial", "transferable", "missing"]
 SectionKey = Literal["summary", "skills", "experience", "projects", "education", "achievements"]
 Tone = Literal["conservative", "balanced", "bold"]
-ScoreKey = Literal["match", "ats", "quality", "region"]
+ScoreKey = Literal["match", "ats", "quality", "region", "story"]
+Stage = Literal["student", "fresh_grad", "early", "mid", "senior"]
+EmployerKind = Literal["startup", "product", "it_services", "mnc", "mega_mnc", "govt", "unknown"]
+StintKind = Literal["job", "internship", "apprenticeship", "trainee", "freelance", "virtual_program"]
+MoveKind = Literal["startup_to_mnc", "mnc_to_mega", "services_to_product", "field_switch"]
+QuestionKind = Literal["stage", "gap", "stint", "employer", "custom_name", "internship"]
 
 
 # --- Resume -----------------------------------------------------------------------------------------------
@@ -146,6 +151,101 @@ class Evidence(BaseModel):
     tips: list[PersonalizedTip] = []
 
 
+# --- Career profile ----------------------------------------------------------------------------------------
+
+
+class Stint(BaseModel):
+    entry_id: str
+    organization: str
+    title: str
+    start: str | None = None  # "YYYY-MM"
+    end: str | None = None  # "YYYY-MM"; None while current
+    months: int | None = None
+    precise: bool = False  # both ends carry a month
+    kind: StintKind = "job"
+    employer_kind: EmployerKind = "unknown"
+    field: str | None = None
+    short: bool = False
+
+
+class CareerGap(BaseModel):
+    id: str
+    after_entry_id: str | None = None
+    start: str
+    end: str
+    months: int
+
+
+class Move(BaseModel):
+    kind: MoveKind
+    from_label: str
+    to_label: str
+    target: bool = False
+
+
+class CustomName(BaseModel):
+    name: str
+    what: str | None = None
+    quote: str | None = None
+
+
+class ProjectFacts(BaseModel):
+    project_id: str
+    purpose: str | None = None
+    users: str | None = None
+    scale: str | None = None
+    links: list[str] = []
+    tutorial_pattern: str | None = None
+    extension: str | None = None
+    custom_names: list[CustomName] = []
+
+
+class ProjectFactsBatch(BaseModel):
+    projects: list[ProjectFacts]
+
+
+class ProjectRead(BaseModel):
+    project_id: str
+    title: str
+    score: int
+    notes: list[str] = []
+    facts: ProjectFacts
+
+
+class QuestionOption(BaseModel):
+    value: str
+    label: str
+
+
+class Question(BaseModel):
+    id: str
+    kind: QuestionKind
+    target_id: str
+    prompt: str
+    options: list[QuestionOption]
+    allow_text: bool = False
+    impact: float = 0.0
+
+
+class Answer(BaseModel):
+    value: str
+    text: Annotated[str, Field(max_length=80)] | None = None
+    state_on_resume: bool = False
+
+
+class Profile(BaseModel):
+    stage: Stage
+    study_year: int | None = None
+    grad_year: int | None = None
+    stints: list[Stint] = []
+    gaps: list[CareerGap] = []
+    moves: list[Move] = []
+    projects: list[ProjectRead] = []
+    questions: list[Question] = []
+    answers: dict[str, Answer] = {}
+    rules_only: bool = False
+
+
 # --- Scores and insights -----------------------------------------------------------------------------------
 
 
@@ -195,6 +295,18 @@ class Analysis(BaseModel):
     insights: Insights
     prompt_version: str
     models: dict[str, str]
+    profile: Profile | None = None
+
+
+class RescoreRequest(BaseModel):
+    analysis: Analysis
+    answers: dict[str, Answer] = {}
+
+
+class RescoreResponse(BaseModel):
+    profile: Profile
+    scores: ScoreReport
+    insights: Insights
 
 
 # --- Tailoring ---------------------------------------------------------------------------------------------

@@ -1,0 +1,26 @@
+# Common tutorial builds. A project matching one is "tutorial-style" unless it states what it adds.
+todo
+to-do
+notes app
+weather app
+calculator
+tic-tac-toe
+tic tac toe
+netflix clone
+amazon clone
+spotify clone
+instagram clone
+youtube clone
+twitter clone
+chat app
+blog
+portfolio website
+portfolio site
+expense tracker
+library management
+hospital management
+student management
+quiz app
+e-commerce website
+movie recommendation
+url shortener

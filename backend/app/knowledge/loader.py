@@ -7,6 +7,7 @@ import yaml
 
 from app.knowledge.models import Knowledge, Lexicons, RegionPack, RoleFamily, SynonymIndex, Tip
 from app.schemas import EmployerType, JDAnalysis, Level
+from app.text_utils import normalize
 
 ROOT = Path(__file__).parent
 
@@ -34,7 +35,19 @@ def load_knowledge() -> Knowledge:
             objective_cliches=_lines("objective_cliches.txt"),
         ),
         synonyms=SynonymIndex.from_mapping(synonyms),
+        employers=_employers(),
+        tutorial_projects=_lines("tutorial_projects.txt"),
     )
+
+
+def _employers() -> dict:
+    data = yaml.safe_load((ROOT / "employers.yaml").read_text(encoding="utf-8"))
+    out = {}
+    for kind, companies in data.items():
+        for c in companies:
+            for name in [c["name"], *c.get("aliases", [])]:
+                out[normalize(name)] = kind
+    return out
 
 
 def select_tips(region: RegionPack, jd: JDAnalysis, level: Level) -> list[Tip]:

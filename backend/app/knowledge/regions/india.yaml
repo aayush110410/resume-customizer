@@ -21,6 +21,12 @@ weights:
   quality: 0.20
   region: 0.15
 
+story:
+  gap_months: 6
+  gap_penalty: {short: 30, long: 50}
+  short_stint_months: 12
+  accepted_gap_reasons: [higher_studies, exam_prep, health, family, caregiving, layoff, startup, relocation]
+
 page_size: a4
 
 length_norms:

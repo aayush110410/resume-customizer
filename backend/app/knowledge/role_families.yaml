@@ -1,5 +1,6 @@
 - key: software_engineering
   label: Software Engineering
+  titles: [engineer, developer, sde, programmer, full stack, backend, frontend, devops, sre, software]
   signals:
     - Bullets quantify engineering impact on named systems (p95 or p99 latency, throughput, uptime or SLO, infra cost, users or requests served) instead of listing duties
     - A current, role-relevant stack is named in context (language, framework, cloud such as AWS, GCP or Azure, Docker or Kubernetes, CI/CD) rather than a long unranked keyword dump
@@ -9,6 +10,7 @@
     - Where relevant, AI or LLM integration is described concretely (what shipped, which model or API, how quality was evaluated) and not only as a tool name
 - key: data_ml
   label: Data Science and Machine Learning
+  titles: [data scientist, data analyst, ml engineer, machine learning, data engineer, ai engineer, analytics, business analyst]
   signals:
     - Models or analyses are tied to a business or decision outcome (revenue, cost, conversion, fraud loss, forecast accuracy), not only offline metrics like AUC or F1
     - Evidence that work reached production, such as model serving, monitoring and drift detection, retraining pipelines, latency and cost figures, and the number of models or users served
@@ -18,6 +20,7 @@
     - Statistics and experimentation depth (hypothesis testing, A/B tests, causal inference), and for freshers credible proof such as Kaggle results, publications or GitHub repositories with real data
 - key: product_management
   label: Product Management
+  titles: [product manager, apm, product owner, product analyst]
   signals:
     - Bullets lead with product outcomes and baselines (adoption, activation, retention, conversion, revenue, NPS) rather than features shipped
     - The full lifecycle is owned, from discovery and user research through PRDs, prioritisation and roadmap, launch and post-launch measurement
@@ -27,6 +30,7 @@
     - Domain or technical depth is relevant to the product (APIs and platforms, payments, B2B SaaS, AI-powered features) and is shown through decisions made, not just listed
 - key: design
   label: Design (UX/UI)
+  titles: [designer, ux, ui, product design]
   signals:
     - A working portfolio link sits in the header, and the resume points to a few case studies (commonly 2-4) that recruiters can cross-check
     - Design decisions are tied to measurable user or business outcomes (task completion, time-on-task, error rate, conversion, support tickets)
@@ -36,6 +40,7 @@
     - The resume itself is clean and ATS-parseable (a single column is safest), so design skill shows through clarity rather than heavy graphics
 - key: consulting_strategy
   label: Consulting and Strategy
+  titles: [consultant, strategy, associate consultant, analyst - strategy]
   signals:
     - Nearly every bullet is quantified with client or business impact (cost reduction, revenue uplift, EBITDA, market size) and scope (industry, client type, team size, duration)
     - Clear spikes are placed prominently, such as CAT, JEE or board exam ranks and percentiles, academic distinctions, scholarships and case competition wins, mainly in campus and early-career CVs
@@ -45,6 +50,7 @@
     - An analytical toolkit with evidence of use (Excel modelling, PowerPoint storylining, SQL, Tableau or Alteryx)
 - key: finance_bfsi
   label: Finance and BFSI
+  titles: [finance, accountant, credit, risk analyst, investment, banking, audit, relationship manager, chartered accountant]
   signals:
     - Professional qualifications are stated precisely with status (CA with All India Rank if earned; CFA Program progress worded per CFA Institute rules, such as 'Passed Level II of the CFA Program' and never 'CFA Level II'; FRM; CMA India or US CMA; NISM certifications where SEBI requires them for the role)
     - Transaction or portfolio specifics are given (deal size and count, AUM, loan book size, portfolio delinquency or NPA movement, credit limits approved)
@@ -54,6 +60,7 @@
     - For retail and branch banking roles, measurable targets are shown (CASA growth, cross-sell, disbursement volume, portfolio quality)
 - key: sales_bd
   label: Sales and Business Development
+  titles: [sales, business development, bde, bdm, account executive, inside sales, pre-sales, presales, account manager]
   signals:
     - Quota or target attainment is shown as a percentage of target and absolute revenue (in INR lakh or crore, or USD), with rank among peers where possible
     - Pipeline and conversion metrics are given (pipeline generated, win rate, average deal size, sales cycle length, new logos or accounts won)
@@ -63,6 +70,7 @@
     - Recognition and progression are listed (President's Club or sales awards, promotions, larger territories or quotas over time)
 - key: marketing
   label: Marketing
+  titles: [marketing, growth, seo, content, brand, social media]
   signals:
     - Channel performance is quantified with standard metrics (CAC, ROAS, CPL, CTR, conversion rate, MQL to SQL, organic traffic growth)
     - Budget responsibility and returns are stated (spend managed, ROI or pipeline influenced)
@@ -72,6 +80,7 @@
     - Go-to-market ownership (product launches, positioning and messaging, market or customer research that changed a decision)
 - key: operations
   label: Operations and Supply Chain
+  titles: [operations, supply chain, logistics, process associate, customer support, customer success]
   signals:
     - Process improvements are quantified (TAT reduction, cost per unit or order, throughput, SLA adherence, error or defect rate)
     - Scale and scope are stated (plants, warehouses or sites run, team size, orders per day, SKUs, vendors managed)
@@ -81,6 +90,7 @@
     - Safety, quality and compliance outcomes are given (ISO audits cleared, safety incidents reduced, regulatory compliance)
 - key: hr
   label: Human Resources
+  titles: [hr, human resources, recruiter, talent acquisition, people]
   signals:
     - People outcomes are quantified (regrettable attrition reduction, time-to-fill, offer-to-join ratio, engagement scores, cost per hire)
     - Scope is stated (employee population supported, business units or locations, hires per year)
@@ -90,6 +100,7 @@
     - People analytics is shown through dashboards or analyses (Excel, Power BI) that led to a business decision
 - key: general
   label: General
+  titles: []
   signals:
     - Most bullets carry a number (percentage, INR amount, time saved, volume or count) that shows achievement rather than responsibility
     - A role-specific headline or summary and a skills section that truthfully reflect the target job description's keywords, without keyword stuffing
