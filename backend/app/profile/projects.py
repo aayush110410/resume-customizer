@@ -8,7 +8,7 @@ unknown skill: it only needs a few words saying what it is.
 import re
 
 from app.knowledge.models import Knowledge
-from app.schemas import Entry, ProjectFacts, ProjectRead
+from app.schemas import Entry, ProjectFacts, ProjectRead, ResumeDoc
 from app.text_utils import contains_term, normalize
 
 URL = re.compile(
@@ -32,6 +32,22 @@ _USERS = re.compile(
     re.I,
 )
 MAX_NAME_PENALTY = 15
+MAX_NAMES = 3  # coined names judged per project
+
+
+def clean_facts(facts: list[ProjectFacts], resume: ResumeDoc, source: str, kb: Knowledge) -> list[ProjectFacts]:
+    """Facts for this resume's projects only, with custom names that appear in the resume text (and are not known
+    skills), at most MAX_NAMES each. Applied to facts coming back from the client on a re-score."""
+    ids = {e.id for e in resume.projects}
+    out = []
+    for f in facts:
+        if f.project_id not in ids:
+            continue
+        names = [
+            c for c in f.custom_names if contains_term(source, c.name) and not kb.synonyms.groups.get(normalize(c.name))
+        ]
+        out.append(f.model_copy(update={"custom_names": names[:MAX_NAMES]}))
+    return out
 
 
 def _text(entry: Entry) -> str:
@@ -39,8 +55,16 @@ def _text(entry: Entry) -> str:
 
 
 def _technologies(text: str, kb: Knowledge) -> int:
-    norm = normalize(text)
-    seen = {group for variant, group in kb.synonyms.groups.items() if len(variant) > 2 and contains_term(norm, variant)}
+    """Distinct known technologies named in the text: 1–3 word n-grams looked up in the synonym index (linear in
+    the text, instead of one regex per known variant)."""
+    words = [w.strip(",;:()[]'\"") for w in normalize(text).split()]
+    words = [w.rstrip(".") if w.count(".") == 1 and w.endswith(".") else w for w in words]
+    seen = set()
+    for n in (1, 2, 3):
+        for i in range(len(words) - n + 1):
+            gram = " ".join(words[i : i + n])
+            if len(gram) > 2 and (group := kb.synonyms.groups.get(gram)):
+                seen.add(group)
     return len(seen)
 
 

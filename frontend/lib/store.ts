@@ -81,7 +81,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
   setBusy: (busy) => set({ busy }),
   setAnalysis: (analysis) => set({ analysis }),
   applyRescore: (r) =>
-    set((s) => (s.analysis ? { analysis: { ...s.analysis, profile: r.profile, scores: r.scores, insights: r.insights } } : {})),
+    set((s) => (s.analysis ? { analysis: { ...s.analysis, resume: { ...s.analysis.resume, level: r.level }, profile: r.profile, scores: r.scores, insights: r.insights } } : {})),
   setCoverLetter: (coverLetter) => set({ coverLetter }),
   resetSession: () =>
     set({ sessionId: newId(), sessionStartedAt: new Date().toISOString(), partial: {}, analysis: undefined, versions: [],

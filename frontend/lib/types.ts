@@ -83,7 +83,7 @@ export interface Analysis {
   scores: ScoreReport; insights: Insights; prompt_version: string; models: Record<string, string>;
   profile?: Profile | null; // absent on analyses saved before the career profile existed
 }
-export interface RescoreResponse { profile: Profile; scores: ScoreReport; insights: Insights }
+export interface RescoreResponse { profile: Profile; scores: ScoreReport; insights: Insights; level: Level }
 export interface SummaryItem { type: "summary"; text: string }
 export interface SkillsItem { type: "skills"; groups: SkillGroup[] }
 export interface BulletItem { type: "bullet"; entry_id: string; source_id: string; text: string; addresses: string[] }

@@ -19,6 +19,8 @@ _YM = re.compile(r"\b((?:19|20)\d{2})[-/.](\d{1,2})\b")  # 2021-05
 _MY = re.compile(r"\b(\d{1,2})[-/.]((?:19|20)\d{2})\b")  # 05/2021
 _BREAK = re.compile(r"\s*career break\b", re.I)
 _SHORT_YEAR = re.compile(r"'(\d{2})\b")
+_MON_YY = re.compile(r"\b([a-z]{3,9})[\s\-/.']+(\d{2})\b")
+_MM_YY = re.compile(r"^(\d{1,2})[-/.](\d{2})$")
 _KINDS: list[tuple[StintKind, re.Pattern[str]]] = [
     ("virtual_program", re.compile(r"\bforage\b|job simulation|virtual (experience|internship)", re.I)),
     ("apprenticeship", re.compile(r"\bapprentice(ship)?\b|\bnats\b|\bnaps\b", re.I)),
@@ -40,11 +42,20 @@ def parse_date(value: str | None, today: date) -> tuple[date, bool] | None:
     if (m := _MY.search(v)) and 1 <= int(m.group(1)) <= 12:
         return date(int(m.group(2)), int(m.group(1)), 1), True
     year = _YEAR.search(v)
-    y = int(year.group(0)) if year else (2000 + int(m.group(1)) if (m := _SHORT_YEAR.search(v)) else None)
+    if not year:  # two-digit years: "Jun 21", "Jun-21", "June '21", "06/21"
+        if (m := _MON_YY.search(v)) and m.group(1)[:3] in MONTHS:
+            return date(_century(int(m.group(2)), today), MONTHS[m.group(1)[:3]], 1), True
+        if (m := _MM_YY.match(v)) and 1 <= int(m.group(1)) <= 12:
+            return date(_century(int(m.group(2)), today), int(m.group(1)), 1), True
+    y = int(year.group(0)) if year else (_century(int(m.group(1)), today) if (m := _SHORT_YEAR.search(v)) else None)
     if y is None:
         return None
     month = next((MONTHS[w[:3]] for w in re.findall(r"[a-z]+", v) if w[:3] in MONTHS), 0)
     return date(y, month or 1, 1), bool(month)
+
+
+def _century(yy: int, today: date) -> int:
+    return 2000 + yy if yy <= today.year % 100 + 5 else 1900 + yy
 
 
 def month_key(d: date) -> str:
@@ -143,11 +154,16 @@ def _study(entry: Entry, today: date) -> tuple[int, int] | None:
 
 def find_gaps(resume: ResumeDoc, stints: list[Stint], rules: StoryRules, today: date) -> list[CareerGap]:
     """Breaks of at least `rules.gap_months` in work and study (school years excluded), up to today."""
+    if any(st.kind != "virtual_program" and not st.start for st in stints):
+        return []  # an undated role could sit in any break: judging gaps would accuse a working candidate
     by_id = {e.id: e for e in resume.experience}
     activity = []  # (start, end, entry id)
     for st in stints:
         if st.kind != "virtual_program" and st.entry_id in by_id and (b := _bounds(by_id[st.entry_id], today)):
             activity.append((b[0], b[1], st.entry_id))
+    for e in resume.experience:  # a career break the resume already states covers its own months
+        if _BREAK.match(e.title) and (b := _bounds(e, today)):
+            activity.append((b[0], b[1], e.id))
     for edu in resume.education:
         if not is_school(edu) and (b := _study(edu, today)):
             activity.append((b[0], b[1], edu.id))

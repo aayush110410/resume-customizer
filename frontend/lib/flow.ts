@@ -141,10 +141,11 @@ export function retryLast() {
 
 /** Clarify answers → instant re-score (code only on the server); returns the overall before and after. */
 export async function runRescore(answers: Record<string, Answer>): Promise<{ before: number; after: number } | undefined> {
-  const analysis = store().analysis;
+  const { analysis, sessionId } = store();
   if (!analysis?.profile) return;
   try {
     const r = await rescore(analysis, answers);
+    if (store().sessionId !== sessionId) return; // the user opened another session meanwhile
     store().applyRescore(r);
     await persist();
     return { before: analysis.scores.overall, after: r.scores.overall };

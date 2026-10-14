@@ -55,7 +55,7 @@ def bullet_index(doc: ResumeDoc) -> dict[str, Bullet]:
 
 
 def _entry_line(entry: Entry) -> str:
-    parts = [f"{entry.title} — {entry.organization}"]
+    parts = [f"{entry.title} — {entry.organization}" if entry.organization else entry.title]
     if entry.location:
         parts.append(entry.location)
     dates = " – ".join(d for d in (entry.start, entry.end) if d)

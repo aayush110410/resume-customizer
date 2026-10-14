@@ -92,8 +92,9 @@ def internship_score(profile: Profile, jd: JDAnalysis) -> Result:
 
 def presentation_score(profile: Profile, resume: ResumeDoc, region_key: Region) -> Result:
     text = " ".join([render_plain(resume), *resume.contact.links])
+    education = " ".join(f"{e.title} {e.organization} " + " ".join(b.text for b in e.bullets) for e in resume.education)
     has_grad = any(parse_date(e.end, _today(profile)) for e in resume.education if not is_school(e))
-    has_grades = bool(_GRADES.search(text))
+    has_grades = bool(_GRADES.search(education))  # "92% accuracy" in a project is not a CGPA
     has_link = bool(_PROFILE_LINK.search(text))
     parts = (
         [

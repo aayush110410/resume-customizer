@@ -150,3 +150,41 @@ def test_unknown_question_or_option_rejected(kb):
         rescore(a, {"gap:1999-01": Answer(value="health")}, kb)
     with pytest.raises(ValueError, match="invalid answer"):
         rescore(a, {"stint:exp1": Answer(value="astronaut")}, kb)
+
+
+def test_rescore_returns_level(kb):
+    a = _analysis(kb)
+    assert rescore(a, {"stage": Answer(value="mid")}, kb).level == "mid"
+    assert rescore(a, {}, kb).level == a.resume.level
+
+
+def test_rescore_is_fast_and_reverifies_names(kb):
+    import time
+
+    from app.schemas import Bullet, CustomName, ProjectFacts
+
+    resume = _resume().model_copy(deep=True)
+    names = ["Zephyr", "Nimbus", "Kestrel", "Orion", "Vega", "Atlas"]
+    resume.projects = [
+        Entry(
+            id=f"prj{i}",
+            title=n,
+            organization="Personal",
+            bullets=[Bullet(id=f"prj{i}.b0", text=f"Built {n} for 2,000 users in Go and Redis")],
+        )
+        for i, n in enumerate(names)
+    ]
+    facts = [
+        ProjectFacts(project_id=f"prj{i}", purpose="for 2,000 users", custom_names=[CustomName(name=n)])
+        for i, n in enumerate(names)
+    ]
+    facts[0].custom_names += [CustomName(name=f"Fake{i}") for i in range(90)]  # tampered: not in the resume
+    a = _analysis(kb)
+    text = render_plain(resume)
+    profile = build_profile(resume, a.jd, a.evidence, facts, "india", kb, TODAY)
+    a = a.model_copy(update={"resume": resume, "resume_text": text, "profile": profile})
+    start = time.perf_counter()
+    r = rescore(a, {"name:zephyr": Answer(value="own", text="event store")}, kb)
+    assert time.perf_counter() - start < 0.5
+    kept = {c.name for p in r.profile.projects for c in p.facts.custom_names}
+    assert kept == set(names)

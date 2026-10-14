@@ -48,7 +48,7 @@ function EntryBlock({ e, flags, onRevert, terms }: { e: Entry; flags: Map<string
   return (
     <div className="border-t border-rule-section py-3">
       <div className="flex flex-wrap items-baseline justify-between gap-x-4">
-        <span className="text-[15px] font-medium text-ink">{e.title}<span className="font-normal text-ink-3"> · {e.organization}</span></span>
+        <span className="text-[15px] font-medium text-ink">{e.title}{e.organization && <span className="font-normal text-ink-3"> · {e.organization}</span>}</span>
         <span className="figure text-[12.5px] text-ink-3">{[e.location, dates].filter(Boolean).join(" · ")}</span>
       </div>
       {e.bullets.length > 0 && <Bullets bullets={e.bullets} flags={flags} onRevert={onRevert} terms={terms} />}

@@ -201,3 +201,17 @@ def test_build_profile_end_to_end(kb):
     p = build_profile(r, jd(), ev(), [], "india", kb, TODAY)
     assert p.stage == "early" and p.as_of == "2026-10"
     assert [m.kind for m in p.moves if m.target] == ["services_to_product"]
+
+
+def test_cgpa_read_from_education_only(kb):
+    r = resume(
+        education=[Entry(title="B.Tech", organization="VIT", end="May 2027")],
+        projects=[Entry(title="Classifier", organization="Personal", bullets=[])],
+    )
+    r.projects[0].bullets = []
+    r = r.model_copy(update={"summary": "Model reached 92% accuracy."})
+    profile = Profile(stage="student", as_of="2026-10")
+    from app.profile.story import presentation_score
+
+    score, notes = presentation_score(profile, r, "india")
+    assert score == 30 and "CGPA" in notes[0].detail

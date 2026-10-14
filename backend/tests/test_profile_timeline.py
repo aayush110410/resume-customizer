@@ -113,3 +113,27 @@ def test_student_holes_are_not_gaps(kb):
         [("B.Tech, CSE", "VIT", None, "May 2028"), ("Class XII", "DPS", None, "2023")],
     )
     assert find_gaps(resume, build_stints(resume, kb, rules, TODAY), rules, TODAY) == []
+
+
+def test_two_digit_years_after_month():
+    assert parse_date("Jun 21", TODAY) == (date(2021, 6, 1), True)
+    assert parse_date("Jun-21", TODAY) == (date(2021, 6, 1), True)
+    assert parse_date("06/21", TODAY) == (date(2021, 6, 1), True)
+
+
+def test_undated_role_suppresses_gaps(kb):
+    rules = kb.regions["india"].story
+    resume = doc([("Software Engineer", "Acme", None, None)], [("B.Tech", "NIT", "Jul 2017", "May 2021")])
+    assert find_gaps(resume, build_stints(resume, kb, rules, TODAY), rules, TODAY) == []
+
+
+def test_stated_career_break_covers_gap(kb):
+    rules = kb.regions["india"].story
+    resume = doc(
+        [
+            ("Software Engineer", "Acme", "Aug 2023", "Present"),
+            ("Career break: UPSC preparation", "", "Jun 2021", "Jul 2023"),
+        ],
+        [("B.Tech", "NIT", "Jul 2017", "May 2021")],
+    )
+    assert find_gaps(resume, build_stints(resume, kb, rules, TODAY), rules, TODAY) == []

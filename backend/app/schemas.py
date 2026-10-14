@@ -306,6 +306,7 @@ class RescoreRequest(BaseModel):
 
 class RescoreResponse(BaseModel):
     profile: Profile
+    level: Level  # the stage answer can change it; tailoring must use the same level
     scores: ScoreReport
     insights: Insights
 

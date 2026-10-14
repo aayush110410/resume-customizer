@@ -19,7 +19,7 @@ from app.knowledge.loader import build_context_brief, select_tips
 from app.knowledge.models import Knowledge, RegionPack
 from app.llm.client import LLM, LLMUnavailable, Structured
 from app.llm.prompting import render, wrap
-from app.profile.projects import rule_facts
+from app.profile.projects import MAX_NAMES, rule_facts
 from app.resume_ops import assign_ids, render_for_matching, render_plain
 from app.schemas import (
     CustomName,
@@ -208,7 +208,7 @@ async def read_projects(llm: LLM, resume: ResumeDoc, resume_text: str, kb: Knowl
                 links=[link for link in f.links if normalize(link) in norm],
                 tutorial_pattern=f.tutorial_pattern if f.tutorial_pattern in kb.tutorial_projects else None,
                 extension=quoted(f.extension),
-                custom_names=names,
+                custom_names=names[:MAX_NAMES],
             )
         )
     return Structured(out, r.model)

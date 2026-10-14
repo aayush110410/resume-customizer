@@ -9,10 +9,11 @@ from datetime import date
 
 from app.knowledge.models import Knowledge
 from app.profile.moves import detect_moves
-from app.profile.projects import score_project
+from app.profile.projects import clean_facts, score_project
 from app.profile.stage import FULL_TIME
 from app.profile.story import score_story
 from app.profile.timeline import month_label
+from app.resume_ops import render_plain
 from app.schemas import (
     Analysis,
     Answer,
@@ -264,7 +265,9 @@ def rescore(analysis: Analysis, answers: dict[str, Answer], kb: Knowledge) -> Re
         raise ValueError("unknown question: this analysis has no career profile; run it again")
     as_of = analysis.profile.as_of
     today = date(int(as_of[:4]), int(as_of[5:7]), 1)
-    facts = [r.facts for r in analysis.profile.projects]
+    # facts come back from the client: keep only names that are really in this resume, capped per project
+    source = analysis.resume_text + "\n" + render_plain(analysis.resume)
+    facts = clean_facts([r.facts for r in analysis.profile.projects], analysis.resume, source, kb)
     profile = build_profile(
         analysis.resume,
         analysis.jd,
@@ -290,4 +293,4 @@ def rescore(analysis: Analysis, answers: dict[str, Answer], kb: Knowledge) -> Re
         missing_keywords(analysis.resume_text, analysis.jd, kb),
         resume.level,
     )
-    return RescoreResponse(profile=profile, scores=scores, insights=insights)
+    return RescoreResponse(profile=profile, scores=scores, insights=insights, level=resume.level)

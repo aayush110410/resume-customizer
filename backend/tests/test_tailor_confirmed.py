@@ -97,3 +97,9 @@ def test_tailored_story_recovers_points():
 def test_no_answers_means_none_block():
     p = build_profile(_resume(), JD, EV, FACTS, "india", KB, TODAY)
     assert confirmed_facts(p) == ("(none)", set())
+
+
+def test_career_break_line_has_no_dangling_separator():
+    doc = apply_confirmed(_resume(), _profile())
+    line = next(ln for ln in render_plain(doc).splitlines() if ln.startswith("Career break"))
+    assert line == "Career break: exam preparation | Aug 2022 – Dec 2023"
