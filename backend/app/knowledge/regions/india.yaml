@@ -16,10 +16,11 @@ key: india
 label: India
 
 weights:
-  match: 0.40
-  ats: 0.25
-  quality: 0.20
-  region: 0.15
+  match: 0.35
+  ats: 0.20
+  quality: 0.15
+  region: 0.10
+  story: 0.20
 
 story:
   gap_months: 6

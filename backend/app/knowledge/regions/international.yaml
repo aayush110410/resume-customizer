@@ -26,10 +26,11 @@
 key: international
 label: International
 weights:
-  match: 0.40
-  ats: 0.25
-  quality: 0.25
+  match: 0.35
+  ats: 0.20
+  quality: 0.20
   region: 0.10
+  story: 0.15
 story:
   gap_months: 9
   gap_penalty: {short: 15, long: 25}

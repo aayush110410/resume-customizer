@@ -244,6 +244,7 @@ class Profile(BaseModel):
     questions: list[Question] = []
     answers: dict[str, Answer] = {}
     rules_only: bool = False
+    as_of: str = ""  # YYYY-MM the profile was judged at, so re-scores stay deterministic
 
 
 # --- Scores and insights -----------------------------------------------------------------------------------

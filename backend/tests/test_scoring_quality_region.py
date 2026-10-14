@@ -157,7 +157,9 @@ def test_insights_sorted_with_bullet_and_unknown_tips_dropped(jd_factory, kb):
     assert gains == sorted(gains, reverse=True) and len(ins.actions) <= 8
     top = ins.actions[0]
     assert top.title == "No Python evidence" and top.suggested_bullet == "Built [X] in Python"
-    assert top.est_gain == 30.0  # 100 * 0.40 * 3 * 1 / 4
+    assert (
+        top.est_gain == 32.8
+    )  # 100 * (0.35 / 0.80) * 3 * 1 / 4: no profile, so Story sits out and weights renormalise
     assert ins.tips == [] and ins.missing_keywords == ["Python"]
 
 

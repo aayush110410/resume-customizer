@@ -30,11 +30,13 @@ def build_insights(
                 suggested_bullet=gap.suggested_bullet if gap else None,
             )
         )
-    for key in ("ats", "quality", "region"):
+    for key in ("ats", "quality", "region", "story"):
         sub = report.subscores.get(key)
         for e in sub.explanations if sub else []:
             if e.impact < 0 and e.fix:
-                actions.append(Action(title=e.detail, detail=e.fix, est_gain=weights[key] * -e.impact, source=key))
+                actions.append(
+                    Action(title=e.detail, detail=e.fix, est_gain=weights.get(key, 0) * -e.impact, source=key)
+                )
     actions.sort(key=lambda a: a.est_gain, reverse=True)
     actions = [a.model_copy(update={"est_gain": round(a.est_gain, 1)}) for a in actions[:MAX_ACTIONS]]
 

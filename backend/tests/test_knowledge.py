@@ -6,8 +6,14 @@ from app.knowledge.loader import build_context_brief, drop_patterns, load_knowle
 def test_packs_load_and_weights():
     kb = load_knowledge()
     assert set(kb.regions) == {"india", "international"}
-    assert kb.regions["india"].weights == {"match": 0.40, "ats": 0.25, "quality": 0.20, "region": 0.15}
-    assert kb.regions["international"].weights == {"match": 0.40, "ats": 0.25, "quality": 0.25, "region": 0.10}
+    assert kb.regions["india"].weights == {"match": 0.35, "ats": 0.20, "quality": 0.15, "region": 0.10, "story": 0.20}
+    assert kb.regions["international"].weights == {
+        "match": 0.35,
+        "ats": 0.20,
+        "quality": 0.20,
+        "region": 0.10,
+        "story": 0.15,
+    }
     assert kb.regions["india"].page_size == "a4" and kb.regions["international"].page_size == "us-letter"
 
 
