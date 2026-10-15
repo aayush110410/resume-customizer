@@ -115,3 +115,11 @@ def test_bullet_style_sentences_become_first_person():
 def test_recipient_drops_work_mode_notes():
     letter = assemble(["Opening."], Contact(name="A"), jd(location="Bengaluru, India (hybrid)"), "india", TODAY)
     assert letter.recipient[-1] == "Bengaluru, India"
+
+
+def test_any_past_tense_opener_becomes_first_person():
+    source = "Handled production support and bug fixes for the payments module."
+    kept, _ = clean_paragraph("Supported production and fixed bugs for the payment module.", source, KB)
+    assert kept == "I supported production and fixed bugs for the payment module."
+    kept, _ = clean_paragraph("Based in Pune, I build REST APIs in Spring Boot.", SOURCE + " Pune", KB)
+    assert kept.startswith("Based in Pune")

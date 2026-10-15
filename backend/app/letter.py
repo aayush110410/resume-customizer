@@ -29,6 +29,9 @@ _REWRITES = [
 ]
 
 
+_NOT_VERBS = {"based", "located", "interested", "excited", "dedicated", "motivated", "skilled", "experienced"}
+
+
 def letter_date(today: date, region: Region) -> str:
     if region == "india":
         return f"{today.day} {today:%B %Y}"
@@ -53,7 +56,8 @@ def clean_paragraph(
             sentence = pattern.sub(replacement, sentence)
         sentence = strip_invented_outcomes(source_text, sentence, trim_words=False)
         first = sentence.split(" ", 1)[0].lower()
-        if first in kb.lexicons.action_verbs:  # a resume bullet pasted into a letter: "Reduced X" -> "I reduced X"
+        bullet_verb = first in kb.lexicons.action_verbs or (first.endswith("ed") and first not in _NOT_VERBS)
+        if bullet_verb:  # a resume bullet pasted into a letter: "Reduced X" -> "I reduced X"
             sentence = "I " + sentence[0].lower() + sentence[1:]
         borrowed = bool(jd_text) and borrowed_jd_words(sentence, source_text, jd_text or "", kb)
         if (
