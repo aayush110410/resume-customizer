@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { ping } from "@/lib/api";
 
 const COLD_START_COPY =
-  "Waking up the analysis server — free hosting sleeps when idle. This can take up to a minute.";
+  "Waking up the analysis server. Free hosting sleeps when idle, so this can take up to a minute.";
 
 /** Pings the backend on load; if it hasn't answered within 3 s, explains the free-tier cold start. */
 export function ServerStatusBanner() {

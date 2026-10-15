@@ -9,7 +9,7 @@ import type { Analysis, Answer, StreamEvent, TailoredVersion, TailorSettings, To
 let controller: AbortController | null = null;
 const store = () => useAppStore.getState();
 
-/** Every run cancels the previous one, so a stale stream can never write into newer results. */
+/** Each run cancels the previous one, so a stale stream cannot write into newer results. */
 function begin(): AbortSignal {
   controller?.abort();
   controller = new AbortController();
@@ -146,7 +146,7 @@ export function retryLast() {
   return analysis ? runNewVersion({ sections: inputs.sections, tone: inputs.tone, model: inputs.model }) : runAnalyzeAndTailor();
 }
 
-/** Clarify answers → instant re-score (code only on the server); returns the overall before and after. */
+/** Sends the clarify answers to the server for a re-score (code only, no model call); returns the overall before and after. */
 export async function runRescore(answers: Record<string, Answer>): Promise<{ before: number; after: number } | undefined> {
   const { analysis, sessionId } = store();
   if (!analysis?.profile) return;

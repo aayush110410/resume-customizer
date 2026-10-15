@@ -17,7 +17,7 @@ function ago(iso: string): string {
   return new Date(iso).toLocaleDateString("en-IN", { day: "numeric", month: "short" });
 }
 
-/** The terminal's rail: brand, one primary action, and saved analyses as the only history. */
+/** Sidebar: brand, the main action, and saved analyses (the only history). */
 export function Sidebar({ onNew, onHowWeScore, onNavigate }: { onNew: () => void; onHowWeScore: () => void; onNavigate?: () => void }) {
   const versions = useAppStore((s) => s.versions.length);
   const sessionId = useAppStore((s) => s.sessionId);

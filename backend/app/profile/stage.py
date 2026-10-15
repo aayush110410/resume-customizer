@@ -39,7 +39,7 @@ def detect_stage(resume: ResumeDoc, stints: list[Stint], today: date) -> tuple[S
             continue
         parsed = parse_date(edu.end, today) if edu.end and not ONGOING.search(edu.end) else None
         if parsed:
-            end = parsed[0] if parsed[1] else date(parsed[0].year, 6, 1)  # year-only graduation → June
+            end = parsed[0] if parsed[1] else date(parsed[0].year, 6, 1)  # year-only graduation: assume June
             grad_year = max(grad_year or 0, end.year)
             months_left = (end.year * 12 + end.month) - (today.year * 12 + today.month)
             # work begun during this degree (freelancing, part-time) does not make a student a professional

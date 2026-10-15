@@ -8,7 +8,7 @@ _UNITS = {"second": 1, "minute": 60, "hour": 3600, "day": 86400}
 
 
 def client_key(request: Any) -> str:
-    """Render's proxy appends the real client IP as the LAST X-Forwarded-For entry; earlier entries are client-supplied."""
+    """Render's proxy appends the real client IP as the last X-Forwarded-For entry; earlier ones come from the client."""
     forwarded = request.headers.get("x-forwarded-for", "")
     if forwarded.strip():
         return forwarded.split(",")[-1].strip()

@@ -1,4 +1,4 @@
-"""ATS estimate: parseability + keyword coverage + structure + length. Fully deterministic."""
+"""ATS estimate from parseability, keyword coverage, structure and length. No model call."""
 
 import re
 
@@ -67,7 +67,7 @@ MIN_CONTENT_WORDS = 200
 
 def content_words(resume: ResumeDoc) -> int:
     """Words ATS can match on: summary, skills, experience, projects, education and achievements. Declarations,
-    personal details and hobbies don't count, so removing them never makes a resume "too thin"."""
+    personal details and hobbies don't count, so removing them does not make a resume "too thin"."""
     parts = [resume.summary or "", *(i for g in resume.skills for i in g.items)]
     for e in [*resume.experience, *resume.projects, *resume.education]:
         parts += [e.title, e.organization, *(b.text for b in e.bullets)]
@@ -101,14 +101,14 @@ def score_ats(
         parse -= lose(
             4,
             "images",
-            f"{layout.image_count} image(s) detected (photo, icons or logos) — ATS ignore them.",
+            f"{layout.image_count} image(s) detected (photo, icons or logos). ATS ignore them.",
             "Remove images and icons; write contact details as text.",
         )
     if layout.hidden_chars:
         parse -= lose(
             10,
             "hidden_text",
-            "Hidden or tiny text detected — reads as keyword stuffing to recruiters.",
+            "Hidden or tiny text detected. It reads as keyword stuffing to recruiters.",
             "Delete invisible or microscopic text.",
         )
     if not EMAIL.search(text):
@@ -178,7 +178,7 @@ def score_ats(
     dates = [d for e in resume.experience + resume.projects for d in (e.start, e.end) if d]
     formats = {f for f in map(_date_format, dates) if f}
     if resume.experience and not dates:
-        lose(3, "no_dates", "Experience entries have no dates.", "Add start and end dates, e.g. “Jan 2023 – Present”.")
+        lose(3, "no_dates", "Experience entries have no dates.", "Add start and end dates, e.g. “Jan 2023 - Present”.")
     elif len(formats) > 1 or "other" in formats:
         lose(3, "inconsistent_dates", "Dates use mixed formats.", "Use one format everywhere, e.g. “Jan 2023”.")
     else:
@@ -210,7 +210,7 @@ def score_ats(
             15, "too_long", f"{layout.pages} pages; {limit} is the norm at this level.", "Cut to the norm."
         )
     if content_words(resume) < MIN_CONTENT_WORDS:
-        detail = f"Under {MIN_CONTENT_WORDS} words of real content — too little for ATS to match."
+        detail = f"Under {MIN_CONTENT_WORDS} words of real content, too little for ATS to match."
         fix = "Add detail to experience and projects: what you built, with what, and the result."
         length = max(0.0, length - lose(5, "too_thin", detail, fix))
 

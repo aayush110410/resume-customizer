@@ -48,7 +48,8 @@ def req(text, type_="hard_skill", importance="must", keywords=()):
 
 
 def test_years_merges_overlaps_excludes_internships_and_counts_present():
-    assert years_of_experience(resume(), TODAY) == 5.8  # Feb 2021 → Oct 2026 inclusive = 69 months; internship excluded
+    # Feb 2021 to Oct 2026 inclusive is 69 months; the internship is excluded
+    assert years_of_experience(resume(), TODAY) == 5.8
 
 
 def test_years_none_without_dates():
@@ -102,7 +103,7 @@ def test_keyword_in_action_bullet_is_strong_in_weak_bullet_partial_in_skills_par
     r = resume()
     spring = code_judgment(req("Java (Spring Boot)", keywords=["spring boot"]), r, kb, 5.7)
     assert spring.status == "strong" and spring.bullet_ids == ["exp0.b0"] and spring.quote.startswith("Built REST APIs")
-    # "Jenkins" proving CI/CD is a semantic link the requirement never names: the model's job, not code's
+    # "Jenkins" proving CI/CD is a semantic link the requirement doesn't name: the model's job, not code's
     assert code_judgment(req("CI/CD pipelines", keywords=["jenkins", "ci/cd"]), r, kb, 5.7) is None
     jenkins = code_judgment(req("Jenkins", keywords=["jenkins"]), r, kb, 5.7)
     assert jenkins.status == "strong" and jenkins.bullet_ids == [
@@ -220,7 +221,7 @@ def test_duty_phrasing_still_counts_as_evidence_only_exposure_is_partial(kb):
 
 
 def test_framework_implies_language(kb):
-    r = resume()  # "Built REST APIs in Spring Boot…" never says Java
+    r = resume()  # "Built REST APIs in Spring Boot" doesn't say Java
     assert code_judgment(req("Strong Java skills", keywords=["java"]), r, kb, 6).status == "strong"
 
 

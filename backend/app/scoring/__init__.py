@@ -17,7 +17,8 @@ def score_all(
     kb: Knowledge,
     profile: Profile | None = None,
 ) -> ScoreReport:
-    from app.profile.story import score_story  # profile → scoring dependency stays one-way at import time
+    # Imported here to avoid a circular import (app.profile.story imports app.scoring.aggregate).
+    from app.profile.story import score_story
 
     region = kb.regions[region_key]
     match, knockouts = score_match(jd, ev, resume.total_years_experience)

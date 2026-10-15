@@ -1,7 +1,7 @@
 """Is this project real and worth reading? Scored in code from facts the model quoted (or rules alone).
 
-purpose 25 · original 20 (10 when a tutorial build states its own extension) · real use 20 · numbers 15 ·
-technical depth 20 · −5 per custom name nobody explained (cap −15). A coined name ("Zephyr") is never an
+Points: purpose 25, original 20 (10 when a tutorial build states its own extension), real use 20, numbers 15,
+technical depth 20. Minus 5 per custom name nobody explained (at most 15). A coined name ("Zephyr") is not an
 unknown skill: it only needs a few words saying what it is.
 """
 
@@ -55,7 +55,7 @@ def _text(entry: Entry) -> str:
 
 
 def _technologies(text: str, kb: Knowledge) -> int:
-    """Distinct known technologies named in the text: 1–3 word n-grams looked up in the synonym index (linear in
+    """Distinct known technologies named in the text: 1 to 3 word n-grams looked up in the synonym index (linear in
     the text, instead of one regex per known variant)."""
     words = [w.strip(",;:()[]'\"") for w in normalize(text).split()]
     words = [w.rstrip(".") if w.count(".") == 1 and w.endswith(".") else w for w in words]

@@ -55,6 +55,6 @@ export async function postSSE(
     if (done) break;
     parser.feed(value);
   }
-  // A proxy or sleeping instance can close the stream cleanly mid-run; never let that look like success.
+  // A proxy or sleeping instance can close the stream cleanly mid-run; that must not count as success.
   if (!terminal && !signal?.aborted) throw new ApiError("NETWORK", "The connection closed before the result arrived.", 0, true);
 }

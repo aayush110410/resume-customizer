@@ -4,7 +4,7 @@ import { useRef, type ButtonHTMLAttributes, type KeyboardEvent, type ReactNode }
 import { cn } from "@/lib/utils";
 import type { MatchStatus } from "@/lib/types";
 
-/** Shared Meridian-ledger primitives: hairline controls, outline chips, tracked labels. */
+/** Shared UI pieces: hairline controls, outline chips and small uppercase labels. */
 
 export function Label({ children, className }: { children: ReactNode; className?: string }) {
   return <div className={cn("eyebrow", className)}>{children}</div>;
@@ -105,7 +105,7 @@ export function Delta({ value }: { value: number }) {
   return <span className={cn("figure text-[12px] font-medium", value > 0 ? "text-up" : "text-down")}>{value > 0 ? `+${value}` : value}</span>;
 }
 
-/** Tracked-caps tabs with a 1px gold underline; roving focus with arrow keys, Home/End. */
+/** Tabs with a 1px gold underline. Arrow keys, Home and End move focus between them. */
 export function LedgerTabs<T extends string>({
   value, tabs, onChange, label,
 }: { value: T; tabs: { value: T; label: string; badge?: ReactNode }[]; onChange: (v: T) => void; label: string }) {

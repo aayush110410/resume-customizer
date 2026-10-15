@@ -1,5 +1,5 @@
 """Persona golden set: one resume per career situation, with the stage, flags, target move and Story band the
-rubric should produce. Fixes go into the profile code, never into looser expectations."""
+rubric should produce. Fix the profile code rather than loosening the expectations."""
 
 from datetime import date
 from pathlib import Path

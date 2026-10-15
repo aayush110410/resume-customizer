@@ -9,7 +9,7 @@ const NAMES: Record<StageId, string> = {
   tailoring: "Tailor", verifying: "Verify", rescoring: "Re-score",
 };
 
-/** The pipeline as a ruled route: each station lights as the stream reaches it. */
+/** The pipeline steps; each one lights up when the stream reaches it. */
 export function StageTimeline() {
   const stages = useAppStore((s) => s.stages);
   if (Object.values(stages).every((s) => s === "idle")) return null;

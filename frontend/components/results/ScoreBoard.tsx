@@ -16,7 +16,7 @@ const RUBRIC: Record<ScoreKey, string> = {
   region: "Starts at 100. Deductions for personal details and conventions the region's recruiters read as dated or risky (by employer type), over-length for your level, and expected signals that are missing (e.g. CGPA for freshers in services hiring).",
   story: "Judged for your stage. Students and fresh graduates: projects 40 · internships 25 · presentation 20 · continuity 15. 1–3 years: projects 20 · internships 5 · presentation 10 · continuity 20 · stability 25 · move 20. 3+ years: projects 10 · continuity 25 · stability 30 · move 35. Projects are read for purpose, originality, real use, numbers and depth. Unexplained gaps (India: 6+ months) and roles under a year count against you until you explain them; paid or unpaid never matters.",
 };
-const ATS_NOTE = "Estimate — real ATS systems don't publish scores; this models common parsing and keyword-filter behaviour.";
+const ATS_NOTE = "Estimate only. Real ATS systems don't publish scores; this models common parsing and keyword-filter behaviour.";
 
 export const REGION_WEIGHTS: Record<Region, Record<ScoreKey, number>> = {
   india: { match: 0.35, ats: 0.2, quality: 0.15, region: 0.1, story: 0.2 },

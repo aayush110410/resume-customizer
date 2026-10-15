@@ -60,7 +60,7 @@ FOUR = [
 
 
 def test_quality_components(kb):
-    # quantified 2/4 → 30; action 3/4 → 15; length 4/4 → 15; impact 2/4 → 12.5; hygiene 10; summary 10 = 92.5
+    # quantified 2/4 = 30; action 3/4 = 15; length 4/4 = 15; impact 2/4 = 12.5; hygiene 10; summary 10; total 92.5
     assert score_quality(doc_with(FOUR), kb).score == 93
 
 

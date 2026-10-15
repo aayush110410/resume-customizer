@@ -1,4 +1,4 @@
-/** Film grain over the shell — the terminal's single cached noise tile, never a live filter. */
+/** Film grain overlay: one cached noise tile, not a live filter. */
 const NOISE = `<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.78" numOctaves="4" stitchTiles="stitch"/></filter><rect width="180" height="180" filter="url(#n)"/></svg>`;
 const NOISE_URI = `url("data:image/svg+xml;utf8,${encodeURIComponent(NOISE)}")`;
 

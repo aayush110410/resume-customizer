@@ -32,7 +32,7 @@ from app.text_utils import normalize
 _ITEM = TypeAdapter(TailorItem)
 
 
-class parse_jsonl_items:  # noqa: N801 — used like a function returning an async iterator
+class parse_jsonl_items:  # noqa: N801 (used like a function returning an async iterator)
     """Async iterator of valid TailorItems from streamed text chunks; counts skipped lines in `.invalid`."""
 
     def __init__(self, chunks: AsyncIterator[str]):
@@ -87,7 +87,7 @@ def strip_invented_outcomes(original: str, rewritten: str) -> str:
         if _supported(tail, original):
             break
         body, changed = body[: starts[-1]].rstrip(" ,"), True
-    # Then trailing words after the last word the original also contains ("…queries significantly").
+    # Then trailing words after the last word the original also contains ("queries significantly").
     stems = {w[:5] for w in re.findall(r"[a-z]+", original.lower())}
     numbers = set(re.findall(r"\d[\d,.]*%?", original))
     tokens = list(re.finditer(r"[A-Za-z][\w+#./-]*|\d[\d,.]*%?", body))
@@ -115,7 +115,7 @@ def _reorder(bullets: list[Bullet], items: list[BulletItem]) -> list[Bullet]:
 
 
 def _keep_all_skills(original: list[SkillGroup], rewritten: list[SkillGroup]) -> list[SkillGroup]:
-    """The writer may reorder and regroup skills but never drop one: dropped skills return under their old group."""
+    """The writer may reorder and regroup skills but not drop one: dropped skills return under their old group."""
     groups = [g.model_copy(deep=True) for g in rewritten]
     present = {normalize(i) for g in groups for i in g.items}
     for old in original:
@@ -163,7 +163,7 @@ def apply_tailoring(
     elif "skills" in sections and skills:
         doc.skills = _keep_all_skills(original.skills, skills[-1].groups)
 
-    # The model's ids are cleaned and the entry is taken from the bullet's own id ("exp0.b2" → "exp0").
+    # The model's ids are cleaned and the entry is taken from the bullet's own id ("exp0.b2" belongs to "exp0").
     bullet_items = [
         i.model_copy(
             update={"source_id": (sid := re.sub(r"[^\w.]", "", i.source_id)), "entry_id": sid.rsplit(".b", 1)[0]}

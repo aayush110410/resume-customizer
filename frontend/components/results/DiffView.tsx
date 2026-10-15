@@ -55,7 +55,7 @@ export function DiffView({ before, after, changes = [], onlyChanged = true }: {
                       <p className="text-[13.5px] leading-[1.65] text-ink-2"><Inline row={r} /></p>
                     ) : (
                       <div className="grid flex-1 gap-3 sm:grid-cols-2">
-                        <p className="text-[13.5px] leading-[1.65] text-ink-3">{r.before ?? "—"}</p>
+                        <p className="text-[13.5px] leading-[1.65] text-ink-3">{r.before ?? "-"}</p>
                         <p className="text-[13.5px] leading-[1.65] text-ink">{r.after ?? <span className="text-down">Removed</span>}</p>
                       </div>
                     )}

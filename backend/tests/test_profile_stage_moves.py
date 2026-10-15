@@ -121,7 +121,7 @@ def test_student_freelancing_during_degree_stays_student(kb):
 
 def test_year_only_start_counts_conservatively(kb):
     resume = doc([("Engineer", "Acme", "2023", "Present")], [("B.Tech", "2023")])
-    assert stage_of(kb, resume)[0] == "early"  # Dec 2023 → Oct 2026 at least, not Jan 2023
+    assert stage_of(kb, resume)[0] == "early"  # Dec 2023 to Oct 2026 at least, not Jan 2023
 
 
 def test_job_before_a_part_time_degree_is_not_a_student(kb):

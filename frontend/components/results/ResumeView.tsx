@@ -57,7 +57,7 @@ function EntryBlock({ e, flags, onRevert, terms }: { e: Entry; flags: Map<string
 }
 
 /** The tailored resume as a document; amber-flagged lines contain facts we could not find in the original. */
-/** `terms` are the JD's keywords: every place the resume uses one is marked, so the match is visible at a glance. */
+/** `terms` are the JD's keywords; each place the resume uses one is marked. */
 export function ResumeView({ resume, flags = [], onRevert, terms = [] }: { resume: ResumeDoc; flags?: FabricationFlag[]; onRevert?: Revert; terms?: string[] }) {
   const byId = new Map(flags.map((f) => [f.target_id, f]));
   const c = resume.contact;

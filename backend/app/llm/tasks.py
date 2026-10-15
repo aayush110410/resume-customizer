@@ -1,4 +1,4 @@
-"""The three extraction/judgment LLM steps, each followed by deterministic clean-up and verification."""
+"""The three extraction and judgment LLM steps, each followed by clean-up and verification in code."""
 
 import asyncio
 import json
@@ -74,7 +74,7 @@ async def analyze_jd(llm: LLM, jd_text: str, kb: Knowledge) -> Structured[JDAnal
     jd = r.value.model_copy(deep=True)
     parsed = parse_requirements(jd_text, kb)
     if parsed:
-        # The JD's own bullets, in order, with importance from their heading: same JD → same requirements.
+        # The JD's own bullets, in order, with importance from their heading, so one JD always gives the same requirements.
         order = {"must": 0, "should": 1, "nice": 2}
         ranked = sorted(parsed, key=lambda p: order[p[1]])[:MAX_REQUIREMENTS]
         jd.requirements = [

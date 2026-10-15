@@ -1,4 +1,4 @@
-"""Anti-hallucination checks: LLM quotes must exist in the resume; tailored text must not add facts."""
+"""Grounding checks: quotes from the LLM must appear in the resume, and tailored text must not add facts."""
 
 import re
 
@@ -96,7 +96,7 @@ def _present(term: str, haystack: str, kb: Knowledge) -> bool:
     return any(contains_term(haystack, v) for f in forms for v in kb.synonyms.variants(f))
 
 
-# Ordinary resume glue: never a claim on its own, even when the JD happens to use it.
+# Ordinary resume words: not a claim on their own, even when the JD uses them.
 _GLUE = {
     "strong",
     "solid",
@@ -173,8 +173,9 @@ def _stems(text: str) -> set[str]:
 def _jd_wording(
     text: str, original_text: str, original_stems: set[str], jd_stems: set[str], kb: Knowledge
 ) -> list[str]:
-    """Words a rewrite took from the job description that the original resume never says: "payments module" →
-    "payment orchestration module" adds a claim. Action verbs, glue words and genuine synonyms are wording, not facts."""
+    """Words a rewrite took from the job description that the original resume does not say. For example,
+    "payments module" becoming "payment orchestration module" adds a claim. Action verbs, glue words and
+    genuine synonyms are wording, not facts."""
     verbs = {_stem(v) for v in kb.lexicons.action_verbs} | _IRREGULAR_VERBS
     out = []
     for w in _WORD.findall(normalize(text)):

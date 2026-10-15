@@ -1,6 +1,6 @@
 """The tailoring plan, decided in code. The writer model only rewrites each bullet to its instruction.
 
-- Order: within each entry, bullets that prove heavier requirements come first (must 3 · should 2 · nice 1,
+- Order: within each entry, bullets that prove heavier requirements come first (must 3, should 2, nice 1,
   scaled by how well they prove it), with original order as the tie-break.
 - Skills: JD-matched items move to the front of their group and groups with more matches move up. Nothing is dropped.
 - Mirroring: a JD term may replace the resume's wording only when the bullet already says the same thing in other
@@ -35,7 +35,7 @@ class BulletPlan:
 @dataclass
 class TailorPlan:
     bullets: list[BulletPlan]
-    order: dict[str, list[str]]  # entry id → bullet ids in the planned order
+    order: dict[str, list[str]]  # entry id to bullet ids, in the planned order
     skills: list[SkillGroup]
     summary_facts: list[str]
 

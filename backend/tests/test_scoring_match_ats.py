@@ -123,7 +123,7 @@ def test_ats_fresher_projects_only(sample_doc, jd_factory, kb):
 
 def test_build_report_half_up():
     subs = [SubScore(key=k, score=s) for k, s in (("match", 70), ("ats", 80), ("quality", 60), ("region", 90))]
-    assert build_report(subs, INDIA_W, []).overall == 74  # 73.5 → 74
+    assert build_report(subs, INDIA_W, []).overall == 74  # 73.5 rounds to 74
 
 
 def _signals(doc, layout, jd_factory, kb):

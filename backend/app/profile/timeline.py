@@ -1,4 +1,4 @@
-"""The candidate's dated history: stints (jobs, internships, apprenticeships…) and the gaps between them.
+"""The candidate's dated history: stints (jobs, internships, apprenticeships) and the gaps between them.
 
 Dates are read with their precision. A year-only bound ("2022") widens to the whole year, so a gap measured
 across it is a lower bound and a stint with one is never called short: imprecise dates never create a flag.
@@ -64,7 +64,7 @@ def month_key(d: date) -> str:
 
 
 def month_label(key: str) -> str:
-    """ "2021-06" → "Jun 2021"."""
+    """Formats "2021-06" as "Jun 2021"."""
     return f"{list(MONTHS)[int(key[5:7]) - 1].capitalize()} {key[:4]}"
 
 
@@ -90,13 +90,13 @@ def _bounds(entry: Entry, today: date) -> tuple[int, int, bool, bool] | None:
     if not end:
         return None
     s = _index(start[0])
-    e = _index(end[0]) + (0 if end[1] else 11)  # year-only end → December
+    e = _index(end[0]) + (0 if end[1] else 11)  # year-only end: assume December
     return (s, e, start[1], end[1]) if e >= s else None
 
 
 def narrow_bounds(entry: Entry, today: date) -> tuple[int, int] | None:
-    """Narrowest reading of an entry's dates (year-only start → December, year-only end → January): the least
-    time the candidate can have spent there. Used for experience, where overstating is the risk."""
+    """Narrowest reading of an entry's dates (a year-only start is read as December, a year-only end as January),
+    i.e. the least time the candidate can have spent there. Used for experience, where overstating is the risk."""
     start = parse_date(entry.start, today)
     end = parse_date(entry.end, today) if entry.end else (date(today.year, today.month, 1), True)
     if not start or not end:

@@ -31,7 +31,7 @@ def employer_kind(organization: str, bullets_text: str, kb: Knowledge) -> Employ
 
 
 def field_of(title: str, kb: Knowledge) -> str | None:
-    """The role family whose longest title keyword appears in the title ("Data Engineer" → data_ml)."""
+    """The role family whose longest title keyword appears in the title ("Data Engineer" gives data_ml)."""
     best: tuple[int, str] | None = None
     for family in kb.role_families.values():
         for t in family.titles:

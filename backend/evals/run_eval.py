@@ -47,18 +47,18 @@ async def main(runs: int) -> None:
     overall = [r.overall for r, _ in sample_runs]
     evs = [e for _, e in sample_runs] + [strong_ev]
     lines = [
-        f"# Eval {datetime.now(UTC):%Y-%m-%d %H:%M} UTC — models: {', '.join(t.label for t in build_targets(Settings())['analysis'])}",
+        f"# Eval {datetime.now(UTC):%Y-%m-%d %H:%M} UTC, models: {', '.join(t.label for t in build_targets(Settings())['analysis'])}",
         "",
         "| Check | Result | Gate |",
         "|---|---|---|",
         f"| Overall-score stability, sample resume × {runs} runs | {overall} → σ = {stability(overall):.2f} | σ ≤ 3 |",
         *(
-            f"| {k} stability | {[r.subscores[k].score for r, _ in sample_runs]} | — |"
+            f"| {k} stability | {[r.subscores[k].score for r, _ in sample_runs]} | - |"
             for k in ("match", "ats", "quality", "region")
         ),
         f"| Ordering: strong resume > weaker sample | {strong_report.overall} > {overall[0]} → {'PASS' if ordering_ok([(1, strong_report.overall), (2, min(overall))]) else 'FAIL'} | pass |",
         f"| Quote grounding rate | {grounding_rate(evs):.0%} | ≥ 98% |",
-        f"| Wall time | {time.perf_counter() - started:.0f}s for {runs + 1} full analyses | — |",
+        f"| Wall time | {time.perf_counter() - started:.0f}s for {runs + 1} full analyses | - |",
     ]
     out = ROOT / "results"
     out.mkdir(exist_ok=True)

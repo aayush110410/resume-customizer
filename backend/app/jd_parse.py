@@ -1,6 +1,5 @@
-"""Deterministic JD reading: requirements come from the JD's own bullets, importance from the heading they sit under.
-The model is not asked to invent or merge requirements, so the same JD always yields the same questions.
-Unstructured (prose-only) JDs return None and fall back to the model."""
+"""Rule-based JD reading: requirements come from the JD's own bullets, importance from the heading above them.
+The same JD always gives the same requirements. Prose-only JDs return None and fall back to the model."""
 
 import re
 
@@ -47,7 +46,8 @@ def _heading(line: str) -> Importance | str | None:
 
 
 def _split(item: str) -> list[str]:
-    """ "Run X; own Y" → two items. "Experience with Docker and Kubernetes" → one per thing (outside parentheses)."""
+    """Splits a bullet into items: "Run X; own Y" gives two, "Experience with Docker and Kubernetes" gives one per
+    thing (outside parentheses)."""
     parts = [p.strip() for p in item.split(";") if p.strip()]
     out = []
     for part in parts:

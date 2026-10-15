@@ -69,7 +69,7 @@ export function VersionsPanel() {
           <DialogHeader>
             <DialogTitle className="text-[21px] font-medium tracking-[-0.018em]">New version</DialogTitle>
             <DialogDescription className="text-[13.5px] text-ink-3">
-              Reuses this analysis ({REGIONS.find((r) => r.value === analysis.region)?.label}) — only the rewrite runs again.
+              Reuses this analysis ({REGIONS.find((r) => r.value === analysis.region)?.label}). Only the rewrite runs again.
             </DialogDescription>
           </DialogHeader>
           <div className="mt-2 flex flex-col gap-5">

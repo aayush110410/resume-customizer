@@ -1,11 +1,11 @@
-"""Code-first judging. Everything a recruiter can decide from facts is decided here; the model only adds
-semantic evidence that code cannot see, and only when it can cite a bullet whose quote verifies.
+"""Requirement judging. Facts are decided in code; the model can only raise a status, and only when it cites a
+bullet whose quote verifies.
 
-Floors and facts:
+Decided in code:
 - years of experience: computed from the resume's own dates (internships excluded, overlaps merged)
-- degree level: B.Tech/B.E./BSc/BCA… < M.Tech/MSc/MCA/MBA/PGDM… < PhD
+- degree level: B.Tech, B.E., BSc, BCA and similar < M.Tech, MSc, MCA, MBA, PGDM and similar < PhD
 - certifications: found in achievements, skills or summary
-- skills and tools: where their keywords (and synonyms) appear — a demonstrated bullet, a weak bullet, or only a list
+- skills and tools: where their keywords (and synonyms) appear: a demonstrated bullet, a weak bullet, or only a list
 """
 
 import re
@@ -85,7 +85,7 @@ def years_of_experience(resume: ResumeDoc, today: date) -> float | None:
             spans.append((start, end))
     if not spans:
         return None
-    # Month spans are inclusive (Feb–Jul = 6 months); back-to-back roles merge into one stretch.
+    # Month spans are inclusive (Feb to Jul is 6 months); back-to-back roles merge into one stretch.
     idx = sorted((st.year * 12 + st.month - 1, en.year * 12 + en.month) for st, en in spans)
     months, (cur_s, cur_e) = 0, idx[0]
     for s_, e_ in idx[1:]:
@@ -247,8 +247,8 @@ def code_judgment(req: Requirement, resume: ResumeDoc, kb: Knowledge, years: flo
 
 
 def merge_passes(a: Evidence, b: Evidence) -> Evidence:
-    """Two independent judging passes, per requirement: the stronger *verified* claim wins.
-    Evidence a pass found and code verified exists in the resume; the other pass simply missed it."""
+    """Merges two independent judging passes. Per requirement, the stronger verified claim wins.
+    Evidence that one pass found and code verified is in the resume, so the other pass missed it."""
     other = {m.requirement_id: m for m in b.matches}
     out = a.model_copy(deep=True)
 

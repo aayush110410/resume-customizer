@@ -1,7 +1,7 @@
-"""LLM access through an ordered chain of OpenAI-compatible providers (Ollama Cloud → OpenRouter → Groq).
+"""LLM access through an ordered chain of OpenAI-compatible providers (order set by LLM_PROVIDER_ORDER).
 
-Structured calls: JSON-schema response_format → json_object fallback → one repair round → next target.
-Streams fall back only until the first non-empty chunk has arrived.
+Structured calls try a JSON-schema response_format, fall back to json_object, make one repair attempt, then move
+to the next target. Streams can fall back only until the first non-empty chunk has arrived.
 """
 
 import json
@@ -20,7 +20,7 @@ log = logging.getLogger("llm")
 Role = Literal["analysis", "writer"]
 Effort = Literal["low", "medium", "high"]
 T = TypeVar("T", bound=BaseModel)
-SEED = 7  # same inputs → same judgments, where the provider honours seeds
+SEED = 7  # fixed seed, so the same input gives the same output where the provider supports seeds
 
 
 @dataclass(frozen=True)
@@ -139,7 +139,7 @@ class LLMClient:
         return self._clients[key]
 
     def _chain(self, role: Role, model: str | None) -> list[Target]:
-        """The role's chain, with a requested model tried first, only if it is one we configured (no arbitrary models on our keys)."""
+        """The role's chain, with the requested model tried first if it is one we configured (no arbitrary models)."""
         chain = list(self.targets[role])
         chosen = next((t for ts in self.targets.values() for t in ts if t.label == model), None) if model else None
         if chosen:

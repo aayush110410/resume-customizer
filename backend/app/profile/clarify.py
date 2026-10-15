@@ -1,7 +1,7 @@
 """Questions only the candidate can answer, and their effect. Everything here is code: no model call.
 
 Question ids come from what they ask about (gap:2021-06, stint:exp1, employer:exp0, name:zephyr, intern:exp3),
-and are generated from the unanswered profile, so they never shift when answers change the stage or a move.
+and are generated from the unanswered profile, so they do not shift when answers change the stage or a move.
 A re-score always rebuilds from the resume plus all answers, so applying the same answers twice is a no-op.
 """
 
@@ -259,7 +259,7 @@ def make_questions(
 
 def rescore(analysis: Analysis, answers: dict[str, Answer], kb: Knowledge) -> RescoreResponse:
     """New profile, scores and insights from the stored analysis plus answers. Evidence is reused, so JD match
-    never changes here, and no model is called."""
+    does not change here, and no model is called."""
     from app.profile import build_profile
     from app.scoring import score_all
     from app.scoring.ats import missing_keywords

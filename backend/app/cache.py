@@ -1,4 +1,4 @@
-"""Tiny async LRU so identical inputs (same resume / JD / prompt version) don't re-hit free-tier LLMs."""
+"""Small async LRU cache, so identical inputs (same resume, JD and prompt version) don't call the LLM again."""
 
 import hashlib
 from collections import OrderedDict

@@ -1,5 +1,5 @@
 // Fictional demo content (labelled as a sample in the UI). Pairs with public/samples/sample-resume.pdf.
-export const SAMPLE_JD = `Backend Engineer (SDE-2) — Payments Platform
+export const SAMPLE_JD = `Backend Engineer (SDE-2) - Payments Platform
 Location: Bengaluru, India (hybrid)
 
 About us

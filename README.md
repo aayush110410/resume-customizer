@@ -1,216 +1,164 @@
-# Shortlist: India-first Resume Customizer
+# Shortlist: Resume Customizer
 
-Paste a job description, upload a resume (PDF or DOCX), and get:
+Paste a job description and upload a resume (PDF or DOCX). Shortlist scores how well the resume fits the job, explains every point it takes off, rewrites the resume for the job without inventing anything, and writes a matching cover letter.
 
-- **Evidence-backed scores:** JD match, ATS, content quality and region fit, each with an itemised "why".
-- **A ranked list of fixes** and a recruiter's 7-second verdict.
-- **A truthfully tailored resume:** streamed live, with a diff, multiple versions and PDF/DOCX/TXT downloads.
-- **A matching cover letter.**
+**Live app:** https://shortlist-resume-web-aayush-1son.onrender.com
+**API health:** https://shortlist-resume-api-aayush-v0yd.onrender.com/health
 
-**Live app:** https://shortlist-resume-web-aayush-1son.onrender.com · API: https://shortlist-resume-api-aayush-v0yd.onrender.com/health
-
-> The free hosting tier sleeps when idle. The first request can take up to a minute while the server wakes, and the UI says so.
+The free hosting tier sleeps when idle, so the first request can take up to a minute. The UI shows a notice while the server wakes up.
 
 ## Screenshots
 
-All from the live app, using the built-in sample (an Infosys engineer applying for a Bengaluru SDE-2 payments role).
+All taken from the live app with the built-in sample (an Infosys engineer applying for a Bengaluru SDE-2 payments role).
 
 | | |
 |---|---|
-| ![Input: JD and resume upload](docs/screenshots/01-input.jpg) **Input.** Paste a JD, drop a PDF/DOCX (name and size shown), pick the hiring market and the sections to tailor. | ![Live progress](docs/screenshots/02-progress.jpg) **Streaming.** Seven stages report live. All five scores arrive first, then rewritten lines stream in one by one while tailoring runs. |
-| ![Results overview](docs/screenshots/03-overview.jpg) **Results.** Overall plus five sub-scores (JD match, ATS, content, region fit, career story) with before→after deltas, the confirm line, ranked fixes, the 7-second verdict and India market notes. | ![Evidence ledger](docs/screenshots/04-evidence.jpg) **Evidence.** Every JD requirement with its weight, its status and the verbatim resume quote that proves it. |
-| ![Tailored resume](docs/screenshots/05-tailored.jpg) **Tailored resume.** JD terms highlighted. Anything the original doesn't state is flagged "Needs your confirmation" with a one-click revert: here "backend" in the summary and "orchestration", borrowed from the JD. Download as PDF, DOCX or TXT. | ![Changes diff](docs/screenshots/06-changes.jpg) **Changes.** Inline or side-by-side diff with moved-bullet markers and a reason for each edit. |
-| ![Career story](docs/screenshots/07-story.jpg) **Career story.** The fifth score, judged for the candidate's stage: a timeline of roles (a trainee stint promoted at the same employer is one stay), the move this application represents (services → product), how each project reads, and the Story fixes ranked by gain. | |
+| ![Input](docs/screenshots/01-input.jpg) **Input.** Paste a JD, drop a PDF or DOCX (name and size shown), pick the hiring market and the sections to tailor. | ![Progress](docs/screenshots/02-progress.jpg) **Streaming.** Each pipeline stage reports as it runs. Scores arrive first, then rewritten lines stream in while tailoring runs. |
+| ![Results](docs/screenshots/03-overview.jpg) **Results.** Overall score and five sub-scores with before/after changes, ranked fixes, a recruiter's first impression and India market notes. | ![Evidence](docs/screenshots/04-evidence.jpg) **Evidence.** Every requirement in the JD with its weight, its status and the exact resume line that proves it. |
+| ![Tailored resume](docs/screenshots/05-tailored.jpg) **Tailored resume.** JD terms are highlighted. Anything the original doesn't say is flagged "Needs your confirmation" with a one-click revert. Download as PDF, DOCX or TXT. | ![Changes](docs/screenshots/06-changes.jpg) **Changes.** Inline or side-by-side diff with moved-bullet markers and the reason for each edit. |
+| ![Career story](docs/screenshots/07-story.jpg) **Career story.** A score judged for the candidate's stage: a timeline of roles, the career move this application represents, and how each project reads. | |
 
-## What makes it different
+## Features
 
-1. **The LLM never invents a number.**
-   - The model only extracts evidence: JD requirements, then a per-requirement judgment with a quote copied verbatim from the resume.
-   - Every quote is fuzzy-verified against the resume. Unverifiable claims are downgraded.
-   - All scores are computed in Python from that evidence with a published rubric. The same inputs give the same scores.
-2. **India-first judgment.** Region packs (`backend/app/knowledge/regions/*.yaml`) encode how recruiters actually read resumes:
-   - **India**, by employer type (product/startup, IT services, GCC, consulting/MBA, BFSI, PSU/Govt):
-     - personal details and "Declaration" sections are flagged as dated for product companies but accepted for PSU roles;
-     - CGPA and 10th/12th marks are expected for freshers in services hiring;
-     - Naukri, notice-period and LeetCode advice where relevant.
-   - **International** (Indians applying abroad):
-     - photo, DOB and marital status are flagged as discrimination-law risks;
-     - CTC and Lakh/Crore get rewrite suggestions;
-     - work-authorisation guidance.
-3. **No fabrication.**
-   - Tailoring may rephrase, reorder and mirror JD wording only for evidenced skills.
-   - Companies, titles and dates are copied by code, never by the model.
-   - Any number, tool or name in the output that isn't in the original is flagged **"Needs your confirmation"**, and so is any job-description wording a rewritten line borrows that the original never says ("payments module" → "payment orchestration module"). Action verbs and genuine synonyms (k8s → Kubernetes) are allowed.
-   - Missing skills become **"Add only if true"** suggestions with `[placeholders]`.
-
-## Features (brief → implementation)
-
-| Requirement | How |
+| Brief | What the app does |
 |---|---|
-| JD input + validation | Textarea with live word/char count, 300–20,000 chars, and a warning when the text isn't a JD |
-| PDF/DOCX upload | Drag and drop; shows name and size; magic-byte check, ≤ 5 MB, ≤ 5 pages; detects scanned, encrypted, multi-column and hidden-text files |
-| LLM customisation | Summary rewrite, matched skills first, bullets reordered and rephrased, missing keywords |
-| View + download | Clean resume view; **PDF** (Typst, ATS-safe single column, A4 for India, Letter for International), **DOCX**, **TXT** |
-| Error handling | Typed error codes with friendly messages, LLM provider fallback chain, per-IP rate limit (proxy-aware), request size cap, partial results kept on failure, retry of just the failed step |
-| ★ Match score | Weighted requirement coverage, before → after |
-| ★ ATS score | Parseability, keyword coverage, structure and length, itemised |
-| ★ Diff view | Bullet-aligned (stable IDs), word-level, reorder markers, the reason for each change |
-| ★ Multiple versions | Re-tailor the same analysis with different sections/tone/model; compare any two |
-| ★ Section-wise | Choose Summary / Skills / Experience / Projects / Education / Achievements |
-| ★ Cover letter | Streamed and editable; region conventions; notice period / work authorisation |
-| ★ Streaming | SSE pipeline stages plus rewritten lines appearing live |
-| ★ Career story | A fifth score judged for the candidate's stage (2nd/3rd/4th-year student, fresh graduate, 1–3 / 3–7 / 7+ years): projects read for real work, internships and apprenticeships, gaps, short stints, and the move this application represents (services → product, startup → MNC, MNC → mega-MNC, field switch) |
-| ★ Clarify step | After scoring, up to six questions only the candidate can answer (why a gap, what a short role was, what "Zephyr" is). Answers re-score instantly in code (no model call) and carry into the next tailored version |
-| Extras | Region switch, recruiter verdict, "How we score" panel, browser-only history (no login), sample data |
+| JD input | Textarea with a live word and character count, 300 to 20,000 characters, and a warning when the text doesn't look like a JD |
+| Resume upload | Drag and drop or browse; shows file name and size; checks file type, size (5 MB) and pages (5); detects scanned, encrypted and multi-column files |
+| LLM customisation | Rewrites the summary, puts matched skills first, reorders and rephrases bullets, lists missing keywords |
+| Output and download | Clean resume view; PDF (single column, A4 for India, Letter for international), DOCX and TXT |
+| Error handling | Friendly messages for every error code, a fallback chain across LLM providers, rate limiting, request size limits, and a retry for just the step that failed |
+| Match score (bonus) | Weighted coverage of the JD's requirements, before and after tailoring |
+| ATS score (bonus) | Parseability, keyword coverage, structure and length, each itemised |
+| Diff view (bonus) | Word-level diff aligned by bullet, with reorder markers and reasons |
+| Multiple versions (bonus) | Re-tailor with different sections, tone or model and compare any two versions |
+| Section-wise customisation (bonus) | Choose Summary, Skills, Experience, Projects, Education, Achievements |
+| Cover letter (bonus) | A one-page business letter (date, recipient, subject, greeting, sign-off) with an editable paper preview and PDF/DOCX/TXT download |
+| Streaming (bonus) | Server-sent events for pipeline stages and rewritten lines |
+| Extras | India and international scoring, career-stage scoring with a short follow-up questionnaire, saved history in the browser (no login), sample data |
 
-## Architecture
+## Tech stack
 
-```mermaid
-flowchart LR
-  UI["Next.js 16 (App Router)<br/>zustand · IndexedDB history"] -- "POST + SSE" --> API["FastAPI"]
-  API --> P["Parse<br/>PyMuPDF / python-docx<br/>+ layout diagnostics"]
-  P --> X1["LLM: structure resume"] & X2["LLM: analyse JD"]
-  X1 & X2 --> M["LLM: match evidence<br/>(verbatim quotes)"]
-  M --> G["Grounding check"] --> S["Scoring engine (pure Python)<br/>match · ATS · quality · region"]
-  K[("Region & role knowledge<br/>YAML")] --> M & S
-  S --> T["LLM: tailor (JSONL stream)"] --> A["Deterministic assembly<br/>+ fabrication guard + re-score"]
-  A --> E["Export: Typst PDF · DOCX · TXT"]
-  API --> L["Provider chain: Ollama Cloud → OpenRouter (free) → Groq"]
-```
-
-- **Backend** (`backend/app`):
-  - `parsing/` turns files into text plus ATS layout signals.
-  - `llm/` holds the provider-chain client and versioned prompts.
-  - `knowledge/` holds the region packs, role families and lexicons.
-  - `scoring/` computes the scores; `guard/` holds the grounding and fabrication checks.
-  - `tailoring.py`, `export/` and `services/` hold the streaming pipelines.
-- **The backend is stateless:** the browser holds the analysis and sends it back for new versions and cover letters.
-- **Frontend** (`frontend/`):
-  - typed SSE client, run-scoped store (stale streams can't write into newer results);
-  - "Meridian" ledger design system: warm black, hairline rules, one gilt accent.
+- **Frontend:** Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS 4, shadcn/ui, zustand, idb-keyval for browser history, Vitest
+- **Backend:** Python 3.12, FastAPI, Pydantic v2, PyMuPDF and python-docx for parsing, Typst for PDF output, rapidfuzz, pytest and ruff
+- **LLM access:** the `openai` Python SDK against OpenAI-compatible endpoints
+- **Hosting:** Render (Docker for the API, Node for the frontend)
 
 ## LLM providers and models
 
-All free:
+Providers are tried in the order set by `LLM_PROVIDER_ORDER`; a provider without an API key is skipped. All of them have free tiers.
 
-| Role | Default | Fallbacks |
+| Provider | Default models | Notes |
 |---|---|---|
-| Extraction & judgment | Ollama Cloud `gpt-oss:120b` | Ollama `nemotron-3-super` → OpenRouter `nvidia/nemotron-3-super-120b-a12b:free` → `google/gemma-4-31b-it:free` |
-| Writing (tailor, letter) | Ollama Cloud `gpt-oss:120b` | same chain |
+| Ollama Cloud | `gpt-oss:120b`, then `nemotron-3-super` | Default. Fast enough (about 22 s per analysis) and every quote it returned was found in the resume |
+| Gemini (Google AI Studio) | `gemini-2.5-flash`, then `gemini-2.5-flash-lite` | Uses Google's OpenAI-compatible endpoint. The free tier allows about 10 requests a minute, so put it first only for light use |
+| Groq | `openai/gpt-oss-120b` | Same model family as the default, very fast |
+| OpenRouter | `nvidia/nemotron-3-super-120b-a12b:free`, `google/gemma-4-31b-it:free` | Last resort |
 
-- **Why gpt-oss:120b:** Ollama's free plan serves four models (gpt-oss:120b, nemotron-3-ultra, nemotron-3-super, gemma4:31b); Kimi, MiniMax, DeepSeek-Pro and GLM need Pro. All four were evaluated on this pipeline (below), and gpt-oss:120b gave 100% grounding with low variance at ~22 s per analysis. The larger Nemotron-3-Ultra matched its grounding but varied more and took ~4.4 min per analysis. Community "kimi-k3" uploads on Ollama are `gemma4:31b` behind a renamed system prompt, not Moonshot's model.
-- **Upgrading:** set `OLLAMA_WRITER_MODELS=kimi-k2.6,...` with a Pro key, or point `OPENROUTER_*` at paid models. No code change is needed.
-- **Picking a model in the UI:** users can choose the writing model under *Advanced*.
-- **Every structured call:**
-  - asks for JSON-schema output and also embeds the schema in the prompt (some servers accept `json_schema` without enforcing it);
-  - is validated with Pydantic, gets one repair round, then falls back to the next provider.
+Every structured call asks for JSON schema output, validates it with Pydantic, gets one repair attempt, and then falls back to the next model. Users can also pick the writing model under **Advanced options**.
 
-## How judging works (code first, model second)
+I compared the four models on Ollama's free plan with `backend/evals/run_eval.py` (three runs of the same resume, a strong resume against a weaker one, and the share of quotes found word for word in the resume):
 
-The free models are capable but not reliable judges, so every decision that can be made from facts is made in code (`backend/app/judging.py`). The model gets one narrow job, under a numbered procedure.
-
-| Decision | Who decides | How |
-|---|---|---|
-| "N+ years of experience" | **Code** | Years computed from the resume's own dates. Internships are excluded, overlapping roles count once and back-to-back roles merge. |
-| Degree requirements | **Code** | Degree level detected: B.Tech/B.E./BSc/BCA < M.Tech/MSc/MCA/MBA/PGDM < PhD. |
-| Certifications | **Code** | The core name (e.g. "AWS") must appear together with a certification word. |
-| A named skill or tool | **Code floor** | Only skills the requirement actually names count, via ~120 canonical skills plus synonyms and inflections. A bullet that shows the work = strong. A duty-style bullet, the skills list, or only part of an "X and Y" requirement = partial. "X or Y" and "X (e.g. Y)" accept any one. |
-| The same skill in other words ("Spring Boot" → Java, "trained interns" → mentoring) | **Model** | It must cite a bullet ID and an exact quote. Code verifies the quote; the model can only raise a status above the code floor, never lower it, and never overrule a code fact. |
-| Scores, knockouts, ranked fixes | **Code** | Computed from the reconciled evidence (rubric below). |
-
-Tailoring is planned the same way (`backend/app/tailor_plan.py`):
-- **Order:** bullet order comes from the weight of the requirements each bullet proves.
-- **Skills:** JD-matched skills move first and nothing is dropped.
-- **Mirroring:** each line may mirror a JD term only if it already says the same thing in other words (`k8s` → `Kubernetes`).
-- **Must rewrite:** lines with a weak opener are marked; if the model returns one unchanged, it gets one targeted repair call.
-- **Padding removal:** trailing outcome clauses the original never stated ("…, improving reliability") are deleted in code before the fabrication guard runs.
-
-### Career story (stage-aware, `backend/app/profile/`)
-
-The same split applies to the candidate's history. Code reads the timeline from the resume's dates, then judges it for the stage the candidate is at; the model's only job is to quote what each project does.
-
-- **Stage**: a degree ending after today with under a year of full-time work is a student, and the study year counts back from graduation by course length (B.Tech 4, BCA/BSc 3, MBA 2). Otherwise: fresh graduate (< 1 year), 1–3, 3–7 or 7+ years. Internships, NATS/NAPS apprenticeships and virtual simulations (Forage) never count as full-time work.
-- **Gaps and short stints**: breaks between study and work, and roles under a year. Year-only dates widen to the whole year, so imprecise dates never create a flag. Degrees taken mid-career (an MBA) are not gaps.
-- **Moves**: employers are classified from a curated India-first list (`employers.yaml`: services, product, MNC, mega-MNC, govt); unknown ones become a question, never a guess. The target move is the latest role against the JD's employer and field.
-- **Projects**: purpose 25 · original (not a todo/weather/Netflix-clone tutorial, or one with a stated extension) 20 · real use 20 · numbers 15 · technical depth 20 · −5 per custom name nobody explained. "Zephyr" is never treated as an unknown skill; it only needs five words saying what it is.
-
-| Component | Student · fresh graduate | 1–3 years | 3+ years |
-|---|---|---|---|
-| Projects | 40 | 20 | 10 |
-| Internships / apprenticeships | 25 | 5 | — |
-| Presentation (graduation year, CGPA, profile link) | 20 | 10 | — |
-| Continuity (gaps) | 15 | 20 | 25 |
-| Stability (roles under a year) | — | 25 | 30 |
-| Transition evidence for the move | — | 20 | 35 |
-
-Thresholds live in the region packs: India flags a 6-month gap (−30, or −50 at 12+ months) and roles under 12 months; International uses 9 months (−15/−25) and 9 months. An answered gap costs 10 until the resume states it, then nothing. Paid or unpaid never changes a score. Sixteen persona fixtures (`backend/tests/personas.yaml`: students, NATS apprentice, exam-prep gap, TCS → product, IBM → Google, sales → developer, a job-hopper with and without contract answers, a custom framework) pin each behaviour.
-
-## Accuracy evaluation
-
-**Judging accuracy against hand labels** (`backend/evals/accuracy.py`, `evals/golden/labels.yaml`). A recruiter-style label was written for every requirement of a Bengaluru SDE-2 job, for a weaker and a strong resume. Each version is run end to end on gpt-oss:120b:
-
-| Version | Runs | Accuracy | Overall score, weak resume | JD-match σ (weak / strong) |
+| Model | Overall score over 3 runs | Strong vs weak | Quotes found in resume | Time per analysis |
 |---|---|---|---|---|
-| v1: the model judges alone | 3 | 97.9% of 94 | 56–58 | 0.94 / 0 (but a 3-run diagnostic later showed JD match ranging 48–63) |
-| v2: first code-floor attempt | 3 | 91.8% of 97 | — | 5.31 / 2.94 |
-| v3: code-first judging | 3 | 98.9% of 94 | — | 1.89 / 0 |
-| v4: + deterministic JD parsing | 5 | 92.5% of 160 | 58–59 | 1.36 / 1.2 |
-| **v6: + evidence rules, vocabulary, two-pass matching (shipped)** | 5 | **98.8% of 160** | **58–61 (σ 1.0)** | 2.83 / **0** |
+| **gpt-oss:120b** (default) | 59 / 60 / 61 | 92 vs 59 | **100%** | **~22 s** |
+| nemotron-3-ultra | 59 / 61 / 58 | 88 vs 59 | 100% | ~265 s |
+| nemotron-3-super | 57 / 58 / 58 | 92 vs 57 | 100% | ~123 s |
+| gemma4:31b | 58 / 57 / 58 | 97 vs 58 | 95% | ~14 s |
 
-- **The biggest source of variance** was the model re-reading the JD differently each run: 13–16 requirements, merged into compounds, with shifting wording. Code now reads the JD's own bullets and headings.
-- **The strong resume** now scores 97 overall and 100 JD match on every run.
-- **The one remaining error:** a weak-resume duty no skill vocabulary covers ("Improve latency, reliability and observability…"), which only the model can judge. It accounts for the remaining JD-match spread.
+## How it works
 
-v2 is kept in the table on purpose: it's why every judging change is benchmarked before it ships.
+```mermaid
+flowchart LR
+  UI["Next.js frontend"] -- "REST + SSE" --> API["FastAPI backend"]
+  API --> P["Parse PDF / DOCX"]
+  P --> R["LLM: structure resume"] & J["LLM: read JD"]
+  R & J --> M["LLM: find evidence for each requirement"]
+  M --> V["Check every quote against the resume"]
+  V --> S["Scores computed in Python"]
+  S --> T["LLM: rewrite lines (streamed)"]
+  T --> G["Assemble resume, flag unsupported claims, re-score"]
+  G --> E["Export PDF / DOCX / TXT"]
+```
 
+The main design choice: **the model reads and writes, but code decides.**
 
-`backend/evals/run_eval.py` runs the real pipeline live: the same resume analysed 3 times, a strong resume vs the weaker sample, and the share of LLM quotes found verbatim in the resume. Results for every model on Ollama's free plan (2026-10-13):
+- **Scoring is plain Python.** The model's job is to find evidence: for each JD requirement it has to point at a resume line and quote it word for word. Code checks every quote against the resume and downgrades any it can't find. Facts that can be read directly, like years of experience from the dates, degree level and certifications, are worked out in code. The same inputs always give the same scores.
+- **The resume can't gain new facts.** Company names, titles and dates are copied by code. After the model rewrites a line, code flags any number, tool or name that isn't in the original, and any wording borrowed from the JD that the original doesn't support (for example "payments module" becoming "payment orchestration module"). The user sees these flags and can revert any line.
+- **The cover letter follows the same rule.** The model writes the paragraphs as JSON; code adds the date, recipient, subject line, greeting and sign-off, and drops any sentence that is a cliché or claims something the resume doesn't say.
+- **India first.** Region packs in `backend/app/knowledge/regions/` hold the rules recruiters actually apply: personal details and declaration sections are fine for PSU roles but read as dated at product companies, CGPA matters for freshers in services hiring, and photos and date of birth are flagged for applications abroad.
+- **Career stage.** `backend/app/profile/` reads the work history from the resume's dates and judges it for the candidate's stage (student, fresh graduate, 1 to 3, 3 to 7 or 7+ years): projects, internships, gaps, short stints, and moves like services to product or a field switch. Where only the candidate knows the answer (why a gap, whether a short role was a contract), the app asks, then re-scores instantly without another model call.
 
-| Model | Overall score, 3 runs | σ (gate ≤ 3) | Strong vs weak | Quote grounding (gate ≥ 98%) | Time per analysis |
-|---|---|---|---|---|---|
-| **gpt-oss:120b** (default) | 59 / 60 / 61 | 0.82 | 92 > 59 | **100%** | **~22 s** |
-| nemotron-3-ultra | 59 / 61 / 58 | 1.25 | 88 > 59 | 100% | ~265 s |
-| nemotron-3-super (fallback) | 57 / 58 / 58 | 0.47 | 92 > 57 | 100% | ~123 s |
-| gemma4:31b | 58 / 57 / 58 | 0.47 | 97 > 58 | 95% ✗ | ~14 s |
+Score weights (India): JD match 35%, ATS 20%, content 15%, region fit 10%, career story 20%. The "How scoring works" panel in the app lists the full rubric.
 
-Quality and region sub-scores were identical across every run and model (44 / 75), because they're computed by code from the resume itself. Unverified quotes are always downgraded, never credited.
+### Code layout
+
+```
+backend/app/
+  api/         routes, rate limiting, error handling
+  parsing/     PDF and DOCX text extraction plus layout checks
+  llm/         provider client and prompt templates
+  judging.py   requirement matching done in code
+  scoring/     match, ATS, content quality and region scores
+  profile/     career stage, timeline, projects and follow-up questions
+  guard/       quote checks and the fabrication check
+  services/    the streaming analyse, tailor and cover letter flows
+  export/      PDF (Typst), DOCX and TXT
+frontend/
+  app/         the single page
+  components/  input form, score board, tabs and panels
+  lib/         API client, SSE parsing, store, history
+```
+
+The backend keeps no state. The browser stores each analysis and sends it back when the user re-tailors, answers a question or writes a cover letter.
+
+## Accuracy
+
+`backend/evals/accuracy.py` checks the evidence step against hand-written labels: a recruiter-style status for every requirement of a Bengaluru SDE-2 job, for one strong and one weaker resume. On the current version, five runs agree with the labels on **98.8% of 160 judgments**. The strong resume scores 97 overall on every run, and the weaker one scores between 58 and 61.
+
+The biggest source of run-to-run variation was the model reading the JD's requirements differently each time, so the requirement list is now parsed from the JD's own bullets in code.
 
 ## Run locally
 
 ```bash
 # backend (Python 3.12+)
-cd backend && python3 -m venv .venv && .venv/bin/pip install -r requirements.txt -r requirements-dev.txt
-cp .env.example .env    # add OLLAMA_API_KEY (ollama.com) and/or OPENROUTER_API_KEY
+cd backend
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt -r requirements-dev.txt
+cp .env.example .env          # add at least one key: OLLAMA_API_KEY, GEMINI_API_KEY or GROQ_API_KEY
 .venv/bin/uvicorn app.main:app --reload --port 8000
 ```
 
-- **Keyless local LLM:** if you're signed in to Ollama locally, set `OLLAMA_BASE_URL=http://localhost:11434/v1` and `OLLAMA_*_MODELS=gpt-oss:120b-cloud` instead of an API key.
-
 ```bash
 # frontend (Node 20+, pnpm)
-cd frontend && pnpm install && cp .env.example .env.local && pnpm dev   # http://localhost:3000
+cd frontend
+pnpm install
+cp .env.example .env.local    # NEXT_PUBLIC_API_URL=http://localhost:8000
+pnpm dev                      # http://localhost:3000
 ```
 
-**Tests:**
-- `cd backend && .venv/bin/pytest -q && .venv/bin/ruff check .` (167 tests)
-- `cd frontend && pnpm test && pnpm tsc --noEmit` (24 tests)
+Where to get free keys: Ollama at ollama.com/settings/keys, Gemini at aistudio.google.com/apikey, Groq at console.groq.com/keys.
 
-**Live eval:** `cd backend && .venv/bin/python -m evals.run_eval --runs 3`
+**Tests:**
+
+```bash
+cd backend && .venv/bin/pytest -q && .venv/bin/ruff check .
+cd frontend && pnpm test && pnpm lint
+```
 
 ## Deploy
 
-`render.yaml` defines both services (Docker API and Node frontend) on Render's free plan.
+`render.yaml` defines both services on Render's free plan.
 
-- **Secrets:** set `OLLAMA_API_KEY`, `OPENROUTER_API_KEY` and `ALLOWED_ORIGINS` on the API, and `NEXT_PUBLIC_API_URL` on the frontend.
-- **URLs:** Render appends a random suffix to service hostnames (e.g. `-v0yd`), so copy the real URLs from each service page into `ALLOWED_ORIGINS` / `NEXT_PUBLIC_API_URL`, then rebuild the frontend (the API URL is inlined at build time).
-- **pnpm:** Render's `/usr/bin` is read-only, so the build runs `corepack pnpm …` rather than `corepack enable`.
-- **Keep-warm:** UptimeRobot pings `/health` and `/api/health` every 5 minutes.
+- Set the provider keys (`OLLAMA_API_KEY`, `GEMINI_API_KEY`, `GROQ_API_KEY`, `OPENROUTER_API_KEY`) and `ALLOWED_ORIGINS` on the API service, and `NEXT_PUBLIC_API_URL` on the frontend.
+- Render adds a random suffix to service hostnames, so copy the real URLs from each service page. The API URL is built into the frontend, so rebuild it after changing `NEXT_PUBLIC_API_URL`.
+- Render's `/usr/bin` is read-only, so the build calls `corepack pnpm` instead of `corepack enable`.
+- An UptimeRobot monitor pings `/health` and `/api/health` every 5 minutes to keep both services awake.
 
-## Known limitations and trade-offs
+## Limitations and trade-offs
 
-- **ATS score:** an estimate. Real ATS products don't publish scores; this models common parsing and keyword-filter behaviour.
-- **Scanned PDFs:** rejected with a clear message (no OCR).
-- **Free tiers:** rate limits and cold starts are real. The provider chain, input caching and the UI's wake-up notice mitigate them.
-- **Region packs:** researched, curated heuristics. The India pack and the lexicons were fact-checked; the International pack is a reviewed draft.
-- **Model sizes:** free models are smaller than paid frontier ones; prose quality improves with a Pro/paid writer model via env vars.
-- **No login** (by request). History lives only in the user's browser; resumes are never stored server-side.
+- **The ATS score is an estimate.** Real ATS products don't publish scores; this models common parsing and keyword-filter behaviour.
+- **Scanned PDFs are rejected** with a clear message; there's no OCR.
+- **Free tiers are slow and rate-limited.** A full analysis and tailoring run takes one to two minutes. The provider fallback chain and input caching help, but a busy free provider can still slow things down.
+- **Free models write less polished prose** than paid ones. Setting a paid model through environment variables improves it without code changes.
+- **Region rules are curated heuristics.** The India pack was checked against hiring guides; the international pack is a reviewed first draft.
+- **No login.** History lives only in the user's browser, and resumes are never stored on the server.

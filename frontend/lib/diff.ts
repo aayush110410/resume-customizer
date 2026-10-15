@@ -17,7 +17,7 @@ function bulletRows(before: Bullet[], after: Bullet[], label?: string): DiffRow[
 
 function entryRows(before: Entry[], after: Entry[]): DiffRow[] {
   const prev = new Map(before.map((e) => [e.id, e]));
-  return after.flatMap((e) => bulletRows(prev.get(e.id)?.bullets ?? [], e.bullets, `${e.title} — ${e.organization}`));
+  return after.flatMap((e) => bulletRows(prev.get(e.id)?.bullets ?? [], e.bullets, `${e.title}, ${e.organization}`));
 }
 
 /** Aligns two versions of the same resume by stable bullet IDs, so reorders and rewrites are both visible. */

@@ -1,4 +1,4 @@
-"""PDF/DOCX → text plus the layout signals ATS parsers trip over (columns, tables, images, hidden text)."""
+"""Extracts text from PDF/DOCX, plus the layout signals ATS parsers trip over (columns, tables, images, hidden text)."""
 
 import io
 import zipfile

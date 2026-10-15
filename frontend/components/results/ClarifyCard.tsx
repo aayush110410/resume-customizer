@@ -8,8 +8,8 @@ import { useAppStore } from "@/lib/store";
 import type { Answer, Profile } from "@/lib/types";
 import { useHydrated } from "@/lib/useHydrated";
 
-/** Things only the candidate knows (why a gap, what a short role was, what "Zephyr" is). Answers re-score in code
- * on the server — no model call — and carry into the next tailored version. */
+/** Questions only the candidate can answer (why a gap, what a short role was, what "Zephyr" is). Answers re-score
+ * in code on the server, with no model call, and carry into the next tailored version. */
 export function ClarifyCard({ profile }: { profile: Profile }) {
   const hydrated = useHydrated();
   const versions = useAppStore((s) => s.versions);

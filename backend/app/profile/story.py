@@ -1,13 +1,13 @@
-"""Story: does this candidate's history read well for the stage they are at? Six components, each 0–100,
+"""Story: does this candidate's history read well for the stage they are at? Six components, each scored 0-100,
 weighted by stage and renormalised over the ones that have something to judge.
 
-| component    | student · fresh_grad | early | mid · senior |
-| projects     | 40 | 20 | 10 |
-| internships  | 25 |  5 |  — |
-| presentation | 20 | 10 |  — |
-| continuity   | 15 | 20 | 25 |
-| stability    |  — | 25 | 30 |
-| transition   |  — | 20 | 35 |
+Weights (student and fresh_grad / early / mid and senior):
+- projects: 40 / 20 / 10
+- internships: 25 / 5 / 0
+- presentation: 20 / 10 / 0
+- continuity: 15 / 20 / 25
+- stability: 0 / 25 / 30
+- transition: 0 / 20 / 35
 """
 
 import re
@@ -35,7 +35,7 @@ STAGE_WEIGHTS: dict[Stage, dict[str, int]] = {
     "mid": {"projects": 10, "continuity": 25, "stability": 30, "transition": 35},
     "senior": {"projects": 10, "continuity": 25, "stability": 30, "transition": 35},
 }
-STABILITY = {0: 100, 1: 85, 2: 60, 3: 40, 4: 30}  # 5+ → 20: every explained stint counts
+STABILITY = {0: 100, 1: 85, 2: 60, 3: 40, 4: 30}  # 5 or more counted stints give 20; explained stints are not counted
 EXPLAINED_STINT = {"contract", "layoff", "project", "internship"}
 _STATED_GAP = re.compile(r"career break|sabbatical|gap year", re.I)
 _GRADES = re.compile(r"\b(c?gpa|cpi|sgpa)\b|\b\d{1,2}(\.\d+)?\s?%|\b\d\.\d{1,2}\s?/\s?10\b", re.I)
@@ -155,7 +155,7 @@ def stability_score(profile: Profile) -> Result:
     if score == 100:
         return score, []
     detail = f"{len(counted)} role(s) under a year in the last five years" + (
-        " — reads as a pattern of short stints." if len(counted) >= 3 else "."
+        ", which reads as a pattern of short stints." if len(counted) >= 3 else "."
     )
     fix = (
         "If these were contracts, layoffs or project roles, say so in Confirm a few things; the resume will label them."
