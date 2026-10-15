@@ -52,6 +52,9 @@ def clean_paragraph(
         for pattern, replacement in _REWRITES:
             sentence = pattern.sub(replacement, sentence)
         sentence = strip_invented_outcomes(source_text, sentence, trim_words=False)
+        first = sentence.split(" ", 1)[0].lower()
+        if first in kb.lexicons.action_verbs:  # a resume bullet pasted into a letter: "Reduced X" -> "I reduced X"
+            sentence = "I " + sentence[0].lower() + sentence[1:]
         borrowed = bool(jd_text) and borrowed_jd_words(sentence, source_text, jd_text or "", kb)
         if (
             _CLICHES.search(sentence)
@@ -71,7 +74,7 @@ def assemble(
     company = jd.company
     return CoverLetter(
         date=letter_date(today, region),
-        recipient=[line for line in ("Hiring Team", company, jd.location) if line],
+        recipient=[line for line in ("Hiring Team", company, _place(jd.location)) if line],
         subject=f"Subject: Application for {jd.title}" if region == "india" else None,
         salutation=f"Dear {company} Hiring Team," if company else "Dear Hiring Manager,",
         paragraphs=[p for p in paragraphs if p],
@@ -79,6 +82,11 @@ def assemble(
         name=contact.name,
         removed=list(removed),
     )
+
+
+def _place(location: str | None) -> str | None:
+    """'Bengaluru, India (hybrid)' -> 'Bengaluru, India'; work-mode notes don't belong in an address."""
+    return re.sub(r"\s*\([^)]*\)", "", location).strip() or None if location else None
 
 
 def letter_text(letter: CoverLetter) -> str:

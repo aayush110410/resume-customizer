@@ -105,3 +105,13 @@ def test_everyday_words_are_not_borrowed_jd_wording():
 def test_leveraging_becomes_using():
     kept, _ = clean_paragraph("I built REST APIs in Spring Boot, leveraging SQL.", SOURCE, KB)
     assert kept == "I built REST APIs in Spring Boot, using SQL."
+
+
+def test_bullet_style_sentences_become_first_person():
+    kept, _ = clean_paragraph("Reduced report generation time by 40% by rewriting slow SQL queries.", SOURCE, KB)
+    assert kept == "I reduced report generation time by 40% by rewriting slow SQL queries."
+
+
+def test_recipient_drops_work_mode_notes():
+    letter = assemble(["Opening."], Contact(name="A"), jd(location="Bengaluru, India (hybrid)"), "india", TODAY)
+    assert letter.recipient[-1] == "Bengaluru, India"
