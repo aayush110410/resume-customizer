@@ -193,6 +193,14 @@ def _merge(bad: list[str], jd_words: list[str]) -> list[str]:
 JD_REASON = "Uses job description wording your original doesn't state"
 
 
+def unsupported(text: str, source_text: str, kb: Knowledge, allowed_numbers: set[str] | None = None) -> list[str]:
+    """Numbers, tools and names in `text` that `source_text` doesn't contain."""
+    numbers = _numbers(source_text) | {n.rstrip("+") for n in (allowed_numbers or set())}
+    bad = [n for n in _numbers(text) if n.rstrip("+") not in numbers]
+    bad += [t for t in _fact_terms(text, kb.synonyms.groups) if not _present(t, source_text, kb)]
+    return list(dict.fromkeys(bad))
+
+
 def find_fabrications(
     original: ResumeDoc,
     original_text: str,

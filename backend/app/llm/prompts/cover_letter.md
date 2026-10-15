@@ -1,25 +1,30 @@
-<!-- version: 1 -->
-Task: write a cover letter for this candidate and job. Plain text only (no markdown), 250–350 words.
+<!-- version: 2 -->
+Task: write the body of a cover letter for this candidate and job. Code adds the date, recipient, subject line, greeting and sign-off, so write only the four parts below. Return JSON only.
 
 Hiring context:
 $context_brief
 
-Regional conventions to follow:
+Regional conventions:
 $conventions
 
 Tone: $tone_rule
+Length: $word_budget words in total across all parts.
 
-Structure:
-1. Greeting, then a 2–3 sentence opening that names the role ($jd_title at $company) and the candidate's single strongest, most relevant proof.
-2. Two short paragraphs, each proving one or two of the job's must-have requirements with facts from the resume (use the evidence quotes below; you may rephrase them but keep every number exactly).
-3. A brief close: interest in a conversation, plus availability details only as instructed below. Sign off with the candidate's name.
+Parts:
+- opening (2 sentences): the role ($jd_title at $company), the candidate's current title and employer, total experience, and the two or three skills that match the job best.
+- proof (exactly 2 paragraphs, 2–3 sentences each): each proves one of the job's must-have requirements with one concrete achievement from the evidence below. Keep every number exactly as written. Use the verb the resume uses: "developed" stays developed, never "designed and led".
+- motivation (1–2 sentences): why this company, using only what the job description says about the company or product.
+- closing (1–2 sentences): ask for a conversation. $notice_rule $auth_rule
 
-Availability: $notice_rule
-Work authorization: $auth_rule
+Hard rules:
+- Only facts from the resume. Never add a tool, employer, number, team size or result the resume doesn't state.
+- No clichés: not "I am writing to", "express my interest", "I am confident", "passionate", "team player", "hardworking", "seamless", "perfect fit", "kindly".
+- No greeting, no sign-off, no placeholders like [Company], no markdown.
+- First person, plain business English, short sentences.
 
-Rules: use only facts from the resume; never invent employers, numbers, tools or achievements; no clichés ("I am writing to express my interest", "hardworking", "team player"), no "Respected Sir/Madam", no "kindly".
-
-Strongest evidence for the job's requirements:
+Strongest evidence for the job's must-haves (requirement → resume quote):
 $proof_json
+
+$about_block
 
 $resume_block

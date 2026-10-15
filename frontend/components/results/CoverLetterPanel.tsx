@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Copy, Loader2 } from "lucide-react";
+import { Copy, Eye, Loader2, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { OutlineButton, Segmented } from "@/components/ledger";
 import { TONES } from "@/components/input/InputPanel";
 import { DownloadMenu } from "@/components/results/DownloadMenu";
+import { LetterPreview } from "@/components/results/LetterPreview";
 import { runCoverLetter, saveCoverLetterEdit } from "@/lib/flow";
 import { useAppStore } from "@/lib/store";
 import type { Tone } from "@/lib/types";
@@ -15,6 +16,8 @@ export function CoverLetterPanel() {
   const [tone, setTone] = useState<Tone>("balanced");
   const [notice, setNotice] = useState("");
   const [auth, setAuth] = useState("");
+  const [editing, setEditing] = useState(false);
+  const [removed, setRemoved] = useState<string[]>([]);
   if (!analysis) return null;
   const intl = analysis.region === "international";
   const contact = (versions.find((v) => v.id === activeVersionId)?.resume ?? analysis.resume).contact;
@@ -37,7 +40,10 @@ export function CoverLetterPanel() {
         <OutlineButton
           className="border-gold/60 text-gold"
           disabled={busy !== "idle"}
-          onClick={() => runCoverLetter({ tone, notice_period: notice.trim() || null, work_authorization: auth.trim() || null })}
+          onClick={async () => {
+            setEditing(false);
+            setRemoved(await runCoverLetter({ tone, notice_period: notice.trim() || null, work_authorization: auth.trim() || null }));
+          }}
         >
           {busy === "letter" && <Loader2 className="size-3.5 animate-spin" aria-hidden />}
           {coverLetter ? "Rewrite letter" : "Write cover letter"}
@@ -45,14 +51,27 @@ export function CoverLetterPanel() {
       </div>
       {(coverLetter || busy === "letter") && (
         <>
+          {removed.length > 0 && busy !== "letter" && (
+            <p className="text-[13px] leading-relaxed text-ink-3">
+              {removed.length} sentence{removed.length > 1 ? "s were" : " was"} left out because your resume doesn&apos;t back {removed.length > 1 ? "them" : "it"} up.
+            </p>
+          )}
+          {editing ? (
           <textarea
             aria-label="Cover letter"
             value={coverLetter}
             onChange={(e) => setCoverLetter(e.target.value)}
             onBlur={() => void saveCoverLetterEdit()}
-            className="min-h-[420px] w-full resize-y rounded-[14px] border border-rule-control bg-[rgba(0,0,0,0.22)] px-5 py-4 text-[14px] leading-[1.75] text-ink-2 focus:border-gold/60 focus:outline-none"
+            className="min-h-[520px] w-full resize-y rounded-[14px] border border-rule-control bg-[rgba(0,0,0,0.22)] px-5 py-4 text-[14px] leading-[1.75] text-ink-2 focus:border-gold/60 focus:outline-none"
           />
+          ) : (
+            <LetterPreview text={coverLetter} contact={contact} />
+          )}
           <div className="flex flex-wrap items-center gap-2">
+            <OutlineButton disabled={busy === "letter"} onClick={() => setEditing((e) => !e)}>
+              {editing ? <Eye className="size-3.5" aria-hidden /> : <Pencil className="size-3.5" aria-hidden />}
+              {editing ? "Preview" : "Edit text"}
+            </OutlineButton>
             <OutlineButton onClick={() => navigator.clipboard.writeText(coverLetter).then(() => toast.success("Copied"))}>
               <Copy className="size-3.5" aria-hidden />Copy
             </OutlineButton>

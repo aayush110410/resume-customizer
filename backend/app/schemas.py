@@ -386,6 +386,26 @@ class CoverLetterRequest(BaseModel):
     work_authorization: str | None = None
 
 
+class LetterBody(BaseModel):
+    """What the model writes; code adds the date, recipient, subject, greeting and sign-off."""
+
+    opening: str
+    proof: list[str]
+    motivation: str
+    closing: str
+
+
+class CoverLetter(BaseModel):
+    date: str
+    recipient: list[str]
+    subject: str | None = None
+    salutation: str
+    paragraphs: list[str]
+    sign_off: str
+    name: str
+    removed: list[str] = []  # sentences dropped because the resume doesn't support them
+
+
 class ExportRequest(BaseModel):
     kind: Literal["resume", "cover_letter"]
     format: Literal["pdf", "docx", "txt"]

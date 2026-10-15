@@ -97,20 +97,26 @@ export async function runNewVersion(settings: TailorSettings) {
   }
 }
 
-export async function runCoverLetter(opts: { tone: Tone; notice_period: string | null; work_authorization: string | null }) {
+/** Writes the letter; resolves to the sentences the server removed as unsupported by the resume. */
+export async function runCoverLetter(opts: { tone: Tone; notice_period: string | null; work_authorization: string | null }): Promise<string[]> {
   const s = store();
   const analysis = s.analysis;
-  if (!analysis) return;
+  if (!analysis) return [];
   const resume = s.versions.find((v) => v.id === s.activeVersionId)?.resume ?? analysis.resume;
   const signal = begin();
   const run = s.startRun();
   s.setCoverLetter("");
   s.setBusy("letter");
+  let removed: string[] = [];
   try {
     let text: string | undefined;
     await coverLetter({ analysis, resume, model: s.inputs.model, ...opts }, (e) => {
       store().applyEvent(run, e);
-      if (e.event === "done") text = (e.data as { text: string }).text;
+      if (e.event === "done") {
+        const d = e.data as { text: string; letter?: { removed: string[] } };
+        text = d.text;
+        removed = d.letter?.removed ?? [];
+      }
     }, signal);
     if (text !== undefined) {
       store().setCoverLetter(text);
@@ -121,6 +127,7 @@ export async function runCoverLetter(opts: { tone: Tone; notice_period: string |
   } finally {
     if (!signal.aborted) store().setBusy("idle");
   }
+  return removed;
 }
 
 export async function restoreSession(id: string) {

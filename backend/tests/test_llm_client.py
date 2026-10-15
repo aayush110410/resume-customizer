@@ -129,3 +129,9 @@ async def test_structured_calls_use_a_fixed_seed():
     c, calls = client_with({"a": ['{"x": 1}']})
     await c.structured("analysis", "s", "u", X)
     assert calls["a"][0]["seed"] == 7
+
+
+async def test_gemini_calls_send_no_seed():
+    c, calls = client_with({"gemini-2.5-flash": ['{"x": 1}']}, providers={"gemini-2.5-flash": "gemini"})
+    await c.structured("analysis", "s", "u", X)
+    assert "seed" not in calls["gemini-2.5-flash"][0]

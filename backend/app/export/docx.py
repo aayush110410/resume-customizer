@@ -97,6 +97,10 @@ def render_letter_docx(text: str, contact: Contact) -> bytes:
     text, contact = _clean(text), Contact.model_validate(_clean(contact.model_dump()))
     d = docx.Document()
     _header(d, contact, align=WD_ALIGN_PARAGRAPH.LEFT)
-    for para in paragraphs(text):
-        d.add_paragraph(para)
+    for block in paragraphs(text):
+        p = d.add_paragraph()
+        for i, line in enumerate(block.split("\n")):
+            if i:
+                p.runs[-1].add_break()
+            p.add_run(line).bold = block.startswith("Subject:")
     return _save(d)

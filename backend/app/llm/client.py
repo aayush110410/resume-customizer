@@ -173,7 +173,9 @@ class LLMClient:
         self, t: Target, system: str, user: str, schema: type[T], temperature: float, effort: Effort | None
     ) -> T:
         create = self._client(t).chat.completions.create
-        kwargs: dict[str, Any] = {"model": t.model, "temperature": temperature, "seed": SEED}
+        kwargs: dict[str, Any] = {"model": t.model, "temperature": temperature}
+        if t.provider != "gemini":  # Gemini's OpenAI endpoint doesn't take a seed
+            kwargs["seed"] = SEED
         if effort and "gpt-oss" in t.model:
             kwargs["extra_body"] = {"reasoning_effort": effort}
         # The schema also goes in the prompt: some OpenAI-compatible servers accept json_schema without enforcing it.

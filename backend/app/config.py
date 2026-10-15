@@ -7,7 +7,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from app.llm.client import Target
 
 Role = Literal["analysis", "writer"]
-PROVIDERS = ("ollama", "openrouter", "groq")
+PROVIDERS = ("ollama", "gemini", "groq", "openrouter")
 
 
 class Settings(BaseSettings):
@@ -23,12 +23,18 @@ class Settings(BaseSettings):
     openrouter_analysis_models: str = "nvidia/nemotron-3-super-120b-a12b:free,google/gemma-4-31b-it:free"
     openrouter_writer_models: str = "nvidia/nemotron-3-super-120b-a12b:free,google/gemma-4-31b-it:free"
 
+    # Google AI Studio key; Gemini's OpenAI-compatible endpoint
+    gemini_api_key: str = ""
+    gemini_base_url: str = "https://generativelanguage.googleapis.com/v1beta/openai/"
+    gemini_analysis_models: str = "gemini-2.5-flash,gemini-2.5-flash-lite"
+    gemini_writer_models: str = "gemini-2.5-flash,gemini-2.5-flash-lite"
+
     groq_api_key: str = ""
     groq_base_url: str = "https://api.groq.com/openai/v1"
     groq_analysis_models: str = "openai/gpt-oss-120b"
     groq_writer_models: str = "openai/gpt-oss-120b"
 
-    llm_provider_order: str = "ollama,openrouter,groq"
+    llm_provider_order: str = "ollama,gemini,groq,openrouter"
     llm_timeout_s: float = 90
 
     allowed_origins: str = "http://localhost:3000"

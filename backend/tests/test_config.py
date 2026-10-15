@@ -19,3 +19,13 @@ def test_build_targets_follows_order_and_local_ollama_needs_no_key(monkeypatch):
     t = build_targets(Settings(_env_file=None))
     assert [x.provider for x in t["analysis"]] == ["openrouter", "openrouter", "ollama", "ollama"]
     assert t["analysis"][2].api_key == "ollama"
+
+
+def test_gemini_uses_googles_openai_endpoint(monkeypatch):
+    for k in ("OLLAMA_API_KEY", "OPENROUTER_API_KEY", "GROQ_API_KEY"):
+        monkeypatch.delenv(k, raising=False)
+    monkeypatch.setenv("GEMINI_API_KEY", "g")
+    monkeypatch.setenv("LLM_PROVIDER_ORDER", "gemini")
+    t = build_targets(Settings(_env_file=None))
+    assert [x.model for x in t["analysis"]] == ["gemini-2.5-flash", "gemini-2.5-flash-lite"]
+    assert t["analysis"][0].base_url == "https://generativelanguage.googleapis.com/v1beta/openai/"
