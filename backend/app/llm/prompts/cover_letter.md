@@ -19,7 +19,9 @@ Parts:
 Hard rules:
 - Only facts from the resume. Never add a tool, employer, number, team size or result the resume doesn't state.
 - No clichés: not "I am writing to", "express my interest", "I am confident", "passionate", "team player", "hardworking", "seamless", "perfect fit", "kindly".
-- No greeting, no sign-off, no placeholders like [Company], no markdown.
+- No outcome the resume doesn't state: not ", ensuring high availability", not ", improving performance".
+- Describe the work in the resume's own words; don't borrow the job description's terms for it.
+- No greeting, no sign-off, no contact details (they are in the letterhead), no placeholders like [Company], no markdown.
 - First person, plain business English, short sentences.
 
 Strongest evidence for the job's must-haves (requirement → resume quote):

@@ -62,3 +62,23 @@ def test_letter_text_layout():
     assert blocks[1] == "Hiring Team\nAcme Payments\nBengaluru, India"
     assert blocks[2].startswith("Subject:") and blocks[3] == "Dear Acme Payments Hiring Team,"
     assert blocks[-1] == "Regards,\nArjun Mehta"
+
+
+def test_clean_paragraph_trims_outcomes_and_borrowed_jd_wording():
+    resume = "Handled production support and bug fixes for the payments module. Built REST APIs in Spring Boot."
+    jd_text = "Design Python and Java microservices for payment orchestration and reconciliation."
+    text = (
+        "I built REST APIs in Spring Boot, ensuring high availability. "
+        "I handled production support and bug fixes for the payment orchestration module."
+    )
+    kept, removed = clean_paragraph(text, resume, KB, jd_text=jd_text)
+    assert kept == "I built REST APIs in Spring Boot."
+    assert any("orchestration" in r for r in removed)
+
+
+def test_contact_details_are_not_repeated_in_the_body():
+    source = SOURCE + " arjun@example.com +91 98765 43210"
+    kept, removed = clean_paragraph(
+        "I would welcome a conversation. You can reach me at +91 98765 43210 or arjun@example.com.", source, KB
+    )
+    assert kept == "I would welcome a conversation." and len(removed) == 1

@@ -194,6 +194,11 @@ def _merge(bad: list[str], jd_words: list[str]) -> list[str]:
 JD_REASON = "Uses job description wording your original doesn't state"
 
 
+def borrowed_jd_words(text: str, source_text: str, jd_text: str, kb: Knowledge) -> list[str]:
+    """JD words in `text` that `source_text` never uses (see _jd_wording)."""
+    return _jd_wording(text, source_text, _stems(source_text), _stems(jd_text), kb)
+
+
 def unsupported(text: str, source_text: str, kb: Knowledge, allowed_numbers: set[str] | None = None) -> list[str]:
     """Numbers, tools and names in `text` that `source_text` doesn't contain."""
     numbers = _numbers(source_text) | {n.rstrip("+") for n in (allowed_numbers or set())}

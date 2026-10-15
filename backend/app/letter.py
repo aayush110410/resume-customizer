@@ -4,11 +4,13 @@ and drops any sentence that is a cliché or claims something the resume doesn't 
 import re
 from datetime import date
 
-from app.guard.grounding import unsupported
+from app.guard.grounding import borrowed_jd_words, unsupported
 from app.knowledge.models import Knowledge
 from app.schemas import Contact, CoverLetter, JDAnalysis, Region
+from app.tailoring import strip_invented_outcomes
 
 _SENTENCE = re.compile(r"(?<=[.!?])\s+")
+_CONTACT = re.compile(r"\S+@\S+\.\w+|\+?\d[\d\s-]{8,}\d")  # already in the letterhead
 _CLICHES = re.compile(
     r"\b(i am writing to|writing to (apply|express)|express(ing)? my interest|i am confident|i believe i would|"
     r"team player|hard-?working|result-?oriented|results-?driven|passionate|dynamic|synergy|seamless(ly)?|"
@@ -25,14 +27,27 @@ def letter_date(today: date, region: Region) -> str:
 
 
 def clean_paragraph(
-    text: str, source_text: str, kb: Knowledge, allowed_numbers: set[str] | None = None
+    text: str,
+    source_text: str,
+    kb: Knowledge,
+    allowed_numbers: set[str] | None = None,
+    jd_text: str | None = None,
 ) -> tuple[str, list[str]]:
-    """Keep the sentences that are free of clichés and only state facts found in the source."""
+    """Keep the sentences that are free of clichés and only state facts found in the source. Trailing outcome
+    clauses the source doesn't support are trimmed; with `jd_text`, a sentence that borrows JD wording the
+    source never uses is dropped."""
     kept, removed = [], []
     for sentence in _SENTENCE.split(" ".join(text.split())):
         if not sentence:
             continue
-        if _CLICHES.search(sentence) or unsupported(sentence, source_text, kb, allowed_numbers):
+        sentence = strip_invented_outcomes(source_text, sentence)
+        borrowed = bool(jd_text) and borrowed_jd_words(sentence, source_text, jd_text or "", kb)
+        if (
+            _CLICHES.search(sentence)
+            or _CONTACT.search(sentence)
+            or unsupported(sentence, source_text, kb, allowed_numbers)
+            or borrowed
+        ):
             removed.append(sentence)
         else:
             kept.append(sentence)

@@ -53,15 +53,16 @@ async def cover_letter_stream(req: CoverLetterRequest, llm: LLM, kb: Knowledge) 
     body = r.value
     resume_text = a.resume_text + "\n" + render_plain(req.resume)
     years = {str(int(a.resume.total_years_experience))} if a.resume.total_years_experience else set()
+    # (text, facts it may use, JD to check for borrowed wording). The company paragraph may quote the JD.
     parts = [
-        (body.opening, resume_text),
-        *((p, resume_text) for p in body.proof[:2]),
-        (body.motivation, resume_text + "\n" + a.jd_text),  # facts about the company may come from the JD
-        (body.closing, f"{resume_text}\n{notice}\n{auth}"),
+        (body.opening, resume_text, a.jd_text),
+        *((p, resume_text, a.jd_text) for p in body.proof[:2]),
+        (body.motivation, resume_text + "\n" + a.jd_text, None),
+        (body.closing, f"{resume_text}\n{notice}\n{auth}", None),
     ]
     paragraphs, removed = [], []
-    for text, source in parts:
-        kept, dropped = clean_paragraph(text, source, kb, years)
+    for text, source, jd_text in parts:
+        kept, dropped = clean_paragraph(text, source, kb, years, jd_text)
         paragraphs.append(kept)
         removed += dropped
     letter = assemble(paragraphs, req.resume.contact, a.jd, a.region, date.today(), removed)
