@@ -82,3 +82,14 @@ def test_contact_details_are_not_repeated_in_the_body():
         "I would welcome a conversation. You can reach me at +91 98765 43210 or arjun@example.com.", source, KB
     )
     assert kept == "I would welcome a conversation." and len(removed) == 1
+
+
+def test_free_sentences_are_not_truncated():
+    sentence = "I built REST APIs in Spring Boot and would welcome a call to discuss the role."
+    kept, removed = clean_paragraph(sentence, SOURCE, KB)
+    assert kept == sentence and removed == []
+
+
+def test_enthusiasm_filler_is_dropped():
+    kept, removed = clean_paragraph("I am excited to contribute to your team. I cut report time by 40%.", SOURCE, KB)
+    assert kept == "I cut report time by 40%." and len(removed) == 1

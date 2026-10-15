@@ -1,3 +1,5 @@
+import json
+
 from fastapi.testclient import TestClient
 
 from app.api.deps import get_llm
@@ -51,3 +53,15 @@ def test_prompt_mentions_notice_period_only_when_given(analysis_json):  # noqa: 
 def test_model_failure_is_an_error_event(analysis_json):  # noqa: F811
     ev = post(FakeLLM(fail=True), analysis_json)
     assert ev[-1][0] == "error"
+
+
+def test_letter_facts_come_from_the_original_resume(analysis_json):  # noqa: F811
+    tailored = json.loads(json.dumps(analysis_json["resume"]))
+    tailored["experience"][0]["bullets"][0]["text"] = "Built Snowflake pipelines for 2M daily payments"
+    body = BODY | {"proof": ["I built Snowflake pipelines for the payments team.", BODY["proof"][0]]}
+    ev = sse_events(
+        client(FakeLLM({"LetterBody": [body]})).post(
+            "/api/cover-letter", json={"analysis": analysis_json, "resume": tailored}
+        )
+    )
+    assert "Snowflake" not in ev[-1][1]["text"]

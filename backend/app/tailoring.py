@@ -77,7 +77,7 @@ def _supported(clause: str, original: str) -> bool:
     return sum(w[:5] in stems for w in words) / len(words) >= 0.6
 
 
-def strip_invented_outcomes(original: str, rewritten: str) -> str:
+def strip_invented_outcomes(original: str, rewritten: str, trim_words: bool = True) -> str:
     """Removes trailing ", improving X" / "and ensuring Y" clauses the writer added without support in the original."""
     text = rewritten.strip()
     end = "." if text.endswith(".") else ""
@@ -87,6 +87,8 @@ def strip_invented_outcomes(original: str, rewritten: str) -> str:
         if _supported(tail, original):
             break
         body, changed = body[: starts[-1]].rstrip(" ,"), True
+    if not trim_words:
+        return body + end if changed else text
     # Then trailing words after the last word the original also contains ("queries significantly").
     stems = {w[:5] for w in re.findall(r"[a-z]+", original.lower())}
     numbers = set(re.findall(r"\d[\d,.]*%?", original))

@@ -15,7 +15,7 @@ _CLICHES = re.compile(
     r"\b(i am writing to|writing to (apply|express)|express(ing)? my interest|i am confident|i believe i would|"
     r"team player|hard-?working|result-?oriented|results-?driven|passionate|dynamic|synergy|seamless(ly)?|"
     r"go-getter|kindly|do the needful|thanking you in anticipation|respected sir|to whom it may concern|"
-    r"perfect fit|dream (job|role)|excited to apply|humbly)\b",
+    r"perfect fit|dream (job|role)|excited to apply|humbly|add value|(i am|i'm) (excited|thrilled|eager|delighted) to)\b",
     re.I,
 )
 
@@ -40,7 +40,7 @@ def clean_paragraph(
     for sentence in _SENTENCE.split(" ".join(text.split())):
         if not sentence:
             continue
-        sentence = strip_invented_outcomes(source_text, sentence)
+        sentence = strip_invented_outcomes(source_text, sentence, trim_words=False)
         borrowed = bool(jd_text) and borrowed_jd_words(sentence, source_text, jd_text or "", kb)
         if (
             _CLICHES.search(sentence)

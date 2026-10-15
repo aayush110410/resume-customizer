@@ -11,6 +11,7 @@ from app.resume_ops import render_contact, render_plain
 from app.schemas import CoverLetterRequest, LetterBody
 from app.services import ServerEvent, stage
 from app.services.tailor import TONE_RULES
+from app.tailoring import confirmed_facts
 
 LETTER_TEMPERATURE = 0.5
 WORD_BUDGET = {"india": "180–250", "international": "250–350"}
@@ -51,7 +52,9 @@ async def cover_letter_stream(req: CoverLetterRequest, llm: LLM, kb: Knowledge) 
         model=req.model,
     )
     body = r.value
-    resume_text = a.resume_text + "\n" + render_plain(req.resume)
+    # Facts are checked against the original resume (and what the candidate confirmed), not the tailored
+    # version, so wording a rewrite borrowed can't slip into the letter.
+    resume_text = "\n".join([a.resume_text, render_plain(a.resume), confirmed_facts(a.profile)])
     years = {str(int(a.resume.total_years_experience))} if a.resume.total_years_experience else set()
     # (text, facts it may use, JD to check for borrowed wording). The company paragraph may quote the JD.
     parts = [
