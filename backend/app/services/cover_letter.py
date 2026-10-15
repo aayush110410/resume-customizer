@@ -54,7 +54,10 @@ async def cover_letter_stream(req: CoverLetterRequest, llm: LLM, kb: Knowledge) 
     body = r.value
     # Facts are checked against the original resume (and what the candidate confirmed), not the tailored
     # version, so wording a rewrite borrowed can't slip into the letter.
-    resume_text = "\n".join([a.resume_text, render_plain(a.resume), confirmed_facts(a.profile)])
+    # Naming the role and the company is never a claim, so the JD title and company count as known facts.
+    resume_text = "\n".join(
+        [a.resume_text, render_plain(a.resume), confirmed_facts(a.profile), a.jd.title, a.jd.company or ""]
+    )
     years = {str(int(a.resume.total_years_experience))} if a.resume.total_years_experience else set()
     # (text, facts it may use, JD to check for borrowed wording). The company paragraph may quote the JD.
     parts = [

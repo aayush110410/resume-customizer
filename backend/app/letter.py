@@ -15,9 +15,16 @@ _CLICHES = re.compile(
     r"\b(i am writing to|writing to (apply|express)|express(ing)? my interest|i am confident|i believe i would|"
     r"team player|hard-?working|result-?oriented|results-?driven|passionate|dynamic|synergy|seamless(ly)?|"
     r"go-getter|kindly|do the needful|thanking you in anticipation|respected sir|to whom it may concern|"
-    r"perfect fit|dream (job|role)|excited to apply|humbly|add value|(i am|i'm) (excited|thrilled|eager|delighted) to)\b",
+    r"perfect fit|dream (job|role)|excited to apply|humbly)\b",
     re.I,
 )
+
+
+# Filler lead-ins are reworded rather than dropped, so the sentence's real content survives.
+_REWRITES = [
+    (re.compile(r"\b(I am|I'm) (excited|thrilled|eager|delighted) to\b", re.I), "I would like to"),
+    (re.compile(r"\badd value to\b", re.I), "contribute to"),
+]
 
 
 def letter_date(today: date, region: Region) -> str:
@@ -40,6 +47,8 @@ def clean_paragraph(
     for sentence in _SENTENCE.split(" ".join(text.split())):
         if not sentence:
             continue
+        for pattern, replacement in _REWRITES:
+            sentence = pattern.sub(replacement, sentence)
         sentence = strip_invented_outcomes(source_text, sentence, trim_words=False)
         borrowed = bool(jd_text) and borrowed_jd_words(sentence, source_text, jd_text or "", kb)
         if (

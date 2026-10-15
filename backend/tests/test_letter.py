@@ -90,6 +90,13 @@ def test_free_sentences_are_not_truncated():
     assert kept == sentence and removed == []
 
 
-def test_enthusiasm_filler_is_dropped():
+def test_enthusiasm_filler_is_rewritten_not_dropped():
     kept, removed = clean_paragraph("I am excited to contribute to your team. I cut report time by 40%.", SOURCE, KB)
-    assert kept == "I cut report time by 40%." and len(removed) == 1
+    assert kept == "I would like to contribute to your team. I cut report time by 40%." and removed == []
+
+
+def test_everyday_words_are_not_borrowed_jd_wording():
+    source = "Responsible for developing REST APIs in Spring Boot for a US banking client."
+    jd_text = "You will have to build and own REST APIs. Join a team that has shipped payments at scale."
+    sentence = "I have developed REST APIs using Spring Boot for a US banking client."
+    assert clean_paragraph(sentence, source, KB, jd_text=jd_text) == (sentence, [])

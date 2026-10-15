@@ -65,3 +65,10 @@ def test_letter_facts_come_from_the_original_resume(analysis_json):  # noqa: F81
         )
     )
     assert "Snowflake" not in ev[-1][1]["text"]
+
+
+def test_naming_the_role_is_not_a_claim(analysis_json):  # noqa: F811
+    title = analysis_json["jd"]["title"]
+    body = BODY | {"opening": f"I am applying for the {title} role."}
+    ev = post(FakeLLM({"LetterBody": [body]}), analysis_json)
+    assert f"applying for the {title} role" in ev[-1][1]["text"]
