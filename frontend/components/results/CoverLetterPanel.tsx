@@ -35,8 +35,11 @@ export function CoverLetterPanel() {
           <input className={field} value={auth} onChange={(e) => setAuth(e.target.value)} placeholder={intl ? "e.g. Requires H-1B sponsorship" : "e.g. Indian citizen"} />
         </label>
       </div>
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="w-full max-w-sm"><Segmented label="Letter tone" value={tone} options={TONES} onChange={setTone} /></div>
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div className="flex flex-col gap-2 text-[13px] text-ink-3">
+          Letter tone
+          <Segmented label="Letter tone" value={tone} options={TONES} onChange={setTone} />
+        </div>
         <OutlineButton
           className="border-gold/60 text-gold"
           disabled={busy !== "idle"}
@@ -49,6 +52,12 @@ export function CoverLetterPanel() {
           {coverLetter ? "Rewrite letter" : "Write cover letter"}
         </OutlineButton>
       </div>
+      {!coverLetter && busy !== "letter" && (
+        <p className="max-w-2xl text-[13.5px] leading-relaxed text-ink-3">
+          A one-page letter built from your strongest evidence for this job: an opening, two short proof paragraphs, a
+          line on why this company, and a close. Sentences your resume doesn&apos;t back up are left out.
+        </p>
+      )}
       {(coverLetter || busy === "letter") && (
         <>
           {removed.length > 0 && busy !== "letter" && (

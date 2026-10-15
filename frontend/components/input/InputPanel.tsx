@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2 } from "lucide-react";
+import { ChevronDown, Loader2, SlidersHorizontal } from "lucide-react";
 import { OutlineButton, Segmented, ToggleChip } from "@/components/ledger";
 import { ResumeDropzone } from "@/components/input/ResumeDropzone";
 import { runAnalyzeAndTailor } from "@/lib/flow";
@@ -24,6 +24,7 @@ export function InputPanel({ meta, onSubmitted }: { meta?: Meta; onSubmitted?: (
   const { inputs, setInput, busy } = useAppStore();
   const ready = useHydrated();
   const [touched, setTouched] = useState(false);
+  const [advanced, setAdvanced] = useState(false);
   const errors = validateInputs(inputs);
   const shown = touched ? errors : {};
   const running = busy !== "idle";
@@ -103,23 +104,42 @@ export function InputPanel({ meta, onSubmitted }: { meta?: Meta; onSubmitted?: (
         </div>
       </section>
 
-      <details className="group border-t border-rule-section pt-4">
-        <summary className="eyebrow cursor-pointer list-none hover:text-ink">Advanced · tone and model</summary>
-        <div className="mt-4 flex flex-col gap-4">
-          <Segmented label="Tone" value={inputs.tone} options={TONES} onChange={(v) => setInput("tone", v)} />
-          <label className="flex flex-col gap-2 text-[14px] text-ink-3">
-            Writing model
-            <select
-              value={inputs.model ?? ""}
-              onChange={(e) => setInput("model", e.target.value || null)}
-              className="min-h-10 rounded-full border border-rule-control bg-shell px-3 text-[13px] text-ink focus:border-gold/60 focus:outline-none"
-            >
-              <option value="">Automatic (best available)</option>
-              {writers.map((m) => <option key={m.id} value={m.id}>{m.id}</option>)}
-            </select>
-          </label>
-        </div>
-      </details>
+      <section className="flex flex-col gap-4 border-t border-rule-section pt-4">
+        <OutlineButton
+          aria-expanded={advanced}
+          aria-controls="advanced-options"
+          onClick={() => setAdvanced((a) => !a)}
+          className="w-full justify-between"
+        >
+          <span className="flex items-center gap-2">
+            <SlidersHorizontal className="size-3.5" aria-hidden />
+            Advanced options
+          </span>
+          <span className="flex items-center gap-2 text-[12.5px] font-normal text-ink-3">
+            {TONES.find((t) => t.value === inputs.tone)?.label} · {inputs.model ?? "auto model"}
+            <ChevronDown className={cn("size-3.5 transition-transform duration-300", advanced && "rotate-180")} aria-hidden />
+          </span>
+        </OutlineButton>
+        {advanced && (
+          <div id="advanced-options" className="flex flex-col gap-4">
+            <div className="flex flex-col gap-2 text-[14px] text-ink-3">
+              Rewrite tone
+              <Segmented label="Rewrite tone" value={inputs.tone} options={TONES} onChange={(v) => setInput("tone", v)} />
+            </div>
+            <label className="flex flex-col gap-2 text-[14px] text-ink-3">
+              Writing model
+              <select
+                value={inputs.model ?? ""}
+                onChange={(e) => setInput("model", e.target.value || null)}
+                className="min-h-10 rounded-full border border-rule-control bg-shell px-3 text-[13px] text-ink focus:border-gold/60 focus:outline-none"
+              >
+                <option value="">Automatic (best available)</option>
+                {writers.map((m) => <option key={m.id} value={m.id}>{m.id}</option>)}
+              </select>
+            </label>
+          </div>
+        )}
+      </section>
 
       <button type="submit" disabled={!ready || running || inputs.sections.length === 0} className="gold-cta flex min-h-12 w-full items-center justify-center gap-2 text-[12px] font-semibold tracking-[0.22em] uppercase">
         {running && <Loader2 className="size-4 animate-spin" aria-hidden />}

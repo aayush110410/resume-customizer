@@ -119,7 +119,7 @@ export function LedgerTabs<T extends string>({
     refs.current[next]?.focus();
   };
   return (
-    <div role="tablist" aria-label={label} className="no-scrollbar flex gap-2 overflow-x-auto">
+    <div role="tablist" aria-label={label} className="flex flex-wrap gap-2">
       {tabs.map((t, i) => (
         <button
           key={t.value}

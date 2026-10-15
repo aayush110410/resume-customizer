@@ -64,7 +64,12 @@ export function ScoreBoard({ before, after, region, focus, onFocus, onHowWeScore
           <span className="figure mt-1 block text-[60px] leading-[0.95] font-light tracking-[-0.02em] text-ink">{shown.overall}</span>
           {after && <span className="figure mt-1 block text-[13.5px] text-ink-3">was {before.overall} <Delta value={after.overall - before.overall} /></span>}
         </button>
-        <div className={cn("grid grid-cols-2 gap-2.5", keys.length > 4 ? "sm:grid-cols-3 lg:grid-cols-5" : "lg:grid-cols-4")}>
+        <div
+          className={cn(
+            "grid grid-cols-2 gap-2.5",
+            keys.length > 4 ? "max-sm:[&>:last-child]:col-span-2 sm:grid-cols-3 lg:grid-cols-5" : "lg:grid-cols-4",
+          )}
+        >
           {keys.map((k) => {
             const b = before.subscores[k]?.score ?? 0;
             const a = after?.subscores[k]?.score;
@@ -75,11 +80,11 @@ export function ScoreBoard({ before, after, region, focus, onFocus, onHowWeScore
                 aria-pressed={focus === k}
                 onClick={() => onFocus(focus === k ? "all" : k)}
                 className={cn(
-                  "tile flex flex-col items-start gap-1 px-4 py-3.5 text-left transition-[border-color,box-shadow] duration-300",
+                  "tile flex min-w-0 flex-col items-start gap-1 px-3.5 py-3.5 text-left transition-[border-color,box-shadow] duration-300",
                   focus === k ? "border-[rgba(217,189,139,0.45)]! shadow-[0_10px_26px_-14px_rgba(217,189,139,0.45)]" : "hover:border-[rgba(217,189,139,0.25)]!",
                 )}
               >
-                <span className="text-[13px] text-ink-3">{SHORT[k]}</span>
+                <span className="whitespace-nowrap text-[13px] text-ink-3">{SHORT[k]}</span>
                 <span className="flex items-baseline gap-2">
                   <span className="figure text-[24px] font-medium text-ink">{a ?? b}</span>
                   {a !== undefined && <Delta value={a - b} />}
