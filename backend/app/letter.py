@@ -24,6 +24,8 @@ _CLICHES = re.compile(
 _REWRITES = [
     (re.compile(r"\b(I am|I'm) (excited|thrilled|eager|delighted) to\b", re.I), "I would like to"),
     (re.compile(r"\badd value to\b", re.I), "contribute to"),
+    (re.compile(r"\bleveraging\b", re.I), "using"),
+    (re.compile(r"\bleverage\b", re.I), "use"),
 ]
 
 

@@ -100,3 +100,8 @@ def test_everyday_words_are_not_borrowed_jd_wording():
     jd_text = "You will have to build and own REST APIs. Join a team that has shipped payments at scale."
     sentence = "I have developed REST APIs using Spring Boot for a US banking client."
     assert clean_paragraph(sentence, source, KB, jd_text=jd_text) == (sentence, [])
+
+
+def test_leveraging_becomes_using():
+    kept, _ = clean_paragraph("I built REST APIs in Spring Boot, leveraging SQL.", SOURCE, KB)
+    assert kept == "I built REST APIs in Spring Boot, using SQL."

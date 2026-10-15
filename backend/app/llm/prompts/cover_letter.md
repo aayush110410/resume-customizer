@@ -13,7 +13,7 @@ Length: $word_budget words in total across all parts.
 Parts:
 - opening (2 sentences): the role ($jd_title at $company), the candidate's current title and employer, total experience, and the two or three skills that match the job best.
 - proof (exactly 2 paragraphs, 2–3 sentences each): each proves one of the job's must-have requirements with one concrete achievement from the evidence below. Keep every number exactly as written. Use the verb the resume uses: "developed" stays developed, never "designed and led".
-- motivation (1–2 sentences): why this company, using only what the job description says about the company or product.
+- motivation (1–2 sentences): why this company, using only what the job description says about the company or product. Talk about the company here, not about the candidate's experience.
 - closing (1–2 sentences): ask for a conversation. $notice_rule $auth_rule
 
 Hard rules:
