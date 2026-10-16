@@ -35,7 +35,7 @@ export function StoryTimeline({ profile }: { profile: Profile }) {
       <CardTitle meta={stageLine(profile)}>Career story</CardTitle>
 
       {targets.map((m) => (
-        <p key={m.kind} className="text-[13.5px] leading-relaxed text-ink-2">
+        <p key={m.kind} className="text-sm leading-relaxed text-ink-2">
           This application is a <span className="text-gold">{MOVE[m.kind]}</span>: {m.from_label} → {m.to_label}.
         </p>
       ))}
@@ -44,10 +44,10 @@ export function StoryTimeline({ profile }: { profile: Profile }) {
         <div className="flex flex-col gap-2" role="list" aria-label="Timeline">
           {dated.map((s) => (
             <div key={s.entry_id} role="listitem" className="grid grid-cols-[minmax(0,150px)_minmax(0,1fr)] items-center gap-3">
-              <span className="truncate text-[12.5px] text-ink-3" title={`${s.title}, ${s.organization}`}>
+              <span className="truncate text-xs text-ink-3" title={`${s.title}, ${s.organization}`}>
                 {s.organization}{KIND[s.kind] ? ` · ${KIND[s.kind]}` : ""}
               </span>
-              <span className="relative h-2.5 rounded-full bg-[var(--tint-gold-ghost)]">
+              <span className="relative h-2.5 rounded-full bg-gold/5">
                 <span
                   className={cn(
                     "absolute inset-y-0 rounded-full",
@@ -63,7 +63,7 @@ export function StoryTimeline({ profile }: { profile: Profile }) {
           ))}
           {profile.gaps.length > 0 && (
             <div role="listitem" className="grid grid-cols-[minmax(0,150px)_minmax(0,1fr)] items-center gap-3">
-              <span className="text-[12.5px] text-down">Gaps</span>
+              <span className="text-xs text-down">Gaps</span>
               <span className="relative h-2.5">
                 {profile.gaps.map((g) => (
                   <span
@@ -80,7 +80,7 @@ export function StoryTimeline({ profile }: { profile: Profile }) {
             <span />
             <span className="relative h-4">
               {years.map((y) => (
-                <span key={y} className="figure absolute text-[11px] text-ink-4" style={{ left: `${((Math.max(y * 12, from) - from) / span) * 100}%` }}>
+                <span key={y} className="tabular-nums absolute text-xs text-ink-4" style={{ left: `${((Math.max(y * 12, from) - from) / span) * 100}%` }}>
                   {y}
                 </span>
               ))}
@@ -93,8 +93,8 @@ export function StoryTimeline({ profile }: { profile: Profile }) {
         <ul className="flex flex-col">
           {profile.projects.map((p) => (
             <li key={p.project_id} className="flex items-baseline gap-3 border-t border-rule-section py-3">
-              <span className="figure w-8 shrink-0 text-[15px] text-ink">{p.score}</span>
-              <span className="min-w-0 text-[13.5px] leading-relaxed text-ink-2">
+              <span className="tabular-nums w-8 shrink-0 text-base text-ink">{p.score}</span>
+              <span className="min-w-0 text-sm leading-relaxed text-ink-2">
                 <span className="text-ink">{p.title}</span>
                 {p.notes[0] ? <span className="text-ink-3">: {p.notes[0]}</span> : <span className="text-ink-3">: reads as real work.</span>}
               </span>
@@ -102,7 +102,7 @@ export function StoryTimeline({ profile }: { profile: Profile }) {
           ))}
         </ul>
       )}
-      {profile.rules_only && <p className="text-[12.5px] text-ink-3">Project details were checked with basic rules this time.</p>}
+      {profile.rules_only && <p className="text-xs text-ink-3">Project details were checked with basic rules this time.</p>}
     </section>
   );
 }

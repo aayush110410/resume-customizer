@@ -7,7 +7,7 @@ function Marked({ text, terms }: { text: string; terms: string[] }) {
   return (
     <>
       {highlight(text, terms).map((s, i) =>
-        s.hit ? <mark key={i} className="rounded-[4px] bg-[rgba(217,189,139,0.14)] px-0.5 text-gold-hi">{s.text}</mark> : <span key={i}>{s.text}</span>,
+        s.hit ? <mark key={i} className="rounded-sm bg-gold/15 px-0.5 text-gold-hi">{s.text}</mark> : <span key={i}>{s.text}</span>,
       )}
     </>
   );
@@ -18,7 +18,7 @@ type Revert = ((targetId: string) => void) | undefined;
 function UseOriginal({ id, onRevert }: { id: string; onRevert: Revert }) {
   if (!onRevert) return null;
   return (
-    <button type="button" onClick={() => onRevert(id)} className="ml-2 text-[12px] text-gold-dim underline underline-offset-4 hover:text-gold">
+    <button type="button" onClick={() => onRevert(id)} className="ml-2 text-xs text-gold-dim underline underline-offset-4 hover:text-gold">
       Use original
     </button>
   );
@@ -30,7 +30,7 @@ function Bullets({ bullets, flags, onRevert, terms = [] }: { bullets: Bullet[]; 
       {bullets.map((b) => {
         const f = flags.get(b.id);
         return (
-          <li key={b.id} className="grid grid-cols-[10px_1fr] gap-2 text-[13.5px] leading-[1.6] text-ink-2">
+          <li key={b.id} className="grid grid-cols-[10px_1fr] gap-2 text-sm leading-relaxed text-ink-2">
             <span className="mt-[9px] size-1 bg-gold-dim" aria-hidden />
             <span className={cn(f && "decoration-gold-dim underline decoration-dotted underline-offset-4")}>
               <Marked text={b.text} terms={terms} />
@@ -48,8 +48,8 @@ function EntryBlock({ e, flags, onRevert, terms }: { e: Entry; flags: Map<string
   return (
     <div className="border-t border-rule-section py-3">
       <div className="flex flex-wrap items-baseline justify-between gap-x-4">
-        <span className="text-[15px] font-medium text-ink">{e.title}{e.organization && <span className="font-normal text-ink-3"> · {e.organization}</span>}</span>
-        <span className="figure text-[12.5px] text-ink-3">{[e.location, dates].filter(Boolean).join(" · ")}</span>
+        <span className="text-base font-medium text-ink">{e.title}{e.organization && <span className="font-normal text-ink-3"> · {e.organization}</span>}</span>
+        <span className="tabular-nums text-xs text-ink-3">{[e.location, dates].filter(Boolean).join(" · ")}</span>
       </div>
       {e.bullets.length > 0 && <Bullets bullets={e.bullets} flags={flags} onRevert={onRevert} terms={terms} />}
     </div>
@@ -64,13 +64,13 @@ export function ResumeView({ resume, flags = [], onRevert, terms = [] }: { resum
   return (
     <article className="flex flex-col gap-7">
       <header className="border-b border-rule pb-5">
-        <h3 className="text-[30px] font-medium tracking-[-0.018em]">{c.name}</h3>
-        <p className="mt-1 text-[13px] text-ink-3">{[c.email, c.phone, c.location, ...c.links].filter(Boolean).join("  ·  ")}</p>
+        <h3 className="text-3xl font-medium tracking-tight">{c.name}</h3>
+        <p className="mt-1 text-sm text-ink-3">{[c.email, c.phone, c.location, ...c.links].filter(Boolean).join("  ·  ")}</p>
       </header>
       {resume.summary && (
         <section>
           <Label>Summary</Label>
-          <p className="mt-2 max-w-[75ch] text-[13.5px] leading-[1.75] text-ink-2"><Marked text={resume.summary} terms={terms} /></p>
+          <p className="mt-2 max-w-[75ch] text-sm leading-relaxed text-ink-2"><Marked text={resume.summary} terms={terms} /></p>
           {byId.get("summary") && <div className="mt-2 flex items-center"><Chip tone="gold">Needs your confirmation · {byId.get("summary")!.tokens.join(", ")}</Chip><UseOriginal id="summary" onRevert={onRevert} /></div>}
         </section>
       )}
@@ -80,7 +80,7 @@ export function ResumeView({ resume, flags = [], onRevert, terms = [] }: { resum
           <dl className="mt-2">
             {resume.skills.map((g) => (
               <div key={g.name} className="grid gap-1 border-t border-rule-section py-2 sm:grid-cols-[160px_1fr]">
-                <dt className="text-[13px] text-ink-3">{g.name}</dt><dd className="text-[13.5px] text-ink-2"><Marked text={g.items.join(", ")} terms={terms} /></dd>
+                <dt className="text-sm text-ink-3">{g.name}</dt><dd className="text-sm text-ink-2"><Marked text={g.items.join(", ")} terms={terms} /></dd>
               </div>
             ))}
           </dl>
@@ -106,8 +106,8 @@ export function StreamingPreview({ items }: { items: TailorItem[] }) {
       <Label>Rewriting · {lines.length} lines so far</Label>
       <ul className="mt-2">
         {lines.map((i, n) => (
-          <li key={n} className="animate-in fade-in slide-in-from-bottom-1 border-t border-rule-section py-2.5 text-[13.5px] leading-[1.6] text-ink-2 duration-500">
-            <span className="tracked mr-3 text-[10.5px]">{i.type === "bullet" ? i.source_id : i.type}</span>
+          <li key={n} className="animate-in fade-in slide-in-from-bottom-1 border-t border-rule-section py-2.5 text-sm leading-relaxed text-ink-2 duration-500">
+            <span className="tracked mr-3 text-xs">{i.type === "bullet" ? i.source_id : i.type}</span>
             {i.type === "summary" ? i.text : i.type === "bullet" ? i.text : i.type === "skills" ? i.groups.map((g) => g.items.join(", ")).join(" · ") : null}
           </li>
         ))}

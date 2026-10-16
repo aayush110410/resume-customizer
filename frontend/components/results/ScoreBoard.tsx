@@ -28,8 +28,8 @@ export function HowWeScoreSheet({ open, onOpenChange, weights }: { open: boolean
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="w-full max-w-md overflow-y-auto border-l border-rule-section bg-rail p-8">
         <SheetHeader className="p-0">
-          <SheetTitle className="text-[22px] font-medium tracking-[-0.018em]">How we score</SheetTitle>
-          <SheetDescription className="text-[13.5px] leading-relaxed text-ink-3">
+          <SheetTitle className="text-xl font-medium tracking-tight">How we score</SheetTitle>
+          <SheetDescription className="text-sm leading-relaxed text-ink-3">
             Every score comes from evidence quoted word for word from your resume. Quotes that can&apos;t be found count
             for less, and each number below follows a fixed rubric, so the same resume and job always get the same score.
           </SheetDescription>
@@ -37,12 +37,12 @@ export function HowWeScoreSheet({ open, onOpenChange, weights }: { open: boolean
         <dl className="mt-6">
           {KEYS.filter((k) => weights[k] !== undefined).map((k) => (
             <div key={k} className="border-t border-rule-section py-4">
-              <dt className="flex justify-between text-[14px] text-ink">{NAME[k]}<span className="figure text-gold">{Math.round(weights[k] * 100)}%</span></dt>
-              <dd className="mt-2 text-[13px] leading-[1.7] text-ink-3">{RUBRIC[k]}</dd>
+              <dt className="flex justify-between text-sm text-ink">{NAME[k]}<span className="tabular-nums text-gold">{Math.round(weights[k] * 100)}%</span></dt>
+              <dd className="mt-2 text-sm leading-relaxed text-ink-3">{RUBRIC[k]}</dd>
             </div>
           ))}
         </dl>
-        <p className="border-t border-rule-section pt-4 text-[12.5px] leading-relaxed text-ink-3">{ATS_NOTE}</p>
+        <p className="border-t border-rule-section pt-4 text-xs leading-relaxed text-ink-3">{ATS_NOTE}</p>
       </SheetContent>
     </Sheet>
   );
@@ -57,12 +57,12 @@ export function ScoreBoard({ before, after, region, focus, onFocus, onHowWeScore
   const shown = after ?? before;
   const keys = KEYS.filter((k) => before.subscores[k]);
   return (
-    <section aria-label="Scores" className="card-lit edge-lit p-5 sm:p-6">
+    <section aria-label="Scores" className="card p-5 sm:p-6">
       <div className="grid gap-5 md:grid-cols-[minmax(0,190px)_minmax(0,1fr)] md:items-center">
         <button type="button" onClick={() => onFocus("all")} className="text-left" aria-pressed={focus === "all"}>
-          <span className="block text-[14px] text-ink-3">Overall · {region === "india" ? "India" : "International"}</span>
-          <span className="figure mt-1 block text-[60px] leading-[0.95] font-light tracking-[-0.02em] text-ink">{shown.overall}</span>
-          {after && <span className="figure mt-1 block text-[13.5px] text-ink-3">was {before.overall} <Delta value={after.overall - before.overall} /></span>}
+          <span className="block text-sm text-ink-3">Overall · {region === "india" ? "India" : "International"}</span>
+          <span className="tabular-nums mt-1 block text-6xl leading-none font-light tracking-tight text-ink">{shown.overall}</span>
+          {after && <span className="tabular-nums mt-1 block text-sm text-ink-3">was {before.overall} <Delta value={after.overall - before.overall} /></span>}
         </button>
         <div
           className={cn(
@@ -81,12 +81,12 @@ export function ScoreBoard({ before, after, region, focus, onFocus, onHowWeScore
                 onClick={() => onFocus(focus === k ? "all" : k)}
                 className={cn(
                   "tile flex min-w-0 flex-col items-start gap-1 px-3.5 py-3.5 text-left transition-[border-color,box-shadow] duration-300",
-                  focus === k ? "border-[rgba(217,189,139,0.45)]! shadow-[0_10px_26px_-14px_rgba(217,189,139,0.45)]" : "hover:border-[rgba(217,189,139,0.25)]!",
+                  focus === k ? "border-gold/45!" : "hover:border-gold/25!",
                 )}
               >
-                <span className="whitespace-nowrap text-[13px] text-ink-3">{SHORT[k]}</span>
+                <span className="whitespace-nowrap text-sm text-ink-3">{SHORT[k]}</span>
                 <span className="flex items-baseline gap-2">
-                  <span className="figure text-[24px] font-medium text-ink">{a ?? b}</span>
+                  <span className="tabular-nums text-2xl font-medium text-ink">{a ?? b}</span>
                   {a !== undefined && <Delta value={a - b} />}
                 </span>
               </button>
@@ -96,14 +96,14 @@ export function ScoreBoard({ before, after, region, focus, onFocus, onHowWeScore
       </div>
       <div className="mt-4 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-t border-rule-section pt-3.5">
         {shown.knockouts.length > 0 ? (
-          <p className="flex items-start gap-2 text-[13px] leading-relaxed text-ink-2">
+          <p className="flex items-start gap-2 text-sm leading-relaxed text-ink-2">
             <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-down" aria-hidden />
             <span><span className="text-down">{shown.knockouts.length} must-have{shown.knockouts.length > 1 ? "s" : ""} with no evidence</span>, a common reason screeners reject outright.</span>
           </p>
         ) : (
-          <p className="text-[13px] text-ink-3">Every must-have requirement has some evidence.</p>
+          <p className="text-sm text-ink-3">Every must-have requirement has some evidence.</p>
         )}
-        <button type="button" onClick={onHowWeScore} className="text-[13px] text-gold-dim hover:text-gold">How scoring works</button>
+        <button type="button" onClick={onHowWeScore} className="text-sm text-gold-dim hover:text-gold">How scoring works</button>
       </div>
     </section>
   );

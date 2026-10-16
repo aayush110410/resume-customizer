@@ -21,22 +21,22 @@ export function CoverLetterPanel() {
   if (!analysis) return null;
   const intl = analysis.region === "international";
   const contact = (versions.find((v) => v.id === activeVersionId)?.resume ?? analysis.resume).contact;
-  const field = "min-h-10 rounded-full border border-rule-control bg-[rgba(0,0,0,0.22)] px-4 text-[13.5px] text-ink placeholder:text-ink-3/70 focus:border-gold/60 focus:outline-none";
+  const field = "min-h-10 rounded-full border border-rule-control bg-black/20 px-4 text-sm text-ink placeholder:text-ink-3/70 focus:border-gold/60 focus:outline-none";
 
   return (
     <div className="flex flex-col gap-6">
       <div className="grid gap-4 sm:grid-cols-2">
-        <label className="flex flex-col gap-2 text-[13px] text-ink-3">
+        <label className="flex flex-col gap-2 text-sm text-ink-3">
           Notice period / availability (optional)
           <input className={field} value={notice} onChange={(e) => setNotice(e.target.value)} placeholder={intl ? "e.g. Available from March 2027" : "e.g. 30 days, can be bought out"} />
         </label>
-        <label className="flex flex-col gap-2 text-[13px] text-ink-3">
+        <label className="flex flex-col gap-2 text-sm text-ink-3">
           Work authorisation {intl ? "(recommended abroad)" : "(optional)"}
           <input className={field} value={auth} onChange={(e) => setAuth(e.target.value)} placeholder={intl ? "e.g. Requires H-1B sponsorship" : "e.g. Indian citizen"} />
         </label>
       </div>
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <div className="flex flex-col gap-2 text-[13px] text-ink-3">
+        <div className="flex flex-col gap-2 text-sm text-ink-3">
           Letter tone
           <Segmented label="Letter tone" value={tone} options={TONES} onChange={setTone} />
         </div>
@@ -53,7 +53,7 @@ export function CoverLetterPanel() {
         </OutlineButton>
       </div>
       {!coverLetter && busy !== "letter" && (
-        <p className="max-w-2xl text-[13.5px] leading-relaxed text-ink-3">
+        <p className="max-w-2xl text-sm leading-relaxed text-ink-3">
           A one-page letter built from your strongest evidence for this job: an opening, two short proof paragraphs, a
           line on why this company, and a close. Sentences your resume doesn&apos;t back up are left out.
         </p>
@@ -61,7 +61,7 @@ export function CoverLetterPanel() {
       {(coverLetter || busy === "letter") && (
         <>
           {removed.length > 0 && busy !== "letter" && (
-            <p className="text-[13px] leading-relaxed text-ink-3">
+            <p className="text-sm leading-relaxed text-ink-3">
               {removed.length} sentence{removed.length > 1 ? "s were" : " was"} left out because your resume doesn&apos;t back {removed.length > 1 ? "them" : "it"} up.
             </p>
           )}
@@ -71,7 +71,7 @@ export function CoverLetterPanel() {
             value={coverLetter}
             onChange={(e) => setCoverLetter(e.target.value)}
             onBlur={() => void saveCoverLetterEdit()}
-            className="min-h-[520px] w-full resize-y rounded-[14px] border border-rule-control bg-[rgba(0,0,0,0.22)] px-5 py-4 text-[14px] leading-[1.75] text-ink-2 focus:border-gold/60 focus:outline-none"
+            className="min-h-[520px] w-full resize-y rounded-xl border border-rule-control bg-black/20 px-5 py-4 text-sm leading-relaxed text-ink-2 focus:border-gold/60 focus:outline-none"
           />
           ) : (
             <LetterPreview text={coverLetter} contact={contact} />

@@ -224,3 +224,11 @@ def test_supported_summary_is_untouched(doc):
     text = "Backend engineer with 4 years building payment APIs, reducing p99 latency by 30% for 2M daily payments."
     out, _ = apply_tailoring(doc, [SummaryItem(type="summary", text=text)], {"summary"}, [])
     assert out.summary == text
+
+
+def test_trim_never_leaves_a_dangling_word():
+    from app.tailoring import strip_invented_outcomes
+
+    original = "Migrated batch jobs from cron scripts to Jenkins pipelines. Built Java services."
+    rewritten = "Leveraging Java expertise to deliver payment platforms."
+    assert not strip_invented_outcomes(original, rewritten).endswith("to.")

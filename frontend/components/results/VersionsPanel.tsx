@@ -26,21 +26,21 @@ export function VersionsPanel() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-[13.5px] text-ink-3">Each version re-tailors the same analysis with different sections or tone. Pick two to compare.</p>
+        <p className="text-sm text-ink-3">Each version re-tailors the same analysis with different sections or tone. Pick two to compare.</p>
         <OutlineButton onClick={() => setOpen(true)} disabled={busy !== "idle"}>New version</OutlineButton>
       </div>
       <ul>
         {versions.map((v, i) => (
-          <li key={v.id} className={cn("ledger-row relative grid grid-cols-[auto_1fr_auto] items-center gap-4 border-t border-rule-section py-3",
+          <li key={v.id} className={cn("relative grid grid-cols-[auto_1fr_auto] items-center gap-4 border-t border-rule-section py-3",
             v.id === activeVersionId && "bg-gold/[0.04]")}>
             {v.id === activeVersionId && <span className="absolute inset-y-0 left-0 w-0.5 bg-gold" aria-hidden />}
             <input type="checkbox" aria-label={`Compare version ${i + 1}`} checked={compare.includes(v.id)} onChange={() => toggleCompare(v.id)}
-              className="size-4 accent-[#d9bd8b]" />
+              className="size-4 accent-gold" />
             <button type="button" onClick={() => setActiveVersion(v.id)} className="text-left">
-              <div className="text-[14px] text-ink">Version {i + 1} · {TONES.find((t) => t.value === v.settings.tone)?.label}</div>
-              <div className="text-[12px] text-ink-3">{v.settings.sections.map((s) => SECTION_LABEL[s]).join(", ")} · {v.flags.length} to confirm</div>
+              <div className="text-sm text-ink">Version {i + 1} · {TONES.find((t) => t.value === v.settings.tone)?.label}</div>
+              <div className="text-xs text-ink-3">{v.settings.sections.map((s) => SECTION_LABEL[s]).join(", ")} · {v.flags.length} to confirm</div>
             </button>
-            <span className="flex items-baseline gap-2"><span className="figure text-[17px] text-ink">{v.scores.overall}</span><Delta value={v.scores.overall - base} /></span>
+            <span className="flex items-baseline gap-2"><span className="tabular-nums text-lg text-ink">{v.scores.overall}</span><Delta value={v.scores.overall - base} /></span>
           </li>
         ))}
       </ul>
@@ -54,8 +54,8 @@ export function VersionsPanel() {
               const b = k === "overall" ? pair[1]!.scores.overall : pair[1]!.scores.subscores[k].score;
               return (
                 <div key={k} className="flex flex-col gap-1 border-l border-rule px-3 py-3 first:border-l-0">
-                  <span className="text-[12px] text-ink-3 capitalize">{k}</span>
-                  <span className="figure text-[15px] text-ink">{a} → {b} <Delta value={b - a} /></span>
+                  <span className="text-xs text-ink-3 capitalize">{k}</span>
+                  <span className="tabular-nums text-base text-ink">{a} → {b} <Delta value={b - a} /></span>
                 </div>
               );
             })}
@@ -67,8 +67,8 @@ export function VersionsPanel() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="border border-rule bg-rail p-7 sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle className="text-[21px] font-medium tracking-[-0.018em]">New version</DialogTitle>
-            <DialogDescription className="text-[13.5px] text-ink-3">
+            <DialogTitle className="text-xl font-medium tracking-tight">New version</DialogTitle>
+            <DialogDescription className="text-sm text-ink-3">
               Reuses this analysis ({REGIONS.find((r) => r.value === analysis.region)?.label}). Only the rewrite runs again.
             </DialogDescription>
           </DialogHeader>

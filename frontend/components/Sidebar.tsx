@@ -29,12 +29,11 @@ export function Sidebar({ onNew, onHowWeScore, onNavigate }: { onNew: () => void
   return (
     <div className="flex h-full min-h-0 flex-col px-4 pt-5 pb-4">
       <div className="flex items-center gap-3 px-2.5">
-        <span aria-hidden="true" className="grid h-10 w-10 flex-none place-items-center rounded-[11px] bg-[linear-gradient(150deg,#2a2318,#171310)] text-[#d9bd8b]">
+        <span aria-hidden="true" className="grid h-10 w-10 flex-none place-items-center rounded-lg bg-gold/10 text-gold">
           <FileSearch className="h-[18px] w-[18px]" />
         </span>
         <span className="min-w-0">
-          <span className="block text-[19px] leading-[1.12] tracking-[0.02em]">Shortlist</span>
-          <span className="mt-1 block truncate text-[12px] text-ink-3">Resume desk</span>
+          <span className="block text-lg leading-tight tracking-wide">Shortlist</span>
         </span>
       </div>
 
@@ -42,9 +41,9 @@ export function Sidebar({ onNew, onHowWeScore, onNavigate }: { onNew: () => void
         type="button"
         disabled={!ready || busy !== "idle"}
         onClick={() => { onNew(); onNavigate?.(); }}
-        className="mt-7 flex min-h-12 items-center gap-3.5 rounded-[12px] bg-[linear-gradient(140deg,rgba(var(--c-gold-rgb),0.13),rgba(var(--c-gold-rgb),0.04))] px-2.5 text-[14px] font-medium text-ink shadow-[inset_0_1px_0_rgba(var(--c-gold-hi-rgb),0.08)] transition-opacity disabled:opacity-40"
+        className="mt-7 flex min-h-12 items-center gap-3.5 rounded-lg bg-gold/10 px-2.5 text-sm font-medium text-ink transition-opacity disabled:opacity-40"
       >
-        <span aria-hidden="true" className="grid h-9 w-9 flex-none place-items-center rounded-[10px] border border-[rgba(var(--c-gold-rgb),0.28)] bg-[rgba(var(--c-gold-rgb),0.14)] text-gold">
+        <span aria-hidden="true" className="grid h-9 w-9 flex-none place-items-center rounded-lg border border-gold/30 bg-gold/15 text-gold">
           <Plus className="h-[18px] w-[18px]" />
         </span>
         New analysis
@@ -52,11 +51,11 @@ export function Sidebar({ onNew, onHowWeScore, onNavigate }: { onNew: () => void
 
       <section aria-label="Saved analyses" className="mt-8 flex min-h-0 flex-1 flex-col">
         <div className="flex items-center justify-between px-2.5">
-          <span className="text-[13.5px] text-ink-3">Saved</span>
-          <span className="figure text-[12px] text-ink-3">{recent.length}</span>
+          <span className="text-sm text-ink-3">Saved</span>
+          <span className="tabular-nums text-xs text-ink-3">{recent.length}</span>
         </div>
         {recent.length === 0 ? (
-          <p className="mt-3 px-2.5 text-[12.5px] leading-relaxed text-ink-3">Analyses you run are kept here, in this browser only.</p>
+          <p className="mt-3 px-2.5 text-xs leading-relaxed text-ink-3">Analyses you run are kept here, in this browser only.</p>
         ) : (
           <ul className="no-scrollbar mt-2 flex min-h-0 flex-col gap-0.5 overflow-y-auto">
             {recent.map((r) => (
@@ -66,18 +65,18 @@ export function Sidebar({ onNew, onHowWeScore, onNavigate }: { onNew: () => void
                   disabled={busy !== "idle"}
                   onClick={() => { void restoreSession(r.id); onNavigate?.(); }}
                   className={cn(
-                    "flex min-h-12 w-full items-center gap-3 rounded-[12px] px-2.5 pr-10 text-left transition-colors hover:bg-[rgba(var(--c-gold-rgb),0.045)] disabled:opacity-40",
-                    r.id === sessionId && "bg-[rgba(var(--c-gold-rgb),0.07)]",
+                    "flex min-h-12 w-full items-center gap-3 rounded-lg px-2.5 pr-10 text-left transition-colors hover:bg-gold/5 disabled:opacity-40",
+                    r.id === sessionId && "bg-gold/5",
                   )}
                 >
-                  <span aria-hidden="true" className="grid h-8 w-8 flex-none place-items-center rounded-[9px] border border-rule-control text-[13px] text-ink-2">
+                  <span aria-hidden="true" className="grid h-8 w-8 flex-none place-items-center rounded-md border border-rule-control text-sm text-ink-2">
                     {r.jd_title.trim().charAt(0).toUpperCase() || "J"}
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-[13px] text-ink">{r.jd_title}</span>
-                    <span className="block text-[11.5px] text-ink-3">{r.region === "india" ? "India" : "International"} · {ago(r.created_at)}</span>
+                    <span className="block truncate text-sm text-ink">{r.jd_title}</span>
+                    <span className="block text-xs text-ink-3">{r.region === "india" ? "India" : "International"} · {ago(r.created_at)}</span>
                   </span>
-                  <span className={cn("figure text-[13px] transition-opacity group-hover:opacity-0", scoreTone(r.best_overall))}>{r.best_overall}</span>
+                  <span className={cn("tabular-nums text-sm transition-opacity group-hover:opacity-0", scoreTone(r.best_overall))}>{r.best_overall}</span>
                 </button>
                 <button
                   type="button"
@@ -94,8 +93,8 @@ export function Sidebar({ onNew, onHowWeScore, onNavigate }: { onNew: () => void
       </section>
 
       <div className="mt-4 flex flex-none flex-col gap-2 px-2.5">
-        <button type="button" onClick={() => { onHowWeScore(); onNavigate?.(); }} className="text-left text-[13px] text-gold-dim hover:text-gold">How scoring works</button>
-        <p className="text-[12px] leading-relaxed text-ink-3">Resumes are processed in memory, never stored on the server.</p>
+        <button type="button" onClick={() => { onHowWeScore(); onNavigate?.(); }} className="text-left text-sm text-gold-dim hover:text-gold">How scoring works</button>
+        <p className="text-xs leading-relaxed text-ink-3">Resumes are processed in memory, never stored on the server.</p>
       </div>
     </div>
   );

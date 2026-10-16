@@ -48,16 +48,16 @@ export function InputPanel({ meta, onSubmitted }: { meta?: Meta; onSubmitted?: (
   const writers = meta?.models.filter((m) => m.role === "writer") ?? [];
 
   return (
-    <form onSubmit={(e) => { e.preventDefault(); submit(); }} className="card-lit edge-lit flex flex-col gap-6 p-5 sm:p-7 xl:grid xl:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] xl:gap-x-10" noValidate>
+    <form onSubmit={(e) => { e.preventDefault(); submit(); }} className="card flex flex-col gap-6 p-5 sm:p-7 xl:grid xl:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] xl:gap-x-10" noValidate>
       <div className="flex items-center justify-between gap-3 xl:col-span-2">
-        <h2 className="text-[22px] font-medium tracking-[-0.018em]">New analysis</h2>
+        <h2 className="text-xl font-medium tracking-tight">New analysis</h2>
         <OutlineButton tone="gold" onClick={loadSample} disabled={!ready}>Try a sample</OutlineButton>
       </div>
 
       <section className="flex flex-col gap-2.5 xl:row-span-1">
         <div className="flex items-baseline justify-between">
-          <label htmlFor="jd" className="text-[14px] text-ink-3">Job description</label>
-          <span className={cn("figure text-[12px]", jdLen > LIMITS.jdMax ? "text-down" : "text-ink-3")}>
+          <label htmlFor="jd" className="text-sm text-ink-3">Job description</label>
+          <span className={cn("tabular-nums text-xs", jdLen > LIMITS.jdMax ? "text-down" : "text-ink-3")}>
             {words} words · {jdLen.toLocaleString("en-IN")} chars
           </span>
         </div>
@@ -70,25 +70,25 @@ export function InputPanel({ meta, onSubmitted }: { meta?: Meta; onSubmitted?: (
           aria-invalid={!!shown.jd}
           aria-describedby={shown.jd ? "jd-error" : undefined}
           className={cn(
-            "min-h-56 w-full flex-1 resize-y rounded-[14px] xl:min-h-[440px] border bg-[rgba(0,0,0,0.22)] px-4 py-3 text-[13.5px] leading-[1.65] text-ink placeholder:text-ink-3/80",
+            "min-h-56 w-full flex-1 resize-y rounded-xl xl:min-h-[440px] border bg-black/20 px-4 py-3 text-sm leading-relaxed text-ink placeholder:text-ink-3/80",
             "focus:border-gold/60 focus:outline-none",
             shown.jd ? "border-down/60" : "border-rule-control",
           )}
         />
-        {shown.jd && <p id="jd-error" className="text-[12.5px] text-down">{shown.jd}</p>}
+        {shown.jd && <p id="jd-error" className="text-xs text-down">{shown.jd}</p>}
       </section>
 
       <div className="flex flex-col gap-6">
       <section className="flex flex-col gap-2.5">
-        <span className="text-[14px] text-ink-3">Resume</span>
+        <span className="text-sm text-ink-3">Resume</span>
         <ResumeDropzone file={inputs.file} onFile={(f) => setInput("file", f)} error={shown.file} />
-        {shown.file && <p className="text-[12.5px] text-down">{shown.file}</p>}
+        {shown.file && <p className="text-xs text-down">{shown.file}</p>}
       </section>
 
       <section className="flex flex-col gap-2.5">
-        <span className="text-[14px] text-ink-3">Hiring market</span>
+        <span className="text-sm text-ink-3">Hiring market</span>
         <Segmented label="Hiring market" value={inputs.region} options={REGIONS} onChange={(v) => setInput("region", v)} />
-        <p className="text-[12.5px] leading-relaxed text-ink-3">
+        <p className="text-xs leading-relaxed text-ink-3">
           {inputs.region === "india"
             ? "Indian recruiter norms, by the employer type in the JD."
             : "For applying abroad: personal details, work authorisation, Indian terms."}
@@ -96,7 +96,7 @@ export function InputPanel({ meta, onSubmitted }: { meta?: Meta; onSubmitted?: (
       </section>
 
       <section className="flex flex-col gap-2.5">
-        <span className="text-[14px] text-ink-3">Sections to tailor</span>
+        <span className="text-sm text-ink-3">Sections to tailor</span>
         <div className="flex flex-wrap gap-2">
           {SECTION_KEYS.map((k) => (
             <ToggleChip key={k} on={inputs.sections.includes(k)} onClick={() => toggleSection(k)}>{SECTION_LABEL[k]}</ToggleChip>
@@ -115,23 +115,23 @@ export function InputPanel({ meta, onSubmitted }: { meta?: Meta; onSubmitted?: (
             <SlidersHorizontal className="size-3.5" aria-hidden />
             Advanced options
           </span>
-          <span className="flex items-center gap-2 text-[12.5px] font-normal text-ink-3">
+          <span className="flex items-center gap-2 text-xs font-normal text-ink-3">
             {TONES.find((t) => t.value === inputs.tone)?.label} · {inputs.model ?? "default model"}
             <ChevronDown className={cn("size-3.5 transition-transform duration-300", advanced && "rotate-180")} aria-hidden />
           </span>
         </OutlineButton>
         {advanced && (
           <div id="advanced-options" className="flex flex-col gap-4">
-            <div className="flex flex-col gap-2 text-[14px] text-ink-3">
+            <div className="flex flex-col gap-2 text-sm text-ink-3">
               Rewrite tone
               <Segmented label="Rewrite tone" value={inputs.tone} options={TONES} onChange={(v) => setInput("tone", v)} />
             </div>
-            <label className="flex flex-col gap-2 text-[14px] text-ink-3">
+            <label className="flex flex-col gap-2 text-sm text-ink-3">
               Writing model
               <select
                 value={inputs.model ?? ""}
                 onChange={(e) => setInput("model", e.target.value || null)}
-                className="min-h-10 rounded-full border border-rule-control bg-shell px-3 text-[13px] text-ink focus:border-gold/60 focus:outline-none"
+                className="min-h-10 rounded-full border border-rule-control bg-shell px-3 text-sm text-ink focus:border-gold/60 focus:outline-none"
               >
                 <option value="">Default</option>
                 {writers.map((m) => <option key={m.id} value={m.id}>{m.id}</option>)}
@@ -141,7 +141,7 @@ export function InputPanel({ meta, onSubmitted }: { meta?: Meta; onSubmitted?: (
         )}
       </section>
 
-      <button type="submit" disabled={!ready || running || inputs.sections.length === 0} className="gold-cta flex min-h-12 w-full items-center justify-center gap-2 text-[12px] font-semibold tracking-[0.22em] uppercase">
+      <button type="submit" disabled={!ready || running || inputs.sections.length === 0} className="flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-gold text-sm font-semibold text-on-gold transition-colors hover:bg-gold-hi disabled:opacity-50">
         {running && <Loader2 className="size-4 animate-spin" aria-hidden />}
         {!ready ? "Loading…" : busy === "analyzing" ? "Analysing" : busy === "tailoring" ? "Tailoring" : "Analyse & tailor"}
       </button>

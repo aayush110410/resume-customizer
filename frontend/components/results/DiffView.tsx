@@ -32,10 +32,10 @@ export function DiffView({ before, after, changes = [], onlyChanged = true }: {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <span className="text-[13.5px] text-ink-3"><span className="figure text-ink">{total}</span> lines changed or moved</span>
+        <span className="text-sm text-ink-3"><span className="tabular-nums text-ink">{total}</span> lines changed or moved</span>
         <div className="w-56"><Segmented label="Diff layout" value={mode} onChange={setMode} options={[{ value: "inline", label: "Inline" }, { value: "split", label: "Side by side" }]} /></div>
       </div>
-      {total === 0 && <p className="text-[13.5px] text-ink-3">No differences.</p>}
+      {total === 0 && <p className="text-sm text-ink-3">No differences.</p>}
       {sections.map((s) => (
         <section key={s.key}>
           <Label>{s.title}</Label>
@@ -44,23 +44,23 @@ export function DiffView({ before, after, changes = [], onlyChanged = true }: {
               const c = why.get(r.id) ?? (r.id === "summary" ? why.get("summary") : r.id.startsWith("skills:") ? why.get("skills") : undefined);
               return (
                 <li key={r.id} className="border-t border-rule-section py-3">
-                  {r.label && <div className="mb-1 text-[12px] text-ink-3">{r.label}</div>}
+                  {r.label && <div className="mb-1 text-xs text-ink-3">{r.label}</div>}
                   <div className="flex gap-3">
                     {r.moved !== 0 && (
-                      <span className="figure mt-0.5 inline-flex h-fit shrink-0 items-center gap-0.5 border border-gold-dim/50 px-1.5 text-[11px] text-gold" title={`Moved ${Math.abs(r.moved)} position(s)`}>
+                      <span className="tabular-nums mt-0.5 inline-flex h-fit shrink-0 items-center gap-0.5 border border-gold-dim/50 px-1.5 text-xs text-gold" title={`Moved ${Math.abs(r.moved)} position(s)`}>
                         {r.moved > 0 ? <ArrowUp className="size-3" aria-hidden /> : <ArrowDown className="size-3" aria-hidden />}{Math.abs(r.moved)}
                       </span>
                     )}
                     {mode === "inline" ? (
-                      <p className="text-[13.5px] leading-[1.65] text-ink-2"><Inline row={r} /></p>
+                      <p className="text-sm leading-relaxed text-ink-2"><Inline row={r} /></p>
                     ) : (
                       <div className="grid flex-1 gap-3 sm:grid-cols-2">
-                        <p className="text-[13.5px] leading-[1.65] text-ink-3">{r.before ?? "-"}</p>
-                        <p className="text-[13.5px] leading-[1.65] text-ink">{r.after ?? <span className="text-down">Removed</span>}</p>
+                        <p className="text-sm leading-relaxed text-ink-3">{r.before ?? "-"}</p>
+                        <p className="text-sm leading-relaxed text-ink">{r.after ?? <span className="text-down">Removed</span>}</p>
                       </div>
                     )}
                   </div>
-                  {c && <p className="mt-1.5 text-[12.5px] leading-relaxed text-gold-dim">Why: {c.why}</p>}
+                  {c && <p className="mt-1.5 text-xs leading-relaxed text-gold-dim">Why: {c.why}</p>}
                 </li>
               );
             })}

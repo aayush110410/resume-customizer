@@ -23,41 +23,41 @@ export function FixesPanel({ scores, insights, focus, onFocus }: {
               aria-pressed={focus === k}
               onClick={() => onFocus(k)}
               className={cn(
-                "min-h-9 rounded-full border px-3.5 text-[13px] transition-colors duration-300",
-                focus === k ? "border-[rgba(217,189,139,0.28)] bg-[rgba(217,189,139,0.14)] text-gold" : "border-rule-control text-ink-3 hover:text-ink",
+                "min-h-9 rounded-full border px-3.5 text-sm transition-colors duration-300",
+                focus === k ? "border-gold/30 bg-gold/15 text-gold" : "border-rule-control text-ink-3 hover:text-ink",
               )}
             >
-              {k === "all" ? "All" : SOURCE[k]} <span className="figure text-ink-3">{n}</span>
+              {k === "all" ? "All" : SOURCE[k]} <span className="tabular-nums text-ink-3">{n}</span>
             </button>
           );
         })}
       </div>
 
       {insights.missing_keywords.length > 0 && (focus === "all" || focus === "ats") && (
-        <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-6 rounded-[14px] border border-rule-control px-4 py-3.5">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-6 rounded-xl border border-rule-control px-4 py-3.5">
           <div className="min-w-0">
-            <p className="text-[14px] text-ink">{insights.missing_keywords.length} job keywords never appear in your resume</p>
-            <p className="mt-1 text-[13px] text-ink-3">Add the ones you genuinely have, inside an experience or project bullet.</p>
+            <p className="text-sm text-ink">{insights.missing_keywords.length} job keywords never appear in your resume</p>
+            <p className="mt-1 text-sm text-ink-3">Add the ones you genuinely have, inside an experience or project bullet.</p>
             <div className="mt-2.5 flex flex-wrap gap-1.5">{insights.missing_keywords.map((k) => <Chip key={k}>{k}</Chip>)}</div>
           </div>
           <div className="flex flex-col items-end gap-1 pt-0.5">
             <Delta value={keywordGain(scores)} />
-            <span className="text-[11.5px] text-ink-3">ATS</span>
+            <span className="text-xs text-ink-3">ATS</span>
           </div>
         </div>
       )}
 
       {shown.length === 0 ? (
-        <p className="text-[13.5px] text-ink-3">Nothing to fix here.</p>
+        <p className="text-sm text-ink-3">Nothing to fix here.</p>
       ) : (
         <ol>
           {shown.map((f, i) => (
-            <li key={`${f.source}-${i}`} className="ledger-row grid grid-cols-[minmax(0,1fr)_auto] gap-x-6 border-t border-rule-section py-3.5">
+            <li key={`${f.source}-${i}`} className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-6 border-t border-rule-section py-3.5">
               <div className="min-w-0">
-                <p className="text-[14px] leading-snug text-ink">{f.title}</p>
-                <p className="mt-1 text-[13px] leading-relaxed text-ink-3">{f.detail}</p>
+                <p className="text-sm leading-snug text-ink">{f.title}</p>
+                <p className="mt-1 text-sm leading-relaxed text-ink-3">{f.detail}</p>
                 {f.suggested_bullet && (
-                  <p className="mt-2 flex flex-wrap items-start gap-2 text-[13px] leading-relaxed text-ink-2">
+                  <p className="mt-2 flex flex-wrap items-start gap-2 text-sm leading-relaxed text-ink-2">
                     <Chip tone="gold">Add only if true</Chip>
                     <span>{f.suggested_bullet}</span>
                   </p>
@@ -65,7 +65,7 @@ export function FixesPanel({ scores, insights, focus, onFocus }: {
               </div>
               <div className="flex flex-col items-end gap-1 pt-0.5">
                 <Delta value={f.gain} />
-                <span className="text-[11.5px] text-ink-3">{SOURCE[f.source]}</span>
+                <span className="text-xs text-ink-3">{SOURCE[f.source]}</span>
               </div>
             </li>
           ))}

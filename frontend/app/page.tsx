@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { FileSearch, Menu, Pencil, Plus } from "lucide-react";
-import { Grain } from "@/components/Grain";
 import { InputPanel } from "@/components/input/InputPanel";
 import { LedgerTabs, OutlineButton } from "@/components/ledger";
 import { StageTimeline } from "@/components/progress/StageTimeline";
@@ -66,22 +65,21 @@ export default function Home() {
 
   return (
     <div className="flex min-h-screen justify-center p-0 lg:p-3">
-      <div className="relative flex w-full flex-col border-rule shell-lit lg:grid lg:h-[calc(100vh-24px)] lg:grid-cols-[246px_minmax(0,1fr)] lg:overflow-hidden lg:rounded-[3px] lg:border lg:shadow-[0_50px_140px_rgba(0,0,0,0.75)]">
-        <Grain />
-        <aside aria-label="Navigation" className="hidden border-r border-rule-section rail-lit lg:block lg:overflow-y-auto">
+      <div className="flex w-full flex-col border-rule bg-shell lg:grid lg:h-[calc(100vh-24px)] lg:grid-cols-[246px_minmax(0,1fr)] lg:overflow-hidden lg:rounded-sm lg:border">
+        <aside aria-label="Navigation" className="hidden border-r border-rule-section bg-rail lg:block lg:overflow-y-auto">
           {sidebar()}
         </aside>
 
         <div className="sticky top-0 z-30 flex items-center gap-3 border-b border-rule-section bg-shell px-4 py-3 lg:hidden">
-          <button type="button" onClick={() => setNav(true)} aria-label="Open menu" className="grid h-11 w-11 flex-none place-items-center rounded-[10px] border border-rule-control text-ink-3 transition-colors hover:border-gold hover:text-ink">
+          <button type="button" onClick={() => setNav(true)} aria-label="Open menu" className="grid h-11 w-11 flex-none place-items-center rounded-lg border border-rule-control text-ink-3 transition-colors hover:border-gold hover:text-ink">
             <Menu className="h-4 w-4" />
           </button>
           <FileSearch className="h-4 w-4 text-gold" aria-hidden />
-          <span className="text-[17px] tracking-[0.02em]">Shortlist</span>
+          <span className="text-lg">Shortlist</span>
         </div>
 
-        <div id="work" className="relative z-[1] min-h-0 lg:overflow-y-auto">
-          <div className={showForm ? "mx-auto max-w-[1180px] p-4 sm:p-6 lg:px-8 lg:py-7" : "grid gap-5 p-4 sm:p-6 lg:px-8 lg:py-7 xl:grid-cols-[minmax(0,1fr)_340px]"}>
+        <div id="work" className="min-h-0 lg:overflow-y-auto">
+          <div className={showForm ? "mx-auto max-w-6xl p-4 sm:p-6 lg:px-8 lg:py-7" : "grid gap-5 p-4 sm:p-6 lg:px-8 lg:py-7 xl:grid-cols-[minmax(0,1fr)_340px]"}>
             {showForm ? (
               <InputPanel meta={meta} onSubmitted={() => setEditing(false)} />
             ) : (
@@ -89,10 +87,10 @@ export default function Home() {
                 <main id="results" className="flex min-w-0 scroll-mt-4 flex-col gap-5">
                   <header className="flex flex-wrap items-end justify-between gap-4 pt-1">
                     <div className="min-w-0">
-                      <h1 className="text-[26px] leading-tight font-medium tracking-[-0.018em] text-balance">
+                      <h1 className="text-2xl leading-tight font-medium tracking-tight text-balance">
                         {(jd?.title ?? s.inputs.jd.trim().split("\n")[0]?.slice(0, 90) ?? "Analysis").replace(/-(?=\w)/g, "\u2011")}
                       </h1>
-                      <p className="mt-1.5 text-[13.5px] text-ink-3">
+                      <p className="mt-1.5 text-sm text-ink-3">
                         {[jd?.company, jd?.location, jd && EMPLOYER[jd.employer_type], s.inputs.file?.name, region === "india" ? "Scored for India" : "Scored for international hiring"]
                           .filter(Boolean).join("  ·  ")}
                       </p>
@@ -106,13 +104,13 @@ export default function Home() {
                   {(running || s.error) && <StageTimeline />}
                   {s.error && (
                     <div role="alert" className="card flex flex-wrap items-center justify-between gap-3 border-down/30! p-4">
-                      <p className="text-[13.5px] text-ink-2">{messageFor(s.error.code)}</p>
+                      <p className="text-sm text-ink-2">{messageFor(s.error.code)}</p>
                       {s.error.retryable && <OutlineButton onClick={() => void retryLast()}>Try again</OutlineButton>}
                     </div>
                   )}
                   {analysis && analysis.jd.suggested_region !== analysis.region && !running && (
                     <div className="card flex flex-wrap items-center justify-between gap-3 p-4">
-                      <p className="text-[13.5px] text-ink-2">
+                      <p className="text-sm text-ink-2">
                         This job looks {analysis.jd.suggested_region === "india" ? "India-based" : "based outside India"}{analysis.jd.location ? ` (${analysis.jd.location})` : ""}.
                       </p>
                       <OutlineButton tone="gold" onClick={() => { s.setInput("region", analysis.jd.suggested_region); void runAnalyzeAndTailor(); }}>
@@ -120,7 +118,7 @@ export default function Home() {
                       </OutlineButton>
                     </div>
                   )}
-                  {s.warnings.includes("NOT_A_JD") && <p className="text-[13.5px] text-gold">{messageFor("NOT_A_JD")}</p>}
+                  {s.warnings.includes("NOT_A_JD") && <p className="text-sm text-gold">{messageFor("NOT_A_JD")}</p>}
 
                   {scores && (
                     <ScoreBoard before={scores} after={version?.scores} region={region} focus={focus} onFocus={focusScore} onHowWeScore={() => setHow(true)} />
@@ -128,7 +126,7 @@ export default function Home() {
                   {analysis?.profile && !running && <ClarifyCard key={s.sessionId} profile={analysis.profile} />}
 
                   {(jd || streaming) && (
-                    <section className="card edge-lit flex flex-col gap-5 p-5 sm:p-6">
+                    <section className="card flex flex-col gap-5 p-5 sm:p-6">
                       <LedgerTabs
                         label="Results"
                         value={tab}
@@ -136,10 +134,10 @@ export default function Home() {
                         tabs={[
                           { value: "fixes", label: "Fixes" },
                           { value: "evidence", label: "Evidence" },
-                          { value: "resume", label: "Tailored resume", badge: version?.flags.length ? <span className="figure">{version.flags.length}</span> : undefined },
+                          { value: "resume", label: "Tailored resume", badge: version?.flags.length ? <span className="tabular-nums">{version.flags.length}</span> : undefined },
                           { value: "changes", label: "Changes" },
                           { value: "letter", label: "Cover letter" },
-                          { value: "versions", label: "Versions", badge: s.versions.length > 1 ? <span className="figure">{s.versions.length}</span> : undefined },
+                          { value: "versions", label: "Versions", badge: s.versions.length > 1 ? <span className="tabular-nums">{s.versions.length}</span> : undefined },
                         ]}
                       />
                       <div role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`} className="min-h-[280px]">
@@ -148,12 +146,12 @@ export default function Home() {
                             {focus === "story" && analysis?.profile && <StoryTimeline profile={analysis.profile} />}
                             <FixesPanel scores={version?.scores ?? scores} insights={insights} focus={focus} onFocus={setFocus} />
                           </div>
-                        ) : <p className="text-[13.5px] text-ink-3">Fixes appear once scoring finishes.</p>)}
-                        {tab === "evidence" && (jd && evidence ? <RequirementLedger jd={jd} evidence={evidence} /> : <p className="text-[13.5px] text-ink-3">Matching evidence…</p>)}
+                        ) : <p className="text-sm text-ink-3">Fixes appear once scoring finishes.</p>)}
+                        {tab === "evidence" && (jd && evidence ? <RequirementLedger jd={jd} evidence={evidence} /> : <p className="text-sm text-ink-3">Matching evidence…</p>)}
                         {tab === "resume" && (streaming ? <StreamingPreview items={s.streamingItems} /> : version ? (
                           <div className="flex flex-col gap-6">
                             <div className="flex flex-wrap items-center justify-between gap-3">
-                              <p className="max-w-xl text-[13px] text-ink-3">
+                              <p className="max-w-xl text-sm text-ink-3">
                                 {version.flags.length ? `${version.flags.length} line(s) state something we couldn't find in your original. Check each, or use the original.` : "Every fact traces back to your original resume."} Highlighted words are terms from the job description.
                               </p>
                               <DownloadMenu request={{ kind: "resume", region: analysis!.region, resume: version.resume }} />
@@ -161,8 +159,8 @@ export default function Home() {
                             <ResumeView resume={version.resume} flags={version.flags} onRevert={(id) => s.revertFlag(version.id, id)}
                               terms={jd ? [...jd.ats_keywords, ...jd.requirements.flatMap((q) => q.keywords)] : []} />
                           </div>
-                        ) : <p className="text-[13.5px] text-ink-3">The tailored resume appears once analysis finishes.</p>)}
-                        {tab === "changes" && (version && analysis ? <DiffView before={analysis.resume} after={version.resume} changes={version.changes} /> : <p className="text-[13.5px] text-ink-3">No tailored version yet.</p>)}
+                        ) : <p className="text-sm text-ink-3">The tailored resume appears once analysis finishes.</p>)}
+                        {tab === "changes" && (version && analysis ? <DiffView before={analysis.resume} after={version.resume} changes={version.changes} /> : <p className="text-sm text-ink-3">No tailored version yet.</p>)}
                         {tab === "letter" && <CoverLetterPanel />}
                         {tab === "versions" && <VersionsPanel />}
                       </div>
@@ -180,7 +178,7 @@ export default function Home() {
       </div>
 
       <Sheet open={nav} onOpenChange={setNav}>
-        <SheetContent side="left" className="w-[86%] max-w-[320px] border-r border-rule-section bg-rail p-0">
+        <SheetContent side="left" className="w-[86%] max-w-xs border-r border-rule-section bg-rail p-0">
           <SheetTitle className="sr-only">Menu</SheetTitle>
           {sidebar(() => setNav(false))}
         </SheetContent>

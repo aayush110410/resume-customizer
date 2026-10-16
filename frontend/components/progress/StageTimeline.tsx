@@ -17,10 +17,10 @@ export function StageTimeline() {
   const current = STAGES.find((id) => stages[id] === "active" || stages[id] === "error");
   return (
     <>
-    <div className="card edge-lit p-4 sm:hidden" aria-hidden="true">
+    <div className="card p-4 sm:hidden" aria-hidden="true">
       <div className="flex items-baseline justify-between gap-3">
-        <span className="text-[14px] text-ink">{current ? NAMES[current] : doneCount === STAGES.length ? "Done" : "Waiting"}</span>
-        <span className="figure text-[12.5px] text-ink-3">{doneCount} / {STAGES.length}</span>
+        <span className="text-sm text-ink">{current ? NAMES[current] : doneCount === STAGES.length ? "Done" : "Waiting"}</span>
+        <span className="tabular-nums text-xs text-ink-3">{doneCount} / {STAGES.length}</span>
       </div>
       <div className="mt-3 grid grid-cols-7 gap-1">
         {STAGES.map((id) => (
@@ -28,7 +28,7 @@ export function StageTimeline() {
         ))}
       </div>
     </div>
-    <ol aria-label="Progress" className="card edge-lit hidden grid-cols-7 gap-y-4 p-5 sm:grid">
+    <ol aria-label="Progress" className="card hidden grid-cols-7 gap-y-4 p-5 sm:grid">
       {STAGES.map((id, i) => {
         const st = stages[id];
         return (
@@ -45,7 +45,7 @@ export function StageTimeline() {
               />
               {i < STAGES.length - 1 && <span className={cn("h-px flex-1", st === "done" ? "bg-gold/50" : "bg-rule")} />}
             </div>
-            <span className={cn("pr-2 text-[11px] font-semibold tracking-[0.12em] uppercase", st === "idle" ? "text-ink-3/70" : st === "error" ? "text-down" : "text-ink-2")}>
+            <span className={cn("pr-2 text-xs font-semibold tracking-wide uppercase", st === "idle" ? "text-ink-3/70" : st === "error" ? "text-down" : "text-ink-2")}>
               {NAMES[id]}
             </span>
           </li>

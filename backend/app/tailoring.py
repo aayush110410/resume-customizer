@@ -77,6 +77,10 @@ def _supported(clause: str, original: str) -> bool:
     return sum(w[:5] in stems for w in words) / len(words) >= 0.6
 
 
+# A sentence must not be cut right after one of these ("expertise to.", "built for.").
+_DANGLING = {"to", "for", "and", "or", "of", "with", "in", "on", "at", "by", "the", "a", "an", "into", "from", "as"}
+
+
 def strip_invented_outcomes(original: str, rewritten: str, trim_words: bool = True) -> str:
     """Removes trailing ", improving X" / "and ensuring Y" clauses the writer added without support in the original."""
     text = rewritten.strip()
@@ -96,8 +100,10 @@ def strip_invented_outcomes(original: str, rewritten: str, trim_words: bool = Tr
     known = [t for t in tokens if t.group(0)[:5].lower() in stems or t.group(0) in numbers]
     if known and known[-1].end() < len(body):
         tail = body[known[-1].end() :]
-        if re.search(r"[A-Za-z]{4,}", tail) and not any(n in tail for n in numbers):
-            body, changed = body[: known[-1].end()].rstrip(" ,"), True
+        cut = body[: known[-1].end()].rstrip(" ,")
+        dangling = cut.split()[-1].lower() in _DANGLING if cut.split() else True
+        if re.search(r"[A-Za-z]{4,}", tail) and not any(n in tail for n in numbers) and not dangling:
+            body, changed = cut, True
     return body + end if changed else text
 
 

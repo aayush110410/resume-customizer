@@ -7,21 +7,21 @@ import type { MatchStatus } from "@/lib/types";
 /** Shared UI pieces: hairline controls, outline chips and small uppercase labels. */
 
 export function Label({ children, className }: { children: ReactNode; className?: string }) {
-  return <div className={cn("eyebrow", className)}>{children}</div>;
+  return <div className={cn("text-xs font-medium uppercase tracking-wide text-ink-3", className)}>{children}</div>;
 }
 
 export function CardTitle({ children, meta }: { children: ReactNode; meta?: ReactNode }) {
   return (
     <div className="flex items-baseline justify-between gap-3">
-      <h3 className="text-[21px] font-medium tracking-[-0.018em] text-ink">{children}</h3>
-      {meta && <span className="text-[12.5px] text-ink-3">{meta}</span>}
+      <h3 className="text-xl font-medium tracking-tight text-ink">{children}</h3>
+      {meta && <span className="text-xs text-ink-3">{meta}</span>}
     </div>
   );
 }
 
-const PILL = "min-h-10 rounded-full px-4 text-[13.5px] font-medium whitespace-nowrap transition-[color,background-color,border-color,box-shadow] duration-300";
-const PILL_ON = "bg-[image:var(--cta-buy)] text-on-gold shadow-[0_10px_26px_-12px_rgba(217,189,139,0.6)]";
-const PILL_OFF = "border border-rule-control text-ink-3 hover:border-[rgba(217,189,139,0.3)] hover:text-ink";
+const PILL = "min-h-10 rounded-full px-4 text-sm font-medium whitespace-nowrap transition-[color,background-color,border-color,box-shadow] duration-300";
+const PILL_ON = "bg-gold text-on-gold";
+const PILL_OFF = "border border-rule-control text-ink-3 hover:border-gold/30 hover:text-ink";
 
 export function OutlineButton({ className, tone = "plain", ...props }: ButtonHTMLAttributes<HTMLButtonElement> & { tone?: "plain" | "gold" }) {
   return (
@@ -29,10 +29,10 @@ export function OutlineButton({ className, tone = "plain", ...props }: ButtonHTM
       type="button"
       {...props}
       className={cn(
-        "inline-flex min-h-10 items-center justify-center gap-2 rounded-full border px-4 text-[13.5px] font-medium transition-colors duration-300",
+        "inline-flex min-h-10 items-center justify-center gap-2 rounded-full border px-4 text-sm font-medium transition-colors duration-300",
         "disabled:pointer-events-none disabled:opacity-40",
         tone === "gold"
-          ? "border-gold-deep bg-[var(--tint-gold)] text-gold hover:border-gold hover:text-gold-hi"
+          ? "border-gold-deep bg-gold/10 text-gold hover:border-gold hover:text-gold-hi"
           : "border-rule-control text-ink-2 hover:border-gold hover:text-ink",
         className,
       )}
@@ -68,10 +68,10 @@ export function ToggleChip({ on, onClick, children }: { on: boolean; onClick: ()
       aria-pressed={on}
       onClick={onClick}
       className={cn(
-        "min-h-9 rounded-full border px-3.5 text-[13px] font-medium transition-colors duration-300",
+        "min-h-9 rounded-full border px-3.5 text-sm font-medium transition-colors duration-300",
         on
-          ? "border-[rgba(217,189,139,0.28)] bg-[rgba(217,189,139,0.14)] text-gold"
-          : "border-rule-control text-ink-3 hover:border-[rgba(217,189,139,0.3)] hover:text-ink",
+          ? "border-gold/30 bg-gold/15 text-gold"
+          : "border-rule-control text-ink-3 hover:border-gold/30 hover:text-ink",
       )}
     >
       {children}
@@ -89,7 +89,7 @@ const STATUS: Record<MatchStatus, { code: string; word: string; cls: string }> =
 export function StatusChip({ status }: { status: MatchStatus }) {
   const s = STATUS[status];
   return (
-    <span className={cn("inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold tracking-[0.1em]", s.cls)} title={s.word}>
+    <span className={cn("inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold tracking-wide", s.cls)} title={s.word}>
       {s.code}
     </span>
   );
@@ -97,12 +97,12 @@ export function StatusChip({ status }: { status: MatchStatus }) {
 
 export function Chip({ children, tone = "neutral", title }: { children: ReactNode; tone?: "neutral" | "gold" | "up" | "down"; title?: string }) {
   const cls = { neutral: "border-rule-control text-ink-2", gold: "border-gold-dim/60 text-gold", up: "border-up/40 text-up", down: "border-down/40 text-down" }[tone];
-  return <span title={title} className={cn("inline-flex items-center rounded-full border px-2.5 py-0.5 text-[12px]", cls)}>{children}</span>;
+  return <span title={title} className={cn("inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs", cls)}>{children}</span>;
 }
 
 export function Delta({ value }: { value: number }) {
-  if (!value) return <span className="figure text-[12px] text-ink-3">±0</span>;
-  return <span className={cn("figure text-[12px] font-medium", value > 0 ? "text-up" : "text-down")}>{value > 0 ? `+${value}` : value}</span>;
+  if (!value) return <span className="tabular-nums text-xs text-ink-3">±0</span>;
+  return <span className={cn("tabular-nums text-xs font-medium", value > 0 ? "text-up" : "text-down")}>{value > 0 ? `+${value}` : value}</span>;
 }
 
 /** Tabs with a 1px gold underline. Arrow keys, Home and End move focus between them. */

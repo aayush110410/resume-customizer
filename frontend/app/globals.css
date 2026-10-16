@@ -4,349 +4,99 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Theme tokens. Colours are CSS variables on :root so the light and dark themes can swap them.
-   Resume-customizer additions are at the bottom. */
-@theme inline {
-  --color-page: var(--c-page);
-  --color-shell: var(--c-shell);
-  --color-rail: var(--c-rail);
-  --color-raised: var(--c-raised);
-
-  --color-rule: var(--c-rule);
-  --color-rule-section: var(--c-rule-section);
-  --color-rule-list: var(--c-rule-list);
-  --color-rule-table: var(--c-rule-table);
-  --color-rule-raised: var(--c-rule-raised);
-  --color-rule-mono: var(--c-rule-mono);
-  --color-rule-control: var(--c-rule-control);
-  --color-rule-dot: var(--c-rule-dot);
-
-  --color-ink: var(--c-ink);
-  --color-ink-2: var(--c-ink-2);
-  --color-ink-3: var(--c-ink-3);
-  --color-ink-4: var(--c-ink-4);
-
-  --color-gold: var(--c-gold);
-  --color-gold-hi: var(--c-gold-hi);
-  --color-gold-dim: var(--c-gold-dim);
-  --color-gold-deep: var(--c-gold-deep);
-  --color-on-gold: var(--c-on-gold);
-
-  --color-up: var(--c-up);
-  --color-down: var(--c-down);
-  --color-on-down: var(--c-on-down);
-
-  /* One font family, used for the display, body and figure roles. */
-  --font-sans: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
-  --font-serif: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
-
-  --ease-lux: cubic-bezier(0.22, 1, 0.36, 1);
-
-  /* Radii for cards, tiles and pills. */
-  --radius-card: 16px;
-  --radius-tile: 12px;
-  --radius-pill: 999px;
-}
-
-/* Dark is the default theme. The light theme keeps the same warm palette on paper-coloured
-   surfaces. Text colours keep at least 4.5:1 contrast in both themes; gold-deep is decoration only. */
-
 :root {
-  --c-page: #080706;
-  --c-shell: #0b0a09;
-  --c-rail: #0a0908;
-  --c-raised: #15120f;
-
-  --c-rule: #241f1a;
-  --c-rule-section: #201b17;
-  --c-rule-list: #1c1815;
-  --c-rule-table: #16130f;
-  --c-rule-raised: #34291f;
-  --c-rule-mono: #3a2f22;
-  --c-rule-control: #302821;
-  --c-rule-dot: #2a231c;
-
-  --c-ink: #f2ede5;
-  --c-ink-2: #c7bfb4;
-  --c-ink-3: #9a9186;
-  --c-ink-4: #8a8076;
-
-  --c-gold: #d9bd8b;
-  --c-gold-hi: #f0dcb8;
-  --c-gold-dim: #b8945c;
-  --c-gold-deep: #8a6e43;
-  --c-on-gold: #1a1207;
-
-  --c-up: #7dd3a0;
-  --c-down: #e0796b;
-  --c-on-down: #1a0907;
-
-  /* Card and tile surfaces. */
-  --c-card-from: #16130f;
-  --c-card-to: #131009;
-  --c-card-lift-from: #1d1913;
-  --c-card-lift-mid: #16120e;
-  --c-card-lift-to: #1c1712;
-  --c-tile-from: #221c14;
-  --c-tile-to: #171310;
-  /* Inset cells: one step darker than the tile, so they look recessed. */
-  --c-inset-from: #191510;
-  --c-inset-to: #120f0b;
-  --c-inset-hover-from: #1e1913;
-  --c-inset-hover-to: #15110c;
-  --c-card-edge: rgba(240, 220, 184, 0.06);
-  --c-card-shadow: rgba(0, 0, 0, 0.44);
-  --c-scrollbar: #2a231c;
-  /* Chart colours. */
-  --c-grid-h: #15120f;
-  --c-grid-v: #131110;
-  --c-crosshair: rgba(217, 189, 139, 0.4);
-  --c-up-fill: rgba(125, 211, 160, 0.42);
-  --c-down-fill: rgba(224, 121, 107, 0.42);
-
-  --c-wash: rgba(217, 189, 139, 0.16);
-  --c-wash-2: rgba(217, 189, 139, 0.05);
-  --c-wash-3: rgba(217, 189, 139, 0.04);
-  --c-tint: rgba(217, 189, 139, 0.1);
-  --c-tint-soft: rgba(217, 189, 139, 0.06);
-  --c-tint-faint: rgba(217, 189, 139, 0.04);
-  --c-tint-ghost: rgba(217, 189, 139, 0.03);
-  --c-tint-up: rgba(125, 211, 160, 0.14);
-  --c-tint-down: rgba(224, 121, 107, 0.14);
-
-  --c-scheme: dark;
-  --c-cta-from: #e8cfa3;
-  --c-cta-to: #c9a46f;
-  --c-gold-rgb: 217, 189, 139;
-  --c-gold-hi-rgb: 240, 220, 184;
-  --c-up-rgb: 125, 211, 160;
-  --c-down-rgb: 224, 121, 107;
-  --c-shadow-rgb: 0, 0, 0;
-  --c-cream-rgb: 252, 240, 214;
-
-  /* Five mark colours, pastels that read on the dark ground. */
-  --c-mark-1: #e5ddd1;
-  --c-mark-2: #d9bd8b;
-  --c-mark-3: #93c7a8;
-  --c-mark-4: #b0bfcb;
-  --c-mark-5: #c9a88a;
+  /* shadcn/ui variables */
+  --background: #080706;
+  --foreground: #f2ede5;
+  --card: #14110e;
+  --card-foreground: #f2ede5;
+  --popover: #15120f;
+  --popover-foreground: #f2ede5;
+  --primary: #d9bd8b;
+  --primary-foreground: #1a1207;
+  --secondary: #15120f;
+  --secondary-foreground: #c7bfb4;
+  --muted: #15120f;
+  --muted-foreground: #9a9186;
+  --accent: #1d1913;
+  --accent-foreground: #f2ede5;
+  --destructive: #e0796b;
+  --border: #241f1a;
+  --input: #302821;
+  --ring: #d9bd8b;
+  --radius: 0.75rem;
 }
 
-/* Light theme, applied by an explicit data-theme or by the system setting when none is chosen.
-   The media query below excludes data-theme="dark", so an explicit choice always wins. */
-:root[data-theme='light'] {
-  --c-page: #f5f1e8;
-  --c-shell: #f7f3ec;
-  --c-rail: #f2eee5;
-  --c-raised: #fffdf9;
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
 
-  --c-rule: #ddd3c2;
-  --c-rule-section: #e3dacb;
-  --c-rule-list: #e8e0d3;
-  --c-rule-table: #eee7dc;
-  --c-rule-raised: #d6c9b3;
-  --c-rule-mono: #cbbca2;
-  --c-rule-control: #d9cdb9;
-  --c-rule-dot: #e0d7c8;
+  /* App palette */
+  --color-page: #080706;
+  --color-shell: #0b0a09;
+  --color-rail: #0a0908;
+  --color-raised: #15120f;
+  --color-rule: #241f1a;
+  --color-rule-section: #201b17;
+  --color-rule-control: #302821;
+  --color-ink: #f2ede5;
+  --color-ink-2: #c7bfb4;
+  --color-ink-3: #9a9186;
+  --color-ink-4: #8a8076;
+  --color-gold: #d9bd8b;
+  --color-gold-hi: #f0dcb8;
+  --color-gold-dim: #b8945c;
+  --color-gold-deep: #8a6e43;
+  --color-on-gold: #1a1207;
+  --color-up: #7dd3a0;
+  --color-down: #e0796b;
+  --color-slate: #b0bfcb;
 
-  --c-ink: #1a1207;
-  --c-ink-2: #4a3f30;
-  --c-ink-3: #5c5040;
-  --c-ink-4: #6f6250;
+  /* Cover letter preview (printed-paper colours) */
+  --color-paper: #f7f3eb;
+  --color-paper-ink: #211d18;
+  --color-paper-muted: #6b6254;
+  --color-paper-rule: #cbbfa9;
 
-  --c-gold: #7e6238;
-  --c-gold-hi: #5f4926;
-  --c-gold-dim: #7a5f36;
-  --c-gold-deep: #9b7d4a;
-  --c-on-gold: #1a1207;
-
-  --c-up: #1b7a50;
-  --c-down: #b0392c;
-  --c-on-down: #fffdf9;
-
-  /* On paper, cards lift toward white with a warm shadow (a neutral shadow looks like a smudge). */
-  --c-card-from: #fffdf9;
-  --c-card-to: #f9f4ea;
-  --c-card-lift-from: #fffefb;
-  --c-card-lift-mid: #fdf9f1;
-  --c-card-lift-to: #f7f1e6;
-  --c-tile-from: #f7f1e6;
-  --c-tile-to: #efe7d9;
-  /* Inset cells, one step under the light tile. */
-  --c-inset-from: #f2ebdd;
-  --c-inset-to: #eae2d2;
-  --c-inset-hover-from: #ede5d4;
-  --c-inset-hover-to: #e6dcc9;
-  --c-card-edge: rgba(255, 255, 255, 0.9);
-  --c-card-shadow: rgba(26, 18, 7, 0.12);
-  --c-scrollbar: #d3c7b3;
-  /* Chart colours, light. The grid is lighter than the dark one so it does not dominate the data. */
-  --c-grid-h: #e6ded0;
-  --c-grid-v: #ebe4d8;
-  --c-crosshair: rgba(126, 98, 56, 0.45);
-  --c-up-fill: rgba(27, 122, 80, 0.18);
-  --c-down-fill: rgba(176, 57, 44, 0.18);
-
-  --c-wash: rgba(201, 164, 111, 0.14);
-  --c-wash-2: rgba(201, 164, 111, 0.06);
-  --c-wash-3: rgba(201, 164, 111, 0.05);
-  --c-tint: rgba(126, 98, 56, 0.09);
-  --c-tint-soft: rgba(126, 98, 56, 0.06);
-  --c-tint-faint: rgba(126, 98, 56, 0.04);
-  --c-tint-ghost: rgba(126, 98, 56, 0.03);
-  --c-tint-up: rgba(27, 122, 80, 0.12);
-  --c-tint-down: rgba(176, 57, 44, 0.12);
-
-  --c-scheme: light;
-  --c-cta-from: #e8cfa3;
-  --c-cta-to: #c9a46f;
-  --c-gold-rgb: 126, 98, 56;
-  --c-gold-hi-rgb: 95, 73, 38;
-  --c-up-rgb: 27, 122, 80;
-  --c-down-rgb: 176, 57, 44;
-  --c-shadow-rgb: 26, 18, 7;
-  --c-cream-rgb: 95, 73, 38;
-
-  /* The same five hues, darkened for the light ground (4.4:1 or better). */
-  --c-mark-1: #6b5a44;
-  --c-mark-2: #7e6238;
-  --c-mark-3: #2f6f4c;
-  --c-mark-4: #4d6070;
-  --c-mark-5: #7a5234;
-}
-
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme='dark']) {
-    --c-page: #f5f1e8;
-    --c-shell: #f7f3ec;
-    --c-rail: #f2eee5;
-    --c-raised: #fffdf9;
-
-    --c-rule: #ddd3c2;
-    --c-rule-section: #e3dacb;
-    --c-rule-list: #e8e0d3;
-    --c-rule-table: #eee7dc;
-    --c-rule-raised: #d6c9b3;
-    --c-rule-mono: #cbbca2;
-    --c-rule-control: #d9cdb9;
-    --c-rule-dot: #e0d7c8;
-
-    --c-ink: #1a1207;
-    --c-ink-2: #4a3f30;
-    --c-ink-3: #5c5040;
-    --c-ink-4: #6f6250;
-
-    --c-gold: #7e6238;
-    --c-gold-hi: #5f4926;
-    --c-gold-dim: #7a5f36;
-    --c-gold-deep: #9b7d4a;
-    --c-on-gold: #1a1207;
-
-    --c-up: #1b7a50;
-    --c-down: #b0392c;
-    --c-on-down: #fffdf9;
-
-    /* On paper, cards lift toward white with a warm shadow (a neutral shadow looks like a smudge). */
-    --c-card-from: #fffdf9;
-    --c-card-to: #f9f4ea;
-    --c-card-lift-from: #fffefb;
-    --c-card-lift-mid: #fdf9f1;
-    --c-card-lift-to: #f7f1e6;
-    --c-tile-from: #f7f1e6;
-    --c-tile-to: #efe7d9;
-  /* Inset cells, one step under the light tile. */
-  --c-inset-from: #f2ebdd;
-  --c-inset-to: #eae2d2;
-  --c-inset-hover-from: #ede5d4;
-  --c-inset-hover-to: #e6dcc9;
-    --c-card-edge: rgba(255, 255, 255, 0.9);
-    --c-card-shadow: rgba(26, 18, 7, 0.12);
-    --c-scrollbar: #d3c7b3;
-  /* Chart colours, light. The grid is lighter than the dark one so it does not dominate the data. */
-  --c-grid-h: #e6ded0;
-  --c-grid-v: #ebe4d8;
-  --c-crosshair: rgba(126, 98, 56, 0.45);
-  --c-up-fill: rgba(27, 122, 80, 0.18);
-  --c-down-fill: rgba(176, 57, 44, 0.18);
-
-    --c-wash: rgba(201, 164, 111, 0.14);
-    --c-wash-2: rgba(201, 164, 111, 0.06);
-    --c-wash-3: rgba(201, 164, 111, 0.05);
-    --c-tint: rgba(126, 98, 56, 0.09);
-    --c-tint-soft: rgba(126, 98, 56, 0.06);
-    --c-tint-faint: rgba(126, 98, 56, 0.04);
-    --c-tint-ghost: rgba(126, 98, 56, 0.03);
-    --c-tint-up: rgba(27, 122, 80, 0.12);
-    --c-tint-down: rgba(176, 57, 44, 0.12);
-
-    --c-scheme: light;
-    --c-cta-from: #e8cfa3;
-    --c-cta-to: #c9a46f;
-    --c-gold-rgb: 126, 98, 56;
-    --c-gold-hi-rgb: 95, 73, 38;
-    --c-up-rgb: 27, 122, 80;
-    --c-down-rgb: 176, 57, 44;
-    --c-shadow-rgb: 26, 18, 7;
-    --c-cream-rgb: 95, 73, 38;
-
-    --c-mark-1: #6b5a44;
-    --c-mark-2: #7e6238;
-    --c-mark-3: #2f6f4c;
-    --c-mark-4: #4d6070;
-    --c-mark-5: #7a5234;
-  }
+  --font-sans: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
 }
 
 @layer base {
-  :root {
-    color-scheme: var(--c-scheme);
-    /* The gold wash is painted on the shell, not <body>, because the shell is opaque.
-       Its peak alpha is 0.16: higher values push ink-3 text below 4.5:1 on the lit ground. */
-    --gold-wash:
-      radial-gradient(
-        880px 440px at 50% 0%,
-        var(--c-wash),
-        transparent 68%
-      ),
-      radial-gradient(
-        520px 300px at 88% 14%,
-        var(--c-wash-2),
-        transparent 64%
-      ),
-      radial-gradient(
-        640px 420px at 4% 96%,
-        var(--c-wash-3),
-        transparent 66%
-      );
-    --cta-buy: linear-gradient(135deg, var(--c-cta-from), var(--c-cta-to));
-    --cta-sell: linear-gradient(135deg, #e0796b, #c9584a);
-    --tint-gold: var(--c-tint);
-    --tint-gold-soft: var(--c-tint-soft);
-    --tint-gold-faint: var(--c-tint-faint);
-    --tint-gold-ghost: var(--c-tint-ghost);
-    --tint-up: var(--c-tint-up);
-    --tint-down: var(--c-tint-down);
-  }
-
-  html {
+  html,
+  body {
     background: var(--color-page);
-    -webkit-text-size-adjust: 100%;
+    color: var(--color-ink);
+    color-scheme: dark;
   }
 
   body {
-    background: var(--color-page);
-    background-attachment: fixed;
-    color: var(--color-ink);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility;
   }
 
-  /* Gold outline for keyboard focus. */
   :focus-visible {
     outline: 1px solid var(--color-gold);
-    outline-offset: 3px;
+    outline-offset: 2px;
   }
 
   ::selection {
@@ -354,525 +104,32 @@
     color: var(--color-on-gold);
   }
 
-  /* Style scrollbars for mouse users only. Styling ::-webkit-scrollbar on touch browsers
-     replaces their overlay scrollbars with permanent ones. */
   @media (pointer: fine) {
-    ::-webkit-scrollbar {
-      width: 7px;
-      height: 7px;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: var(--c-scrollbar);
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: var(--color-rule-mono);
-    }
-    ::-webkit-scrollbar-track {
-      background: transparent;
-    }
     * {
-      scrollbar-color: var(--c-scrollbar) transparent;
+      scrollbar-color: #2a231c transparent;
       scrollbar-width: thin;
     }
   }
 }
 
-@layer utilities {
-  /* Display role: names, headings and large figures. */
-  .font-serif {
-    font-family: var(--font-serif);
-    font-weight: 500;
-    letter-spacing: -0.018em;
-  }
-
-  /* Figure role: numbers in columns. Tabular figures keep the digits aligned. */
-  .font-mono {
-    font-family: var(--font-mono);
-    font-variant-numeric: tabular-nums;
-    font-feature-settings: "tnum" 1;
-    letter-spacing: 0;
-  }
-
-  /* Labels. .card-label is 14px title case; .eyebrow is a small tracked uppercase label. */
-  .card-label {
-    font-size: 14px;
-    font-weight: 400;
-    letter-spacing: 0;
-    line-height: 1.4;
-    color: var(--color-ink-3);
-  }
-
-  .eyebrow {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.16em;
-    line-height: 1.45;
-    color: var(--color-ink-3);
-    text-transform: uppercase;
-  }
-  .eyebrow-gold {
-    color: var(--color-gold-dim);
-  }
-  .eyebrow-wide {
-    letter-spacing: 0.22em;
-  }
-
-
-  .rule-t {
-    border-top: 1px solid var(--color-rule-list);
-  }
-
-  /* Dotted leader between a ratio label and its value. */
-  .leader {
-    flex: 1;
-    border-bottom: 1px dotted var(--color-rule-dot);
-    transform: translateY(-3px);
-  }
-
-  /* ---- gold effects ---- */
-
-  /* Gold gradient clipped to the text, angled across the figure. The plain colour
-     is the fallback if background-clip: text is not supported. */
-  .gilt {
-    color: #e8cfa3;
-    background: linear-gradient(
-      104deg,
-      #8a6e43 0%,
-      #d9bd8b 18%,
-      #fdf3dd 38%,
-      #f0dcb8 52%,
-      #c9a46f 72%,
-      #8a6e43 100%
-    );
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    /* Oversized so the highlight has room to travel. Must come after the background shorthand, which resets it. */
-    background-size: 230% 100%;
-    /* Plays once, not in a loop. */
-    animation: gilt-strike 2.6s var(--ease-lux) both;
-  }
-
-  /* Thin highlight along the top edge of a surface, brightest in the middle. */
-  .edge-lit {
-    position: relative;
-  }
-  .edge-lit::before {
-    content: "";
-    position: absolute;
-    inset: 0 0 auto 0;
-    height: 1px;
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      rgba(var(--c-gold-hi-rgb), 0.06) 14%,
-      rgba(var(--c-cream-rgb), 0.42) 50%,
-      rgba(var(--c-gold-hi-rgb), 0.06) 86%,
-      transparent 100%
-    );
-    pointer-events: none;
-    z-index: 1;
-  }
-
-  /* Thin gold line to separate a hero from what follows. */
-  .rule-gilt {
-    height: 1px;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgba(var(--c-gold-rgb), 0.34) 22%,
-      rgba(var(--c-gold-rgb), 0.34) 78%,
-      transparent
-    );
-  }
-
-  /* ---- surfaces ------------------------------------------------------- */
-
-  /* Default card: vertical gradient, an inset highlight on the top edge, and a shadow
-     with negative spread so it pools under the card. */
-  .card {
-    border-radius: var(--radius-card);
-    background: linear-gradient(180deg, var(--c-card-from) 0%, var(--c-card-to) 100%);
-    border: 1px solid rgba(var(--c-gold-rgb), 0.07);
-    box-shadow:
-      inset 0 1px 0 rgba(var(--c-gold-hi-rgb), 0.04),
-      0 16px 36px -22px rgba(var(--c-shadow-rgb), 0.9);
-  }
-
-  .card-hover {
-    transition:
-      border-color 0.32s var(--ease-lux),
-      box-shadow 0.32s var(--ease-lux),
-      transform 0.32s var(--ease-lux);
-  }
-  .card-hover:hover {
-    border-color: rgba(var(--c-gold-rgb), 0.2);
-    box-shadow:
-      inset 0 1px 0 rgba(var(--c-gold-hi-rgb), 0.08),
-      0 26px 54px -20px rgba(var(--c-shadow-rgb), 0.86);
-    transform: translateY(-2px);
-  }
-
-  /* Brighter card. The glow pools low and to the right, so the top stays dark enough for text.
-     Only silhouettes, not text, should sit over the bright area. */
-  .card-glow {
-    border-radius: var(--radius-card);
-    background:
-      /* Wide enough that the whole bar row sits on the light. */
-      radial-gradient(
-        92% 54% at 50% 110%,
-        rgba(var(--c-cream-rgb), 0.98) 0%,
-        rgba(243, 219, 176, 0.8) 26%,
-        rgba(214, 178, 122, 0.4) 48%,
-        rgba(var(--c-gold-rgb), 0.12) 68%,
-        transparent 82%
-      ),
-      radial-gradient(
-        46% 40% at 100% 0%,
-        rgba(var(--c-gold-rgb), 0.2),
-        transparent 70%
-      ),
-      linear-gradient(168deg, var(--c-card-lift-from) 0%, var(--c-card-lift-mid) 52%, var(--c-card-lift-to) 100%);
-    border: 1px solid rgba(var(--c-gold-rgb), 0.22);
-    box-shadow:
-      inset 0 1px 0 rgba(var(--c-cream-rgb), 0.18),
-      0 26px 60px -22px rgba(var(--c-shadow-rgb), 0.86);
-  }
-
-  /* Feature card with a faint directional tint. The peak alpha stays at 0.10 so ink-3 text
-     keeps at least 4.5:1. The two pools do not overlap at full strength. */
-  .card-lit {
-    border-radius: var(--radius-card);
-    background:
-      radial-gradient(
-        74% 86% at 6% 0%,
-        rgba(var(--c-gold-rgb), 0.1) 0%,
-        rgba(var(--c-gold-rgb), 0.05) 34%,
-        transparent 72%
-      ),
-      radial-gradient(
-        52% 58% at 100% 100%,
-        var(--c-wash-2),
-        transparent 66%
-      ),
-      linear-gradient(180deg, var(--c-card-from) 0%, var(--c-card-to) 100%);
-    border: 1px solid rgba(var(--c-gold-rgb), 0.13);
-    box-shadow:
-      inset 0 1px 0 rgba(var(--c-gold-hi-rgb), 0.07),
-      0 20px 44px -22px rgba(var(--c-shadow-rgb), 0.9);
-  }
-
-  /* Cards tinted green or red, for places where the colour carries meaning.
-     Same geometry and 0.10 peak as .card-lit. */
-  .card-up,
-  .card-down {
-    border-radius: var(--radius-card);
-    box-shadow:
-      inset 0 1px 0 var(--c-card-edge),
-      0 18px 40px -22px rgba(var(--c-shadow-rgb), 0.9);
-  }
-
-  .card-up {
-    background:
-      radial-gradient(
-        74% 86% at 6% 0%,
-        rgba(var(--c-up-rgb), 0.1) 0%,
-        rgba(var(--c-up-rgb), 0.05) 34%,
-        transparent 72%
-      ),
-      radial-gradient(
-        52% 58% at 100% 100%,
-        rgba(var(--c-up-rgb), 0.045),
-        transparent 66%
-      ),
-      linear-gradient(180deg, var(--c-card-from) 0%, var(--c-card-to) 100%);
-    border: 1px solid rgba(var(--c-up-rgb), 0.14);
-  }
-
-  .card-down {
-    background:
-      radial-gradient(
-        74% 86% at 6% 0%,
-        rgba(var(--c-down-rgb), 0.1) 0%,
-        rgba(var(--c-down-rgb), 0.05) 34%,
-        transparent 72%
-      ),
-      radial-gradient(
-        52% 58% at 100% 100%,
-        rgba(var(--c-down-rgb), 0.045),
-        transparent 66%
-      ),
-      linear-gradient(180deg, var(--c-card-from) 0%, var(--c-card-to) 100%);
-    border: 1px solid rgba(var(--c-down-rgb), 0.14);
-  }
-
-  /* Small rounded tile for icon wells and badges. */
-  .tile {
-    border-radius: var(--radius-tile);
-    background: linear-gradient(158deg, var(--c-tile-from), var(--c-tile-to));
-    border: 1px solid rgba(var(--c-gold-rgb), 0.1);
-    box-shadow: inset 0 1px 0 var(--c-card-edge);
-  }
-
-  /* ---- meters --------------------------------------------------------- */
-
-  /* Tick meter: two layers of the same comb, the top one clipped to the value. */
-  .tick-track {
-    --tick: repeating-linear-gradient(
-      90deg,
-      currentColor 0 2px,
-      transparent 2px 6px
-    );
-    background-image: var(--tick);
-    color: #2a2119;
-  }
-  .tick-fill {
-    background-image: var(--tick);
-    color: var(--color-gold);
-  }
-
-  /* Two-tone tick meter. The comb is a mask, so one set of ticks runs the full width
-     and only the colour changes at the split. */
-  .tick-split {
-    -webkit-mask-image: repeating-linear-gradient(
-      90deg,
-      #000 0 2px,
-      transparent 2px 5px
-    );
-    mask-image: repeating-linear-gradient(
-      90deg,
-      #000 0 2px,
-      transparent 2px 5px
-    );
-  }
-
-  /* Diagonal hatch, used for gaps on the timeline. */
-  .hatch {
-    background-image: repeating-linear-gradient(
-      132deg,
-      rgba(246, 228, 194, 0.5) 0 2px,
-      transparent 2px 7px
-    );
-  }
-
-  /* App shell background: warm black with the gold wash on top. */
-  .shell-lit {
-    background:
-      var(--gold-wash),
-      var(--color-shell);
-  }
-
-  /* Darken decorative marks that set their own inline colour, so they stay visible on the light theme.
-     When no theme is pinned this only applies under a light system setting. */
-  :root[data-theme='light'] [aria-hidden='true'].grid[style*='color'] {
-    filter: brightness(0.58) saturate(1.45);
-  }
-  @media (prefers-color-scheme: light) {
-    :root:not([data-theme='dark']) [aria-hidden='true'].grid[style*='color'] {
-      filter: brightness(0.58) saturate(1.45);
-    }
-  }
-
-  .rail-lit {
-    /* Takes the colour from the --color-rail token so it follows the theme. */
-    background: color-mix(in srgb, var(--color-rail) 66%, transparent);
-  }
-
-  /* Thin gold line along the top edge of the shell. */
-  .shell-lit::before {
-    content: "";
-    position: absolute;
-    inset: 0 0 auto 0;
-    height: 1px;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgba(var(--c-gold-rgb), 0.34) 34%,
-      rgba(var(--c-gold-rgb), 0.34) 66%,
-      transparent
-    );
-    pointer-events: none;
-    z-index: 10;
-  }
-
-  .cta-buy {
-    background: var(--cta-buy);
-    color: var(--color-on-gold);
-  }
-  .cta-sell {
-    background: var(--cta-sell);
-    color: var(--color-on-down);
-  }
-
-  .no-scrollbar {
-    scrollbar-width: none;
-  }
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
-
-}
-
-@keyframes gold-pulse {
-  0%,
-  100% {
-    box-shadow: 0 0 0 0 rgba(var(--c-gold-rgb), 0.5);
-  }
-  50% {
-    box-shadow: 0 0 0 6px rgba(var(--c-gold-rgb), 0);
-  }
-}
-
-@keyframes sheen {
-  from {
-    background-position: -200% 0;
-  }
-  to {
-    background-position: 200% 0;
-  }
-}
-
-/* Left-to-right reveal. */
-@keyframes curtain {
-  from {
-    clip-path: inset(0 100% 0 0);
-  }
-  to {
-    clip-path: inset(0 0 0 0);
-  }
-}
-
-.animate-gold-pulse {
-  animation: gold-pulse 2.4s ease-in-out infinite;
-}
-
-.animate-sheen {
-  animation: sheen 5s ease-in-out infinite;
-}
-
-.animate-curtain {
-  animation: curtain 1.25s var(--ease-lux) both;
-}
-
-@keyframes gilt-strike {
-  from {
-    background-position: 175% 0;
-  }
-  to {
-    background-position: 0% 0;
-  }
-}
-
-/* Bars grow with a transform; --bar-delay staggers them. */
-@keyframes bar-grow {
-  from {
-    transform: scaleX(0);
-  }
-  to {
-    transform: scaleX(1);
-  }
-}
-
-.animate-bar {
-  animation: bar-grow 1s var(--ease-lux) both;
-  animation-delay: var(--bar-delay, 0ms);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .animate-gold-pulse,
-  .animate-sheen,
-  .animate-curtain,
-  .animate-bar,
-  .gilt {
-    animation: none;
-  }
-
-  *,
-  *::before,
-  *::after {
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-}
-
-/* Raise the smallest text sizes on phones. Written outside @layer so it wins over
-   Tailwind utilities regardless of source order. */
-@media (max-width: 560px) {
-  .text-\[9px\],
-  .text-\[10px\],
-  .text-\[10\.5px\],
-  .text-\[11px\],
-  /* .eyebrow is set in @layer base, so the utility selectors above do not reach it. */
-  .eyebrow {
-    font-size: 11.5px;
-  }
-
-  .eyebrow {
-    letter-spacing: 0.12em;
-  }
-}
-
-/* ---- Resume customizer additions ---- */
-@theme inline {
-  --color-slate: #b0bfcb;
-  --color-background: var(--page);
-  --color-foreground: var(--ink);
-  --color-card: var(--shell);
-  --color-card-foreground: var(--ink);
-  --color-popover: var(--raised);
-  --color-popover-foreground: var(--ink);
-  --color-primary: var(--gold);
-  --color-primary-foreground: var(--on-gold);
-  --color-secondary: var(--raised);
-  --color-secondary-foreground: var(--ink-2);
-  --color-muted: var(--raised);
-  --color-muted-foreground: var(--ink-3);
-  --color-accent: rgba(217, 189, 139, 0.08);
-  --color-accent-foreground: var(--ink);
-  --color-destructive: var(--down);
-  --color-border: var(--rule);
-  --color-input: var(--rule-control);
-  --color-ring: var(--gold);
-  --radius: 12px;
-  --ease-ledger: cubic-bezier(0.22, 1, 0.36, 1);
-}
-
 @layer components {
-  .tracked {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--ink-3);
+  /* Panels and score tiles */
+  .card {
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-xl);
+    background: var(--color-card);
   }
-  .figure {
-    font-variant-numeric: tabular-nums;
+
+  .tile {
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-lg);
+    background: var(--color-raised);
   }
-  .gold-cta {
-    background-image: var(--cta-buy);
-    color: var(--on-gold);
-    border-radius: 9999px;
-    box-shadow: 0 10px 26px -12px rgba(217, 189, 139, 0.6);
-    transition: transform 0.25s var(--ease-ledger), box-shadow 0.25s var(--ease-ledger);
-  }
-  .gold-cta:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 16px 36px -12px rgba(217, 189, 139, 0.7);
-  }
-  .gold-cta:disabled {
-    opacity: 0.45;
-    box-shadow: none;
-  }
-  .ledger-row {
-    transition: background-color 0.28s var(--ease-ledger);
-  }
-  .ledger-row > * {
-    transition: transform 0.28s var(--ease-ledger);
-  }
-  .ledger-row:hover {
-    background-color: rgba(217, 189, 139, 0.04);
-  }
-  .ledger-row:hover > * {
-    transform: translateX(6px);
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
   }
 }
