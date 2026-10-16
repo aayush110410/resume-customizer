@@ -9,7 +9,7 @@ The free hosting tier sleeps when idle, so the first request can take up to a mi
 
 ## Demo
 
-A 55-second run of the live app with the built-in sample: [docs/demo.mp4](docs/demo.mp4). The two waits (the analysis and the cover letter) are sped up.
+A 90-second walkthrough of the live app: why it was built, how it works, then the full flow with the built-in sample, from scores and evidence to the tailored resume, the changes and the cover letter. Watch [docs/demo.mp4](docs/demo.mp4). The two waits (the analysis and the cover letter) are sped up.
 
 ## Screenshots
 
