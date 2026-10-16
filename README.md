@@ -7,6 +7,10 @@ Paste a job description and upload a resume (PDF or DOCX). Shortlist scores how 
 
 The free hosting tier sleeps when idle, so the first request can take up to a minute. The UI shows a notice while the server wakes up.
 
+## Demo
+
+A 55-second run of the live app with the built-in sample: [docs/demo.mp4](docs/demo.mp4). The two waits (the analysis and the cover letter) are sped up.
+
 ## Screenshots
 
 All taken from the live app with the built-in sample (an Infosys engineer applying for a Bengaluru SDE-2 payments role).
