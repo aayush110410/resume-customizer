@@ -54,7 +54,7 @@ def _entry(d: docx.Document, e: Entry) -> None:
     p.add_run(e.title).bold = True
     dates = " – ".join(x for x in (e.start, e.end) if x)
     rest = " | ".join(x for x in (e.location, dates) if x)
-    p.add_run((f" — {e.organization}" if e.organization else "") + (f" | {rest}" if rest else ""))
+    p.add_run((f", {e.organization}" if e.organization else "") + (f" | {rest}" if rest else ""))
     _bullets(d, e.bullets)
 
 

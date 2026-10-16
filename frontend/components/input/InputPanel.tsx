@@ -116,7 +116,7 @@ export function InputPanel({ meta, onSubmitted }: { meta?: Meta; onSubmitted?: (
             Advanced options
           </span>
           <span className="flex items-center gap-2 text-[12.5px] font-normal text-ink-3">
-            {TONES.find((t) => t.value === inputs.tone)?.label} · {inputs.model ?? "auto model"}
+            {TONES.find((t) => t.value === inputs.tone)?.label} · {inputs.model ?? "default model"}
             <ChevronDown className={cn("size-3.5 transition-transform duration-300", advanced && "rotate-180")} aria-hidden />
           </span>
         </OutlineButton>
@@ -133,7 +133,7 @@ export function InputPanel({ meta, onSubmitted }: { meta?: Meta; onSubmitted?: (
                 onChange={(e) => setInput("model", e.target.value || null)}
                 className="min-h-10 rounded-full border border-rule-control bg-shell px-3 text-[13px] text-ink focus:border-gold/60 focus:outline-none"
               >
-                <option value="">Automatic (best available)</option>
+                <option value="">Default</option>
                 {writers.map((m) => <option key={m.id} value={m.id}>{m.id}</option>)}
               </select>
             </label>

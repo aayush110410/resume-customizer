@@ -1,5 +1,5 @@
 # Employer kinds for career-move detection. India-first; matched whole-word, case-insensitive, after normalize().
-# Anything not listed is "unknown" and becomes a clarify question — code never guesses.
+# Anything not listed is "unknown" and becomes a clarify question , code never guesses.
 it_services:
   - {name: TCS, aliases: [Tata Consultancy Services]}
   - {name: Infosys, aliases: [Infosys Ltd, Infosys Limited, Infosys BPM]}

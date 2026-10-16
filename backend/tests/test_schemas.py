@@ -45,5 +45,5 @@ def test_render_plain_orders_sections(sample_doc):
     assert plain.index("SUMMARY") < plain.index("SKILLS") < plain.index("EXPERIENCE") < plain.index("PROJECTS")
     assert plain.index("PROJECTS") < plain.index("EDUCATION") < plain.index("ACHIEVEMENTS")
     assert "- Reduced p99 latency by 30% for 2M daily payments" in plain
-    assert "Software Engineer — Razorpay | Jan 2022 – Present" in plain
+    assert "Software Engineer, Razorpay | Jan 2022 – Present" in plain
     assert "Languages: Python, Go" in plain

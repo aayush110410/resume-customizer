@@ -254,7 +254,7 @@ def score_story(
     if profile.rules_only:
         explanations.append(
             Explanation(
-                signal="rules_only", impact=0, detail="Projects were read by rules only; the model was unavailable."
+                signal="rules_only", impact=0, detail="Project details were checked with basic rules this time."
             )
         )
     return SubScore(key="story", score=score, explanations=explanations)

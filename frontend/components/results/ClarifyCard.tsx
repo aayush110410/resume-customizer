@@ -66,7 +66,7 @@ export function ClarifyCard({ profile }: { profile: Profile }) {
     <section aria-label="Confirm a few things" className="card edge-lit flex flex-col gap-1 p-5 sm:p-6">
       <CardTitle meta={answerSummary(profile)}>Confirm a few things</CardTitle>
       <p className="max-w-2xl text-[13px] leading-relaxed text-ink-3">
-        Only you know these. Answers re-score instantly, without the AI, and the next tailored version uses them.
+        Only you know these. Your answers update the scores straight away and are used in the next tailored version.
       </p>
       <ol className="mt-3">
         {profile.questions.map((q) => {

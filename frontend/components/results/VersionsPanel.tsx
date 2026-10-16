@@ -38,7 +38,7 @@ export function VersionsPanel() {
               className="size-4 accent-[#d9bd8b]" />
             <button type="button" onClick={() => setActiveVersion(v.id)} className="text-left">
               <div className="text-[14px] text-ink">Version {i + 1} · {TONES.find((t) => t.value === v.settings.tone)?.label}</div>
-              <div className="text-[12px] text-ink-3">{v.settings.sections.map((s) => SECTION_LABEL[s]).join(", ")} · {v.model} · {v.flags.length} to confirm</div>
+              <div className="text-[12px] text-ink-3">{v.settings.sections.map((s) => SECTION_LABEL[s]).join(", ")} · {v.flags.length} to confirm</div>
             </button>
             <span className="flex items-baseline gap-2"><span className="figure text-[17px] text-ink">{v.scores.overall}</span><Delta value={v.scores.overall - base} /></span>
           </li>

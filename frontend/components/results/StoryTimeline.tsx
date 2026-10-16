@@ -102,7 +102,7 @@ export function StoryTimeline({ profile }: { profile: Profile }) {
           ))}
         </ul>
       )}
-      {profile.rules_only && <p className="text-[12.5px] text-ink-3">Projects were read by rules only this time; the AI reader was unavailable.</p>}
+      {profile.rules_only && <p className="text-[12.5px] text-ink-3">Project details were checked with basic rules this time.</p>}
     </section>
   );
 }

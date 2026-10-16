@@ -10,7 +10,7 @@ const KEYS: ScoreKey[] = ["match", "ats", "quality", "region", "story"];
 const NAME: Record<ScoreKey, string> = { match: "JD match", ats: "ATS", quality: "Content quality", region: "Region fit", story: "Career story" };
 const SHORT: Record<ScoreKey, string> = { match: "JD match", ats: "ATS", quality: "Content", region: "Region fit", story: "Story" };
 const RUBRIC: Record<ScoreKey, string> = {
-  match: "Each JD requirement is weighted must 3 · should 2 · nice 1 and credited strong 1.0 · partial 0.6 · transferable 0.4 · missing 0, from evidence the model must quote verbatim. A years-of-experience shortfall scales the result down (to at most −25%). A missing must-have is flagged as a knockout risk.",
+  match: "Each JD requirement is weighted must 3 · should 2 · nice 1 and credited strong 1.0 · partial 0.6 · transferable 0.4 · missing 0, from evidence quoted word for word from your resume. A years-of-experience shortfall scales the result down (to at most −25%). A missing must-have is flagged as a knockout risk.",
   ats: "Parseability 30 (columns, tables, images, hidden text, contact info) · keyword coverage 35 (in a bullet counts more than a skills-list mention) · structure 20 (sections, date format, order) · length 15 (page norms for your level and region).",
   quality: "Quantified bullets 30 · action-verb openers 20 · bullet length 15 · outcomes vs duties 15 · hygiene 10 (no pronouns or buzzwords) · a specific summary 10.",
   region: "Starts at 100. Deductions for personal details and conventions the region's recruiters read as dated or risky (by employer type), over-length for your level, and expected signals that are missing (e.g. CGPA for freshers in services hiring).",
@@ -30,8 +30,8 @@ export function HowWeScoreSheet({ open, onOpenChange, weights }: { open: boolean
         <SheetHeader className="p-0">
           <SheetTitle className="text-[22px] font-medium tracking-[-0.018em]">How we score</SheetTitle>
           <SheetDescription className="text-[13.5px] leading-relaxed text-ink-3">
-            The language model only extracts evidence and must quote your resume word for word. Unverifiable quotes are
-            downgraded. Every number below is then computed by code, so the same inputs give the same score.
+            Every score comes from evidence quoted word for word from your resume. Quotes that can&apos;t be found count
+            for less, and each number below follows a fixed rubric, so the same resume and job always get the same score.
           </SheetDescription>
         </SheetHeader>
         <dl className="mt-6">
